@@ -1,5 +1,12 @@
 # CutSmith Timeline Bridge
 
+**Version**: `v0.1.1-alpha`
+
+**Tested against**:
+- CapCut Desktop 167.0.0
+- modern_plaintext schema (`schema_version = 360000`)
+- Premiere Pro FCP7 XML import
+
 把剪映 / CapCut 专业版的草稿时间线迁移到 **Premiere Pro**（通过 FCP7 XML）。
 
 > **定位**：粗剪时间线搬运工，不是 CapCut 全工程转换器。
