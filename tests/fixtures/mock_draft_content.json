@@ -1,0 +1,155 @@
+{
+  "version": "5.9.0",
+  "fps": 30.0,
+  "duration": 15000000,
+  "canvas_config": {
+    "width": 1920,
+    "height": 1080,
+    "ratio": "16:9"
+  },
+  "materials": {
+    "videos": [
+      {
+        "id": "mat_video_001",
+        "material_name": "shot_A_interview.mp4",
+        "path": "/Users/demo/Footage/shot_A_interview.mp4",
+        "type": "video",
+        "duration": 30000000,
+        "width": 3840,
+        "height": 2160,
+        "source_frame_rate": 29.97,
+        "has_audio": true
+      },
+      {
+        "id": "mat_video_002",
+        "material_name": "shot_B_broll.mp4",
+        "path": "/Users/demo/Footage/shot_B_broll.mp4",
+        "type": "video",
+        "duration": 20000000,
+        "width": 1920,
+        "height": 1080,
+        "source_frame_rate": 30.0,
+        "has_audio": true
+      },
+      {
+        "id": "mat_photo_001",
+        "material_name": "title_card.png",
+        "path": "/Users/demo/Footage/title_card.png",
+        "type": "photo",
+        "duration": 5000000,
+        "width": 1920,
+        "height": 1080,
+        "has_audio": false
+      }
+    ],
+    "audios": [
+      {
+        "id": "mat_audio_bgm",
+        "name": "background_music.mp3",
+        "path": "/Users/demo/Footage/background_music.mp3",
+        "type": "extract_music",
+        "duration": 60000000,
+        "channels": 2,
+        "sample_rate": 48000
+      }
+    ],
+    "texts": [
+      {"id": "mat_text_001", "name": "Lower third 1", "content": "Alice — Founder"}
+    ],
+    "stickers": [],
+    "effects": [
+      {"id": "mat_effect_001", "name": "Neon Glow"}
+    ],
+    "transitions": [
+      {"id": "mat_trans_001", "name": "Cross Dissolve", "duration": 500000}
+    ],
+    "filters": [],
+    "video_effects": [],
+    "audio_effects": [],
+    "masks": []
+  },
+  "tracks": [
+    {
+      "id": "track_video_main",
+      "type": "video",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_v1_001",
+          "material_id": "mat_photo_001",
+          "source_timerange": {"start": 0, "duration": 2000000},
+          "target_timerange": {"start": 0, "duration": 2000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "visible": true,
+          "clip": {"alpha": 1.0, "scale": {"x": 1.0, "y": 1.0}},
+          "extra_material_refs": []
+        },
+        {
+          "id": "seg_v1_002",
+          "material_id": "mat_video_001",
+          "source_timerange": {"start": 5000000, "duration": 6000000},
+          "target_timerange": {"start": 2000000, "duration": 6000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "visible": true,
+          "clip": {"alpha": 1.0},
+          "extra_material_refs": ["mat_trans_001"]
+        },
+        {
+          "id": "seg_v1_003",
+          "material_id": "mat_video_002",
+          "source_timerange": {"start": 1000000, "duration": 7000000},
+          "target_timerange": {"start": 8000000, "duration": 7000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "visible": true,
+          "clip": {"alpha": 1.0},
+          "keyframe_refs": ["kf_zoom_in"]
+        }
+      ]
+    },
+    {
+      "id": "track_audio_bgm",
+      "type": "audio",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_a1_001",
+          "material_id": "mat_audio_bgm",
+          "source_timerange": {"start": 0, "duration": 15000000},
+          "target_timerange": {"start": 0, "duration": 15000000},
+          "speed": 1.0,
+          "volume": 0.4,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "track_text_lowerthird",
+      "type": "text",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_t1_001",
+          "material_id": "mat_text_001",
+          "source_timerange": {"start": 0, "duration": 3000000},
+          "target_timerange": {"start": 2500000, "duration": 3000000}
+        }
+      ]
+    },
+    {
+      "id": "track_effect_top",
+      "type": "effect",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_e1_001",
+          "material_id": "mat_effect_001",
+          "source_timerange": {"start": 0, "duration": 2000000},
+          "target_timerange": {"start": 10000000, "duration": 2000000}
+        }
+      ]
+    }
+  ]
+}

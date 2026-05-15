@@ -1,0 +1,74 @@
+{
+  "_field_documentation": {
+    "id": "Unique kebab-case slug for this sample",
+    "category": "Subdir name: capcut_desktop | capcut_mobile | jianying_legacy | modern_encrypted",
+    "app_type": "jianying | capcut | unknown",
+    "app_version": "Semantic version string from the app's `new_version` field (e.g. '5.0.0'); null if unknown",
+    "schema_version": "Internal `version` integer from the draft JSON; null if unknown or encrypted",
+    "schema_type": "legacy_plaintext | modern_plaintext | modern_encrypted | unknown",
+    "encryption": "plaintext | encrypted | unknown",
+    "supported_status": "supported | unsupported_encrypted | unverified | unknown | error",
+    "timeline_entry_path": "Path *relative to this manifest* pointing at the file to feed inspect/convert. Real-world samples often live outside the repo for privacy — in that case use source_app_path and leave this null.",
+    "source_app_path": "(optional) Original location on the contributor's machine; redact usernames as needed",
+    "added": "YYYY-MM-DD when this sample was added",
+    "notes": "Free-form: what was edited in this draft, why it's interesting, any quirks",
+    "verified_against": "(optional) cutsmith version+commit confirmed to convert this sample cleanly",
+    "shape": "(optional) Quick structural summary for triage: tracks, clips, durations, features exercised"
+  },
+  "_categories": {
+    "capcut_desktop": "CapCut Desktop (海外版) Mac/Windows builds",
+    "capcut_mobile": "CapCut Mobile iOS/Android exported drafts",
+    "jianying_legacy": "Older 剪映 PC builds that still emit plaintext draft_content.json",
+    "modern_encrypted": "Modern 剪映 PC (≥ 75.0.0) with encrypted Timelines/<UUID>/draft_info.json — kept for triage only, v0.1 does not parse these"
+  },
+  "samples": [
+    {
+      "id": "capcut-desktop-0509-single-cut",
+      "category": "capcut_desktop",
+      "app_type": "capcut",
+      "app_version": "167.0.0",
+      "schema_version": 360000,
+      "schema_type": "modern_plaintext",
+      "encryption": "plaintext",
+      "supported_status": "supported",
+      "timeline_entry_path": null,
+      "source_app_path": "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/0509/draft_info.json",
+      "added": "2026-05-16",
+      "verified_against": "v0.1.1",
+      "shape": "1 video track (1 clip @ 151.4s), 1 audio track (1 clip), 154 text materials on 2 text tracks, 0 effects/transitions",
+      "notes": "Long-form talking-head workflow: 25-minute source MP4 sliced once (141.4s → 292.9s); heavy captioning but no multi-cut editing. Validates: modern_plaintext schema reads, sequence name fallback (project dir 0509 vs file stem draft_info), text materials go to unsupported. Limitation: only one cut, so doesn't exercise multi-clip alignment."
+    },
+    {
+      "id": "capcut-desktop-cutsmith-multicut",
+      "category": "capcut_desktop",
+      "app_type": "capcut",
+      "app_version": "167.0.0",
+      "schema_version": 360000,
+      "schema_type": "modern_plaintext",
+      "encryption": "plaintext",
+      "supported_status": "supported",
+      "timeline_entry_path": null,
+      "source_app_path": "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/cutsmith/Timelines/<UUID>/draft_info.json",
+      "added": "2026-05-16",
+      "verified_against": "v0.1.1",
+      "shape": "2 video tracks (V1: 7 clips butt-cut, V2: 1 overlay), 2 audio tracks (BGM 60s + 1 SFX hit), 0 unsupported items after v0.1.1 P1 fixes",
+      "notes": "Multi-cut + overlay sample. Validates: V1 continuity across 7 cuts to 60.000s, V2 overlay placement, BGM/SFX dual audio tracks, no double-audio, all extra_material_refs benign (canvases/sound_channel_mappings/1.0× speeds). Was the trigger for v0.1.1 P1 fixes (speed false-positive tolerance, extra_refs categorization)."
+    },
+    {
+      "id": "capcut-desktop-cutsmith2-stress-test",
+      "category": "capcut_desktop",
+      "app_type": "capcut",
+      "app_version": "167.0.0",
+      "schema_version": 360000,
+      "schema_type": "modern_plaintext",
+      "encryption": "plaintext",
+      "supported_status": "supported",
+      "timeline_entry_path": null,
+      "source_app_path": "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/cutsmith2/Timelines/<UUID>/draft_info.json",
+      "added": "2026-05-16",
+      "verified_against": "v0.1.1",
+      "shape": "2 video tracks (V1: 7 clips + V2: 2 incl. 0.640× speed-changed clip), 2 audio tracks, 1 text track, 1 sticker track, 1 filter track, 15 unsupported (text 3, sticker 3, transition 2, effect, video_effect, hsl, loudness, filter, speed, speed_curve)",
+      "notes": "Stress test for v0.1.1 alpha: captions + stickers + effects + filters + transitions + variable speed all in one draft. Validates: P3 fix (V2.1 speed clip occupies target_dur=13.800s, not source_dur=8.833s, subsequent clips don't drift), P1 extra_refs categorization (every unsupported item has a specific category — no blanket extra_refs), name fallback (cutsmith2 not draft_info). Premiere import requires manual verification by user; the report's Time Remapping suggestion applies to V2.1 specifically."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Generated artefacts — regenerable by re-running the CLI on a draft.
+out_convert/
+out_inspect/
+out_ir/
+
+# Python bytecode caches.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Python tooling state.
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# macOS noise.
+.DS_Store
+
+# Editor / agent state — project-local Claude/IDE config is contributor-
+# specific and shouldn't ride along in the release tag.
+.claude/
+.idea/
+.vscode/

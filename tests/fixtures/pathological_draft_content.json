@@ -1,0 +1,116 @@
+{
+  "new_version": "6.2.0",
+  "fps": 23.976,
+  "duration": 8500000,
+  "canvas_config": {
+    "width": 2160,
+    "height": 3840,
+    "ratio": "9:16",
+    "background_color": "#000000",
+    "background_blur": 0
+  },
+  "free_render_index_mode_on": true,
+  "color_space": 0,
+  "lyrics_taskinfo": [],
+  "materials": {
+    "videos": [
+      {
+        "id": "vid_with_null_path",
+        "material_name": "cloud_asset_001.mp4",
+        "path": null,
+        "type": "video",
+        "duration": 12000000,
+        "width": 1080,
+        "height": 1920,
+        "has_audio": true,
+        "stable": 0,
+        "category_name": "video_stock",
+        "remote_url": "capcut://stock/cloud_asset_001"
+      },
+      {
+        "id": "vid_missing_dimensions",
+        "material_name": "weird_clip.mov",
+        "path": "/Users/alice/Movies/weird_clip.mov",
+        "type": "video",
+        "duration": 5000000,
+        "has_audio": true,
+        "extra_info": "user-added"
+      }
+    ],
+    "audios": [
+      {
+        "id": "aud_missing_path",
+        "name": "voiceover_track.m4a",
+        "type": "extract_music",
+        "duration": 8000000,
+        "channels": 1,
+        "sample_rate": 44100,
+        "wave_points": [0.1, 0.2, 0.15]
+      }
+    ],
+    "captions": [
+      {"id": "cap_001", "text": "Auto subtitle 1", "start": 0, "end": 2000000}
+    ],
+    "ai_translates": []
+  },
+  "tracks": [
+    {
+      "id": "track_v_bitmask",
+      "type": "video",
+      "attribute": 4,
+      "flag": 2,
+      "segments": [
+        {
+          "id": "seg_no_source_timerange",
+          "material_id": "vid_with_null_path",
+          "target_timerange": {"start": 0, "duration": 3000000},
+          "speed": 1.0,
+          "volume": 1.0
+        },
+        {
+          "id": "seg_speed_2x",
+          "material_id": "vid_missing_dimensions",
+          "source_timerange": {"start": 0, "duration": 5000000},
+          "target_timerange": {"start": 3000000, "duration": 2500000},
+          "speed": 2.0,
+          "volume": 1.0,
+          "clip": {
+            "alpha": 1.0,
+            "scale": {"x": 1.5, "y": 1.5},
+            "transform": {"x": 0, "y": 0},
+            "rotation": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "track_unknown_type",
+      "type": "caption",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_caption_001",
+          "material_id": "cap_001",
+          "target_timerange": {"start": 0, "duration": 2000000}
+        }
+      ]
+    },
+    {
+      "id": "track_audio_with_fade",
+      "type": "audio",
+      "attribute": 0,
+      "segments": [
+        {
+          "id": "seg_a_with_fade",
+          "material_id": "aud_missing_path",
+          "source_timerange": {"start": 0, "duration": 8000000},
+          "target_timerange": {"start": 500000, "duration": 8000000},
+          "speed": 1.0,
+          "volume": 0.8,
+          "fade_in_duration": 500000,
+          "fade_out_duration": 500000
+        }
+      ]
+    }
+  ]
+}
