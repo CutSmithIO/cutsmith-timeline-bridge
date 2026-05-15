@@ -27,3 +27,8 @@ dist/
 .claude/
 .idea/
 .vscode/
+.env
+*.mov
+*.mp4
+*.m4a
+*.tar.gz
