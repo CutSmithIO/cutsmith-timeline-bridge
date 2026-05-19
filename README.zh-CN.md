@@ -2,7 +2,7 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.3.4`
+**Version**: `v0.3.5`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
@@ -213,29 +213,41 @@ cutsmith/
 
 - **v0.2 ✅**：素材扫描（`scan-assets`）、字幕提取（`export-srt`）、Pattern A + B 字幕支持、108 单元测试通过
 - **v0.3 ✅**：`collect` — 把用户素材收集到 `media/` 子目录，XML `<pathurl>` 重写指向收集后的文件，同步产出 manifest + offline.md。已在 `0509` / `cutsmith` / `0519V` 验证通过。
+- **v0.3.5 ✅**：`collect` UX 增强 — `<name>.package_summary.txt`（一目了然的打包摘要）；rich CLI 输出（绝对路径、所有产出文件、dedup/ext-norm 统计）；`-o` 现在是可选的（默认 `out_collect/<project_name>/`）；`--open` 完成后自动打开 Finder（macOS）。
 
 ### v0.3 collect CLI
 
 ```bash
+# -o 可省略，默认输出到 out_collect/<project_name>/
 python3 -m cutsmith collect "/path/to/CapCut/project" \
-  -o ./collected \
-  [-s "/path/to/extra/footage"]
+  [-o ./collected] \
+  [-s "/path/to/extra/footage"] \
+  [--open]   # macOS：完成后自动在 Finder 打开输出目录
 ```
+
+**重要区分**：`collect` 是 CutSmith 把素材 **物理复制** 到 `media/`，
+XML `<pathurl>` 指向复制后的绝对路径。
+Premiere 导入 XML 时读取这些路径生成 Project panel source items，
+Premiere 本身不复制素材。
+整个输出目录可以移动到另一台机器后通过 `relink_guide.md` 里的路径重连。
 
 输出结构：
 
 ```
-collected/
-├── my_sequence.xml           ← pathurl 已重写到收集后的素材
-├── my_sequence.report.md     ← 兼容性报告 + 打包摘要
-├── my_sequence.manifest.json
-├── my_sequence.offline.md    ← 仅在有未解析素材时生成
+out_collect/<project_name>/
+├── <name>.xml                 ← pathurl 已重写到 media/
+├── <name>.report.md           ← 兼容性报告 + 打包摘要
+├── <name>.manifest.json       ← collected_root, relink_root_hint 等
+├── <name>.package_summary.txt ← 人类可读的一目了然摘要
+├── <name>.relink_guide.md     ← Premiere 导入 + relink 指引
+├── <name>.offline.md          ← 仅在有未解析素材时生成
 └── media/
     ├── video/
     ├── audio/
     ├── images/
     ├── music/                ← 剪映音乐库（注意版权）
-    └── sfx/
+    ├── sfx/
+    └── stickers/
 ```
 
 **CapCut 专有资产**（特效、转场、滤镜、贴纸）**无法移植**——它们只写入 report 和 offline.md，不可脱离 CapCut 提取。在 Premiere 里用原生等效效果重建。

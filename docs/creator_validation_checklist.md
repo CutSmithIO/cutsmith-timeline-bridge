@@ -1,4 +1,4 @@
-# Creator Validation Checklist — v0.3.4
+# Creator Validation Checklist — v0.3.5
 
 This is the manual-verification protocol for confirming a CutSmith export
 (and collect package) opens correctly in Premiere Pro. CLI tests pin
@@ -227,6 +227,9 @@ collected_test/
       entries match assets that `manifest.json` shows as `is_online: false`.
 - [ ] `<name>.relink_guide.md` exists and the `media/` path inside it matches
       the actual `media/` subdirectory of the collected package.
+- [ ] `<name>.package_summary.txt` exists. Open it — confirm project name,
+      absolute Package root and Relink root are correct, per-subdir file counts
+      match what's actually in `media/`, and copied count + size are plausible.
 - [ ] Import `<name>.xml` into Premiere — no Offline clips for user media
       that was successfully copied.
 - [ ] CapCut proprietary items (effects, transitions, filters, stickers) do

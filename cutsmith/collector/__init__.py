@@ -104,6 +104,7 @@ class CollectResult:
     manifest_path: Path
     offline_report_path: Path | None
     relink_guide_path: Path | None
+    package_summary_path: Path | None
     stats: CollectStats
     manifest: AssetManifest
     written_files: list[Path] = field(default_factory=list)
@@ -165,7 +166,10 @@ def collect(
     relink_guide_path = out_dir / f"{stem}.relink_guide.md"
     _write_relink_guide(manifest, stats, relink_guide_path, stem)
 
-    written = [xml_path, report_path, manifest_path, relink_guide_path]
+    package_summary_path = out_dir / f"{stem}.package_summary.txt"
+    _write_package_summary(manifest, stats, media_dir, stem, package_summary_path)
+
+    written = [xml_path, report_path, manifest_path, relink_guide_path, package_summary_path]
     if offline_report_path:
         written.append(offline_report_path)
 
@@ -177,6 +181,7 @@ def collect(
         manifest_path=manifest_path,
         offline_report_path=offline_report_path,
         relink_guide_path=relink_guide_path,
+        package_summary_path=package_summary_path,
         stats=stats,
         manifest=manifest,
         written_files=written,
@@ -375,6 +380,109 @@ def _write_collect_report(
         if manifest.offline:
             f.write(f"See `{stem}.offline.md` for all unresolved assets and suggested actions.\n")
         f.write(f"\nSee `{stem}.relink_guide.md` for Premiere import and relink instructions.\n")
+
+
+def _count_media_subdirs(media_dir: Path) -> dict[str, int]:
+    """Count files per named subdirectory under media/."""
+    counts: dict[str, int] = {}
+    if not media_dir.exists():
+        return counts
+    for sub in sorted(media_dir.iterdir()):
+        if sub.is_dir():
+            counts[sub.name] = sum(1 for f in sub.iterdir() if f.is_file())
+    return counts
+
+
+def _write_package_summary(
+    manifest: AssetManifest,
+    stats: CollectStats,
+    media_dir: Path,
+    stem: str,
+    output_path: Path,
+) -> None:
+    """Write <stem>.package_summary.txt — human-readable at-a-glance overview."""
+    subdir_counts = _count_media_subdirs(media_dir)
+    sz_mb = stats.total_copied_size_bytes / 1_048_576
+
+    # Unique normalized extension pairs, e.g. ".mp3 → .m4a"
+    seen_pairs: set[tuple[str, str]] = set()
+    norm_pairs: list[str] = []
+    for e in manifest.all_entries():
+        if e.extension_normalized:
+            orig = e.original_extension or "(none)"
+            det = e.detected_extension or "?"
+            pair = (orig, det)
+            if pair not in seen_pairs:
+                seen_pairs.add(pair)
+                norm_pairs.append(f"{orig} → {det}")
+
+    collected_root = manifest.collected_root or str(output_path.parent.resolve())
+    relink_hint = manifest.relink_root_hint or str((output_path.parent / "media").resolve())
+
+    lines: list[str] = []
+    lines.append("CutSmith Timeline Bridge — Portable Package Summary")
+    lines.append("=" * 51)
+    lines.append("")
+    lines.append(f"Project:  {manifest.project_name}")
+    lines.append("")
+    lines.append("Package root:")
+    lines.append(f"  {collected_root}")
+    lines.append("")
+    lines.append("Relink root  (paste into Premiere 'Link Media…'):")
+    lines.append(f"  {relink_hint}")
+    lines.append("")
+    lines.append("Files copied:")
+    lines.append(f"  {stats.copied_count} file(s)")
+    lines.append(f"  {sz_mb:.1f} MB")
+    lines.append("")
+    lines.append("Collected media:")
+    for subname in ("video", "audio", "music", "sfx", "images", "stickers"):
+        n = subdir_counts.get(subname, 0)
+        unit = "file" if n == 1 else "files"
+        lines.append(f"  {(subname + '/'):12s}{n} {unit}")
+    lines.append("")
+
+    if stats.extension_normalized_count:
+        lines.append("Normalized extensions:")
+        lines.append(f"  {stats.extension_normalized_count} file(s)")
+        if norm_pairs:
+            lines.append(f"  ({', '.join(norm_pairs)})")
+        lines.append("")
+
+    lines.append("Offline assets (not copied — file not found):")
+    lines.append(f"  {stats.offline_count}")
+    if stats.offline_count:
+        lines.append(f"  → see {stem}.offline.md for details and suggested actions")
+    else:
+        lines.append("  → none — package is fully self-contained")
+    lines.append("")
+
+    lines.append("Report-only assets (CapCut proprietary — not portable):")
+    lines.append(f"  {stats.skipped_report_only_count}")
+    lines.append("  → effects / transitions / filters / fonts")
+    lines.append("  → rebuild in Premiere using native equivalents")
+    lines.append("")
+
+    lines.append("Premiere import:")
+    lines.append(f"  1. File → Import…  →  select {stem}.xml")
+    lines.append("     (do NOT use Open Project)")
+    lines.append("  2. Sequence and Project panel source items appear automatically.")
+    lines.append("  3. If clips show as Offline:")
+    lines.append("     right-click → Link Media… → navigate to the Relink root above.")
+    lines.append("")
+    lines.append("  XML pathurl: all paths point to collected media/ — absolute.")
+    lines.append("  Portability: move this directory to another machine,")
+    lines.append("               then relink using the Relink root above.")
+    lines.append("")
+
+    lines.append("Known limitations:")
+    lines.append("  - Variable speed curves are report-only (clips play at 1.0× in Premiere).")
+    lines.append("  - CapCut effects/transitions/filters are not reconstructed.")
+    lines.append("  - Speed clips may show blank trim area past source boundary.")
+    lines.append(f"    See {stem}.relink_guide.md for the full edge-case note.")
+    lines.append("")
+
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _write_relink_guide(

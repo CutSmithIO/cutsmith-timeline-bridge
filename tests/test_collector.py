@@ -11,8 +11,10 @@ from pathlib import Path
 from cutsmith.collector import (
     CollectStats,
     _copy_online_assets,
+    _count_media_subdirs,
     _unique_dest,
     _write_offline_report,
+    _write_package_summary,
     _write_relink_guide,
 )
 from cutsmith.ir import AssetClass
@@ -1058,3 +1060,222 @@ class CollectIntegrationV034Test(unittest.TestCase):
         self.assertIn("timeremap", content)
         # Old misleading text must be gone
         self.assertNotIn("shows clips at 100% speed", content)
+
+
+# ─── _count_media_subdirs ─────────────────────────────────────────────────────
+
+class CountMediaSubdirsTest(unittest.TestCase):
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.media_dir = Path(self._tmp.name) / "media"
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_empty_media_dir_returns_empty(self):
+        self.media_dir.mkdir()
+        self.assertEqual(_count_media_subdirs(self.media_dir), {})
+
+    def test_nonexistent_media_dir_returns_empty(self):
+        self.assertEqual(_count_media_subdirs(self.media_dir), {})
+
+    def test_counts_files_per_subdir(self):
+        (self.media_dir / "video").mkdir(parents=True)
+        (self.media_dir / "video" / "a.mp4").write_bytes(b"x")
+        (self.media_dir / "video" / "b.mp4").write_bytes(b"x")
+        (self.media_dir / "audio").mkdir()
+        (self.media_dir / "audio" / "c.mp3").write_bytes(b"x")
+        counts = _count_media_subdirs(self.media_dir)
+        self.assertEqual(counts["video"], 2)
+        self.assertEqual(counts["audio"], 1)
+
+    def test_only_counts_files_not_subdirs(self):
+        (self.media_dir / "video").mkdir(parents=True)
+        (self.media_dir / "video" / "a.mp4").write_bytes(b"x")
+        (self.media_dir / "video" / "sub").mkdir()  # subdir inside — not counted
+        counts = _count_media_subdirs(self.media_dir)
+        self.assertEqual(counts["video"], 1)
+
+
+# ─── _write_package_summary ───────────────────────────────────────────────────
+
+class PackageSummaryTest(unittest.TestCase):
+
+    def setUp(self):
+        self._src_tmp = tempfile.TemporaryDirectory()
+        self._out_tmp = tempfile.TemporaryDirectory()
+        self.src_dir = Path(self._src_tmp.name)
+        self.out_dir = Path(self._out_tmp.name)
+        self.media_dir = self.out_dir / "media"
+
+    def tearDown(self):
+        self._src_tmp.cleanup()
+        self._out_tmp.cleanup()
+
+    def _run_and_read(self, *, offline: bool = False, normalized: int = 0) -> str:
+        m = _make_manifest(self.src_dir, with_offline_user=offline)
+        m.collected_root = str(self.out_dir.resolve())
+        m.relink_root_hint = str(self.media_dir.resolve())
+        m.project_name = "test_proj"
+
+        # Create a fake media/video directory with one file for subdir counts.
+        (self.media_dir / "video").mkdir(parents=True, exist_ok=True)
+        (self.media_dir / "video" / "clip.mp4").write_bytes(b"x" * 100)
+
+        stats = CollectStats(
+            copied_count=3,
+            offline_count=1 if offline else 0,
+            skipped_report_only_count=2,
+            total_copied_size_bytes=7_340_032,
+            extension_normalized_count=normalized,
+        )
+
+        if normalized:
+            # Inject a normalized entry for the pairs line.
+            from cutsmith.scanner.manifest import ManifestEntry
+            e = ManifestEntry(
+                asset_id="MUS-X", name="track.mp3", asset_class=AssetClass.CAPCUT_MUSIC,
+                original_path=str(self.src_dir / "track.mp3"),
+                resolved_path=str(self.src_dir / "track.mp3"),
+                is_cached=True, is_online=True, file_size_bytes=100,
+                duration_us=1_000_000, used_in_tracks=["A1"], clip_count=1,
+                extension_normalized=True,
+                original_extension=".mp3",
+                detected_extension=".m4a",
+                collect_relative_path="media/music/track.m4a",
+            )
+            m.music.append(e)
+
+        summary_path = self.out_dir / "test_proj.package_summary.txt"
+        _write_package_summary(m, stats, self.media_dir, "test_proj", summary_path)
+        return summary_path.read_text(encoding="utf-8")
+
+    def test_summary_file_created(self):
+        m = _make_manifest(self.src_dir)
+        m.collected_root = str(self.out_dir.resolve())
+        m.relink_root_hint = str(self.media_dir.resolve())
+        summary_path = self.out_dir / "proj.package_summary.txt"
+        _write_package_summary(m, CollectStats(), self.media_dir, "proj", summary_path)
+        self.assertTrue(summary_path.exists())
+
+    def test_summary_has_project_name(self):
+        content = self._run_and_read()
+        self.assertIn("test_proj", content)
+
+    def test_summary_has_package_root(self):
+        content = self._run_and_read()
+        self.assertIn(str(self.out_dir.resolve()), content)
+
+    def test_summary_has_relink_root(self):
+        content = self._run_and_read()
+        self.assertIn(str(self.media_dir.resolve()), content)
+
+    def test_summary_has_copied_count(self):
+        content = self._run_and_read()
+        self.assertIn("3 file", content)
+
+    def test_summary_has_size(self):
+        content = self._run_and_read()
+        self.assertIn("7.0 MB", content)
+
+    def test_summary_lists_subdir_counts(self):
+        content = self._run_and_read()
+        self.assertIn("video/", content)
+        self.assertIn("1 file", content)  # the one fake clip.mp4
+
+    def test_summary_offline_none_message_when_zero(self):
+        content = self._run_and_read(offline=False)
+        self.assertIn("none — package is fully self-contained", content)
+
+    def test_summary_offline_count_when_present(self):
+        content = self._run_and_read(offline=True)
+        self.assertIn("offline.md", content)
+
+    def test_summary_report_only_count(self):
+        content = self._run_and_read()
+        self.assertIn("2", content)
+        self.assertIn("effects", content)
+
+    def test_summary_normalized_section_present(self):
+        content = self._run_and_read(normalized=1)
+        self.assertIn("Normalized extensions", content)
+        self.assertIn(".mp3 → .m4a", content)
+
+    def test_summary_normalized_section_absent_when_zero(self):
+        content = self._run_and_read(normalized=0)
+        self.assertNotIn("Normalized extensions", content)
+
+    def test_summary_has_premiere_import_instructions(self):
+        content = self._run_and_read()
+        self.assertIn("File → Import", content)
+
+    def test_summary_has_known_limitations(self):
+        content = self._run_and_read()
+        self.assertIn("Known limitations", content)
+        self.assertIn("speed", content.lower())
+
+
+# ─── collect() integration — v0.3.5 package_summary ─────────────────────────
+
+class CollectIntegrationV035Test(unittest.TestCase):
+    """Verify package_summary.txt in the full collect() integration."""
+
+    def setUp(self):
+        self._src_tmp = tempfile.TemporaryDirectory()
+        self._out_tmp = tempfile.TemporaryDirectory()
+        self.src_dir = Path(self._src_tmp.name)
+        self.out_dir = Path(self._out_tmp.name)
+
+        self.video_a = self.src_dir / "clip_a.mp4"; self.video_a.write_bytes(b"video_a" * 100)
+        self.video_b = self.src_dir / "clip_b.mp4"; self.video_b.write_bytes(b"video_b" * 100)
+        self.music   = self.src_dir / "bgm.mp3";    self.music.write_bytes(b"music" * 100)
+        self.sfx     = self.src_dir / "sfx.mp3";    self.sfx.write_bytes(b"sfx" * 100)
+        self.audio   = self.src_dir / "voice.mp3";  self.audio.write_bytes(b"voice" * 100)
+
+        with FIXTURE_COLLECT.open("r", encoding="utf-8") as f:
+            raw = f.read()
+        raw = (raw
+               .replace("__PLACEHOLDER_VIDEO_A__", str(self.video_a))
+               .replace("__PLACEHOLDER_VIDEO_B__", str(self.video_b))
+               .replace("__PLACEHOLDER_MUSIC__", str(self.music))
+               .replace("__PLACEHOLDER_SFX__", str(self.sfx))
+               .replace("__PLACEHOLDER_AUDIO__", str(self.audio)))
+        self.patched_fixture = self.src_dir / "draft_info.json"
+        self.patched_fixture.write_text(raw, encoding="utf-8")
+
+    def tearDown(self):
+        self._src_tmp.cleanup()
+        self._out_tmp.cleanup()
+
+    def _run_collect(self):
+        from cutsmith.collector import collect
+        return collect(
+            project_path=self.patched_fixture,
+            out_dir=self.out_dir,
+            search_roots=[str(self.src_dir)],
+        )
+
+    def test_package_summary_written(self):
+        r = self._run_collect()
+        self.assertIsNotNone(r.package_summary_path)
+        self.assertTrue(r.package_summary_path.exists())
+
+    def test_package_summary_in_written_files(self):
+        r = self._run_collect()
+        self.assertIn(r.package_summary_path, r.written_files)
+
+    def test_package_summary_has_absolute_paths(self):
+        r = self._run_collect()
+        content = r.package_summary_path.read_text(encoding="utf-8")
+        self.assertIn(str(self.out_dir.resolve()), content)
+
+    def test_package_summary_has_video_subdir_count(self):
+        r = self._run_collect()
+        content = r.package_summary_path.read_text(encoding="utf-8")
+        self.assertIn("video/", content)
+
+    def test_package_summary_copied_count_matches_stats(self):
+        r = self._run_collect()
+        content = r.package_summary_path.read_text(encoding="utf-8")
+        self.assertIn(str(r.stats.copied_count), content)

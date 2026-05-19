@@ -5,7 +5,7 @@ CapCut Desktop → Premiere Pro XML bridge.
 Convert real-world CapCut timelines into editable Premiere Pro sequences,
 and collect all user media into a portable package ready for Premiere delivery.
 
-**Status**: v0.3.4
+**Status**: v0.3.5
 
 **Validated against**:
 - CapCut Desktop 167.0.0
@@ -28,9 +28,14 @@ The reader normalises a CapCut `draft_info.json` into a small Timeline IR; the
 writer emits FCP7 XML that Premiere imports as a real sequence. A sidecar
 `*.report.md` lists everything that didn't survive the conversion (transitions,
 filters, captions, speed changes, ...) so the editor knows what to rebuild.
-The v0.3 `collect` command copies all resolved user media alongside the XML and
-rewrites the XML paths so Premiere opens the package directly without a
-`Link Media` step.
+
+The v0.3 `collect` command **physically copies** all resolved user media files
+into `media/` inside the output directory, then rewrites the XML `<pathurl>`
+entries to point at the copied files. Premiere reads those absolute paths directly
+and creates Project panel source items from the embedded master clips — it does
+not copy anything itself. Moving the output directory to another machine and
+relinking via the `Relink root` hint in `<name>.relink_guide.md` restores all
+paths without a manual `Link Media` hunt.
 
 ## Tested against real-world projects
 
@@ -137,33 +142,41 @@ XML). `-s/--search-root` is repeatable for multi-location media.
 ### 4. Collect — portable package for Premiere delivery (v0.3)
 
 ```bash
+# -o is optional; default output: out_collect/<project_name>/
 python3 -m cutsmith collect "/path/to/CapCut/project" \
-  -o ./collected \
-  [-s "/path/to/extra/footage"]
+  [-o ./collected] \
+  [-s "/path/to/extra/footage"] \
+  [--open]          # open the output folder in Finder (macOS) when done
 ```
 
-Scans all materials, copies every resolved user asset into `media/`, rewrites
-the XML `<pathurl>` entries to point at the collected files, and writes a
-manifest + offline report. Output structure:
+**What CutSmith does:** physically copies every resolved user asset into
+`media/` inside the output directory, then rewrites the XML `<pathurl>` entries
+to point at the copied files. Premiere opens the XML and sees all paths as
+absolute local paths — no `Link Media` step needed for copied assets. This is a
+self-contained media package, **not** a Premiere-internal consolidation.
+
+Output structure:
 
 ```
-collected/
-├── my_sequence.xml              ← paths rewritten to collected media
-├── my_sequence.report.md        ← compat report + collect summary
-├── my_sequence.manifest.json    ← collected_root, relink_root_hint, path_mode, stats
-├── my_sequence.relink_guide.md  ← Premiere import + relink instructions
-├── my_sequence.offline.md       ← only if assets could not be found
+out_collect/<project_name>/
+├── <name>.xml                 ← pathurls rewritten to collected media/
+├── <name>.report.md           ← compat report + collect summary
+├── <name>.manifest.json       ← collected_root, relink_root_hint, path_mode, stats
+├── <name>.package_summary.txt ← at-a-glance human-readable overview
+├── <name>.relink_guide.md     ← Premiere import + relink instructions
+├── <name>.offline.md          ← only if assets could not be found
 └── media/
     ├── video/
     ├── audio/
     ├── images/
     ├── music/               ← CapCut licensed music (verify rights before publishing)
-    └── sfx/
+    ├── sfx/
+    └── stickers/
 ```
 
 CapCut proprietary stickers, effects, transitions, and filters are **not
-portable** — they are reported in the report and offline file but cannot
-be extracted from CapCut. Rebuild them using Premiere's native equivalents.
+portable** — they are in the report but cannot be extracted from CapCut.
+Rebuild them using Premiere's native equivalents.
 
 The full validation workflow — IR diagnostic, Premiere-side checks per
 sample — is in
@@ -171,7 +184,7 @@ sample — is in
 
 ## Creator validation status
 
-v0.3.4 is **structurally and Premiere-validated** (238 unit tests pass;
+v0.3.5 is **structurally and Premiere-validated** (261 unit tests pass;
 real-world samples `0509`, `cutsmith`, `0519V`, and `0519V2` convert and
 collect cleanly; Premiere import confirmed 2026-05-19).
 
@@ -227,12 +240,14 @@ the reader learns new fields.
   Pattern A + B subtitle support. ✅ shipped.
 - **v0.3** — `collect`: copy user media alongside the XML, rewrite paths for
   Premiere delivery. ✅ shipped. Validated on `0509` / `cutsmith` / `0519V`.
-- **v0.3.4** — `<stem>.relink_guide.md` per collect package (Premiere import
-  instructions, relink root hint, speed trim-boundary edge case). Manifest
-  gains `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`,
-  `report_only_count`, `normalized_extension_count`. Speed report text updated
-  to reflect v0.3.3 `timeremap` behaviour (no manual Speed/Duration needed).
-  Speed trim-boundary edge case documented in `known_limitations.md`. ✅ shipped.
+- **v0.3.4** — `<stem>.relink_guide.md` per collect package; manifest collect
+  fields (`collected_root`, `relink_root_hint`, `path_mode`, `package_portable`);
+  speed report text updated; speed trim-boundary documented. ✅ shipped.
+- **v0.3.5** — `<stem>.package_summary.txt` (at-a-glance human overview: paths,
+  per-subdir counts, normalized extensions, offline/report-only counts, Premiere
+  import steps); rich collect CLI output (absolute paths, all output files listed,
+  dedup + ext-norm stats); `-o` is now optional (defaults to
+  `out_collect/<project_name>/`); `--open` flag opens Finder on macOS. ✅ shipped.
 - **Later** — FCPXML output, DaVinci Resolve XML, keyframe animations,
   CapCut Mobile fixture coverage.
 
@@ -242,10 +257,11 @@ the reader learns new fields.
 python3 -m unittest discover -s tests
 ```
 
-238 tests as of v0.3.4 — pipeline smoke, inspect schema drift, writer audio
+261 tests as of v0.3.5 — pipeline smoke, inspect schema drift, writer audio
 contract, speed filter (timeremap), master clip reconstruction, reader
 regressions, subtitle extraction (Pattern A + B), asset manifest and
-classification, collector relink guide, manifest v0.3.4 fields.
+classification, collector relink guide + package summary, manifest collect
+fields.
 
 ## Repository
 

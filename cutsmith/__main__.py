@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,6 +30,30 @@ from cutsmith.inspect import inspect_draft
 from cutsmith.subtitle import export_subtitles
 from cutsmith.scanner import scan_assets
 from cutsmith.scanner.manifest import AssetManifest
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+_UUID_RE = re.compile(
+    r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}'
+    r'-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
+)
+
+
+def _guess_project_name(draft_path: Path) -> str:
+    """Derive a human-readable project name from the draft path.
+
+    Mirrors the reader's naming logic: if the file is draft_info.json, walk
+    up skipping UUID directories and the literal 'Timelines' component.
+    """
+    if draft_path.stem != "draft_info":
+        return draft_path.stem
+    for part in reversed(draft_path.parent.parts):
+        if not part or part == "Timelines":
+            continue
+        if _UUID_RE.match(part):
+            continue
+        return part
+    return "project"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -150,12 +176,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_collect.add_argument("project",
                            help="Project directory or path to draft_info.json")
-    p_collect.add_argument("-o", "--out-dir", required=True,
-                           help="Output directory for the collected package")
+    p_collect.add_argument("-o", "--out-dir", default=None,
+                           help=(
+                               "Output directory for the collected package. "
+                               "Defaults to out_collect/<project_name>/ "
+                               "in the current working directory."
+                           ))
     p_collect.add_argument("-s", "--search-root", action="append", default=[],
                            help="Extra directory to scan for missing user media (repeatable)")
     p_collect.add_argument("-n", "--name", default=None,
                            help="Override sequence / project name")
+    p_collect.add_argument("--open", action="store_true", dest="open_finder",
+                           help="Open the output directory in Finder (macOS) after collect")
     p_collect.set_defaults(func=_cmd_collect)
 
     args = parser.parse_args(argv)
@@ -443,10 +475,18 @@ def _cmd_collect(args: argparse.Namespace,
     if not project.exists():
         parser.error(f"path not found: {project}")
 
+    # Compute default output dir before running collect.
+    if args.out_dir:
+        out_dir = Path(args.out_dir)
+    else:
+        draft_path = _resolve_draft_entry(project, parser)
+        project_name = args.name or _guess_project_name(draft_path)
+        out_dir = Path("out_collect") / project_name
+
     try:
         result = _collect(
             project_path=project,
-            out_dir=args.out_dir,
+            out_dir=out_dir,
             search_roots=args.search_root or [],
             name=args.name,
         )
@@ -454,20 +494,41 @@ def _cmd_collect(args: argparse.Namespace,
         parser.error(str(e))
 
     s = result.stats
-    print(f"[ok] wrote {result.xml_path}")
-    print(f"[ok] wrote {result.report_path}")
-    print(f"[ok] wrote {result.manifest_path}")
-    if result.offline_report_path:
-        print(f"[ok] wrote {result.offline_report_path}")
-    print()
-    print(f"  project:    {result.project_name}")
-    print(f"  copied:     {s.copied_count} asset(s)")
     sz_mb = s.total_copied_size_bytes / 1_048_576
-    print(f"  size:       {sz_mb:.1f} MB")
-    print(f"  offline:    {s.offline_count} asset(s) not found")
-    print(f"  report-only:{s.skipped_report_only_count} (effects/transitions/filters)")
+
+    print("[ok] portable package created")
+    print()
+    _p = lambda label, value: print(f"  {label:<18}{value}")
+    _p("Project:", result.project_name)
+    print()
+    _p("Output root:", str(result.out_dir.resolve()))
+    _p("Media package:", str((result.out_dir / "media").resolve()))
+    print()
+    _p("XML:", result.xml_path.name)
+    _p("Manifest:", result.manifest_path.name)
+    _p("Package summary:", result.package_summary_path.name if result.package_summary_path else "—")
+    _p("Relink guide:", result.relink_guide_path.name if result.relink_guide_path else "—")
+    _p("Offline report:",
+       result.offline_report_path.name if result.offline_report_path else "none")
+    print()
+    _p("Copied:", f"{s.copied_count} files")
+    _p("", f"{sz_mb:.1f} MB")
+    if s.deduped_count:
+        _p("Shared (deduped):", f"{s.deduped_count} (same file, one copy)")
+    if s.extension_normalized_count:
+        _p("Ext normalized:", f"{s.extension_normalized_count} files")
+    print()
+    _p("Report-only:", f"{s.skipped_report_only_count} assets (effects/transitions/filters)")
+    _p("Offline:", f"{s.offline_count} assets not found")
     if result.offline_report_path:
-        print(f"  ⚠ see {result.offline_report_path.name} for unresolved assets")
+        print(f"  ⚠  see {result.offline_report_path.name} for details")
+
+    if getattr(args, "open_finder", False):
+        try:
+            subprocess.run(["open", str(result.out_dir.resolve())], check=False)
+        except FileNotFoundError:
+            print("  (--open: 'open' command not available on this platform)")
+
     return 0
 
 

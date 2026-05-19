@@ -1,4 +1,4 @@
-# Supported Features Matrix — v0.3.4
+# Supported Features Matrix — v0.3.5
 
 ## Validation scope
 
@@ -51,6 +51,8 @@ a real draft.
 | Offline report | ✅ | `<stem>.offline.md` written only when assets could not be found |
 | Relink guide | ✅ v0.3.4 | `<stem>.relink_guide.md` — Premiere import instructions, media root hint, speed trim-boundary note |
 | Manifest collect fields | ✅ v0.3.4 | `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`, `report_only_count`, `normalized_extension_count` |
+| Package summary | ✅ v0.3.5 | `<stem>.package_summary.txt` — human-readable overview: absolute paths, per-subdir file counts, Premiere import steps, known limitations |
+| Collect CLI UX | ✅ v0.3.5 | Rich output (absolute paths, all files, dedup/ext stats); `-o` optional (default `out_collect/<name>/`); `--open` Finder integration |
 | CapCut proprietary effects | ⊘ Report-only | Not portable outside CapCut; listed in report + offline.md |
 | CapCut proprietary transitions | ⊘ Report-only | Not portable outside CapCut |
 | CapCut proprietary filters | ⊘ Report-only | Not portable outside CapCut |
