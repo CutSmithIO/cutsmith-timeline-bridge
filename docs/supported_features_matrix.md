@@ -1,4 +1,4 @@
-# Supported Features Matrix — v0.3.5
+# Supported Features Matrix — v0.3.6-alpha
 
 ## Validation scope
 
@@ -53,6 +53,7 @@ a real draft.
 | Manifest collect fields | ✅ v0.3.4 | `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`, `report_only_count`, `normalized_extension_count` |
 | Package summary | ✅ v0.3.5 | `<stem>.package_summary.txt` — human-readable overview: absolute paths, per-subdir file counts, Premiere import steps, known limitations |
 | Collect CLI UX | ✅ v0.3.5 | Rich output (absolute paths, all files, dedup/ext stats); `-o` optional (default `out_collect/<name>/`); `--open` Finder integration |
+| Embedded audio dedup | ✅ v0.3.6 | Video-split audio reuses `media/video/` copy; no duplicate MP4 in `media/audio/` |
 | CapCut proprietary effects | ⊘ Report-only | Not portable outside CapCut; listed in report + offline.md |
 | CapCut proprietary transitions | ⊘ Report-only | Not portable outside CapCut |
 | CapCut proprietary filters | ⊘ Report-only | Not portable outside CapCut |

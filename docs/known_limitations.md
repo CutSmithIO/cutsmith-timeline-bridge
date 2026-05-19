@@ -1,4 +1,4 @@
-# Known Limitations — v0.3.5
+# Known Limitations — v0.3.6-alpha
 
 What CutSmith does NOT do, and the caveats that apply to what it does do.
 Read this before filing a bug or before promising a result to a creator.
