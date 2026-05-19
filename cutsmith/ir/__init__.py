@@ -29,6 +29,18 @@ class MediaKind(str, Enum):
     UNKNOWN = "unknown"  # couldn't probe; writer will guess
 
 
+class AssetClass(str, Enum):
+    USER_VIDEO      = "user_video"      # user-imported video file
+    USER_AUDIO      = "user_audio"      # user-imported audio / embedded-audio extract
+    USER_IMAGE      = "user_image"      # user-imported image
+    CAPCUT_MUSIC    = "capcut_music"    # CapCut music library track (may be cached)
+    CAPCUT_SFX      = "capcut_sfx"      # CapCut sound effect (may be cached)
+    CAPCUT_STICKER  = "capcut_sticker"  # CapCut sticker / overlay
+    CAPCUT_EFFECT   = "capcut_effect"   # CapCut video effect, filter, or transition
+    CAPCUT_FONT     = "capcut_font"     # CapCut-downloaded font (app-bundle; not copied)
+    UNKNOWN         = "unknown"
+
+
 @dataclass
 class MediaAsset:
     """A source file referenced by one or more clips.
@@ -50,6 +62,8 @@ class MediaAsset:
     audio_channels: int | None = None
     audio_sample_rate: int | None = None
     extras: dict[str, Any] = field(default_factory=dict)
+    asset_class: AssetClass = AssetClass.UNKNOWN  # filled by scanner, not reader
+    is_cached: bool = False                        # True when path is inside a CapCut cache dir
 
 
 @dataclass
@@ -161,7 +175,36 @@ class Timeline:
     video_tracks: list[Track] = field(default_factory=list)
     audio_tracks: list[Track] = field(default_factory=list)
     unsupported: list[UnsupportedItem] = field(default_factory=list)
+    subtitle_tracks: list[SubtitleTrack] = field(default_factory=list)  # v0.2
     source_metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class SubtitleCue:
+    """One timed text entry on a subtitle / caption track.
+
+    Timing uses the same integer-microsecond model as the rest of the IR.
+    `text` is plain UTF-8 with no markup — styling is not preserved in v0.2.
+    """
+    cue_id: str
+    start_us: int
+    end_us: int
+    text: str
+    is_auto_caption: bool = False  # True when recognize_type != 0 (ASR-generated)
+
+
+@dataclass
+class SubtitleTrack:
+    track_id: str
+    cues: list[SubtitleCue] = field(default_factory=list)
+
+    @property
+    def cue_count(self) -> int:
+        return len(self.cues)
+
+    @property
+    def likely_caption_track(self) -> bool:
+        return self.cue_count > 5
 
 
 @dataclass

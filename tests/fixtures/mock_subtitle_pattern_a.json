@@ -1,0 +1,65 @@
+{
+  "version": 360000,
+  "fps": 30.0,
+  "duration": 12000000,
+  "canvas_config": {"width": 1920, "height": 1080},
+  "materials": {
+    "videos": [],
+    "audios": [],
+    "texts": [
+      {
+        "id": "TEXT-A1",
+        "name": "cue1",
+        "type": "text",
+        "content": "{\"text\": \"Hello world\"}",
+        "recognize_type": 0
+      },
+      {
+        "id": "TEXT-A2",
+        "name": "cue2",
+        "type": "text",
+        "content": "{\"text\": \"Goodbye world\"}",
+        "recognize_type": 0
+      },
+      {
+        "id": "TEXT-A3",
+        "name": "cue3",
+        "type": "text",
+        "content": "{\"text\": \"See you later\"}",
+        "recognize_type": 1
+      }
+    ],
+    "stickers": [],
+    "effects": [],
+    "transitions": [],
+    "filters": [],
+    "video_effects": [],
+    "text_templates": []
+  },
+  "tracks": [
+    {
+      "id": "TRACK-T1",
+      "type": "text",
+      "segments": [
+        {
+          "id": "SEG-A1",
+          "material_id": "TEXT-A1",
+          "target_timerange": {"start": 0, "duration": 3000000},
+          "extra_material_refs": []
+        },
+        {
+          "id": "SEG-A2",
+          "material_id": "TEXT-A2",
+          "target_timerange": {"start": 4000000, "duration": 3500000},
+          "extra_material_refs": []
+        },
+        {
+          "id": "SEG-A3",
+          "material_id": "TEXT-A3",
+          "target_timerange": {"start": 8000000, "duration": 4000000},
+          "extra_material_refs": []
+        }
+      ]
+    }
+  ]
+}

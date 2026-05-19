@@ -46,6 +46,7 @@ from cutsmith.ir import Timeline, Track, Clip
 _SPEED_RE = re.compile(r"speed=([\d.]+)")
 _TARGET_DUR_RE = re.compile(r"target=(\d+)us")
 _SOURCE_DUR_RE = re.compile(r"source=(\d+)us")
+_SEG_ID_RE = re.compile(r"segment ([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})", re.IGNORECASE)
 
 
 def main() -> int:
@@ -97,15 +98,21 @@ def main() -> int:
 def build_summary(timeline: Timeline, draft_path: Path) -> dict:
     s = timeline.settings
 
-    # Speed map: timeline_start_us → speed (parsed from unsupported.detail)
-    speed_by_time: dict[int, dict] = {}
+    # Speed map: segment_clip_id → speed info (parsed from unsupported.detail).
+    # Keyed by clip_id (UUID from detail string), NOT by timeline_start_us — multiple
+    # tracks can start at the same timeline position, so time-keying causes collisions
+    # and produces false inconsistency reports.
+    speed_by_clip: dict[str, dict] = {}
     for it in timeline.unsupported:
-        if it.category != "speed" or it.time_hint_us is None:
+        if it.category != "speed":
+            continue
+        seg_m = _SEG_ID_RE.search(it.detail or "")
+        if not seg_m:
             continue
         sp = _SPEED_RE.search(it.detail or "")
         tgt = _TARGET_DUR_RE.search(it.detail or "")
         src = _SOURCE_DUR_RE.search(it.detail or "")
-        speed_by_time[it.time_hint_us] = {
+        speed_by_clip[seg_m.group(1).upper()] = {
             "speed": float(sp.group(1)) if sp else None,
             "source_dur_us": int(src.group(1)) if src else None,
             "target_dur_us": int(tgt.group(1)) if tgt else None,
@@ -129,11 +136,13 @@ def build_summary(timeline: Timeline, draft_path: Path) -> dict:
     for it in timeline.unsupported:
         by_category[it.category] += 1
 
-    # Find clips whose IR duration disagrees with target_dur (speed ≠ 1.0 case)
+    # Find clips whose IR duration disagrees with target_dur (speed ≠ 1.0 case).
+    # Uses clip_id lookup so parallel tracks starting at the same timeline position
+    # don't collide.
     ir_inconsistencies = []
     for track in timeline.video_tracks + timeline.audio_tracks:
         for c in track.clips:
-            hint = speed_by_time.get(c.timeline_start_us)
+            hint = speed_by_clip.get(c.clip_id.upper())
             if hint and hint.get("target_dur_us") is not None:
                 if c.timeline_duration_us != hint["target_dur_us"]:
                     ir_inconsistencies.append({
@@ -143,7 +152,7 @@ def build_summary(timeline: Timeline, draft_path: Path) -> dict:
                         "ir_duration_us": c.timeline_duration_us,
                         "target_duration_us": hint["target_dur_us"],
                         "speed": hint["speed"],
-                        "note": "IR honors source_dur but raw target_dur differs — "
+                        "note": "IR uses source_dur but raw target_dur differs — "
                                 "downstream XML will place a clip of source_dur length",
                     })
 
@@ -168,8 +177,8 @@ def build_summary(timeline: Timeline, draft_path: Path) -> dict:
             "top_5": [_asset_summary(a) for a in list(timeline.assets.values())[:5]],
             "all_paths": [a.original_path for a in timeline.assets.values()],
         },
-        "video_tracks": [_track_summary(t, speed_by_time, top=10) for t in timeline.video_tracks],
-        "audio_tracks": [_track_summary(t, speed_by_time, top=10) for t in timeline.audio_tracks],
+        "video_tracks": [_track_summary(t, speed_by_clip, top=10) for t in timeline.video_tracks],
+        "audio_tracks": [_track_summary(t, speed_by_clip, top=10) for t in timeline.audio_tracks],
         "text_tracks_count": len(text_track_details),
         "text_tracks_detail": text_track_details,
         "unsupported": {
@@ -199,20 +208,20 @@ def _asset_summary(a) -> dict:
     }
 
 
-def _track_summary(t: Track, speed_by_time: dict, top: int) -> dict:
+def _track_summary(t: Track, speed_by_clip: dict, top: int) -> dict:
     return {
         "track_id": t.track_id,
         "kind": t.kind.value,
         "name": t.name,
         "muted": t.muted,
         "clip_count": len(t.clips),
-        "top_10_clips": [_clip_summary(c, speed_by_time) for c in t.clips[:top]],
+        "top_10_clips": [_clip_summary(c, speed_by_clip) for c in t.clips[:top]],
     }
 
 
-def _clip_summary(c: Clip, speed_by_time: dict) -> dict:
+def _clip_summary(c: Clip, speed_by_clip: dict) -> dict:
     end_us = c.timeline_start_us + c.timeline_duration_us
-    speed_info = speed_by_time.get(c.timeline_start_us)
+    speed_info = speed_by_clip.get(c.clip_id.upper())
     speed_val = speed_info["speed"] if speed_info else 1.0
     return {
         "clip_id": c.clip_id,

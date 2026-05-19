@@ -1,0 +1,177 @@
+{
+  "version": 360000,
+  "fps": 30.0,
+  "duration": 30000000,
+  "canvas_config": {"width": 1920, "height": 1080},
+  "materials": {
+    "videos": [
+      {
+        "id": "VID-1",
+        "material_name": "my_video.mp4",
+        "path": "/Users/test/my_video.mp4",
+        "duration": 30000000,
+        "type": "video",
+        "has_audio": true,
+        "width": 1920,
+        "height": 1080
+      }
+    ],
+    "audios": [
+      {
+        "id": "AUD-MUSIC",
+        "name": "Cool Track",
+        "path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/music/cool_track.mp3",
+        "duration": 180000000,
+        "type": "music"
+      },
+      {
+        "id": "AUD-SFX",
+        "name": "Swoosh",
+        "path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/music/swoosh.mp3",
+        "duration": 1500000,
+        "type": "sound"
+      },
+      {
+        "id": "AUD-EMBED",
+        "name": "my_video.mp4",
+        "path": "/Users/test/my_video.mp4",
+        "duration": 30000000,
+        "type": "video_original_sound"
+      }
+    ],
+    "texts": [
+      {
+        "id": "TEXT-1",
+        "name": "caption",
+        "type": "text",
+        "content": "{\"text\": \"Hello from text\"}",
+        "recognize_type": 0
+      }
+    ],
+    "stickers": [
+      {
+        "id": "STK-1",
+        "name": "Cool Sticker",
+        "type": "sticker",
+        "path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/sticker/stk1.webp",
+        "source_platform": 1,
+        "resource_id": "123456"
+      }
+    ],
+    "effects": [
+      {
+        "id": "EFF-FILTER",
+        "name": "Film Look",
+        "type": "filter",
+        "path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/film.bundle",
+        "resource_id": "789"
+      },
+      {
+        "id": "EFF-VFX",
+        "name": "Glitch",
+        "type": "video_effect",
+        "path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/glitch.bundle",
+        "resource_id": "456"
+      }
+    ],
+    "transitions": [
+      {
+        "id": "TRN-1",
+        "name": "Slide Left",
+        "type": "transition",
+        "path": "",
+        "resource_id": "trans_001"
+      }
+    ],
+    "filters": [],
+    "video_effects": [],
+    "text_templates": []
+  },
+  "tracks": [
+    {
+      "id": "TRACK-V1",
+      "type": "video",
+      "segments": [
+        {
+          "id": "SEG-V1",
+          "material_id": "VID-1",
+          "source_timerange": {"start": 0, "duration": 30000000},
+          "target_timerange": {"start": 0, "duration": 30000000},
+          "speed": 1.0,
+          "volume": 0.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-A1",
+      "type": "audio",
+      "segments": [
+        {
+          "id": "SEG-A-EMBED",
+          "material_id": "AUD-EMBED",
+          "source_timerange": {"start": 0, "duration": 30000000},
+          "target_timerange": {"start": 0, "duration": 30000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-A2",
+      "type": "audio",
+      "segments": [
+        {
+          "id": "SEG-A-MUSIC",
+          "material_id": "AUD-MUSIC",
+          "source_timerange": {"start": 0, "duration": 30000000},
+          "target_timerange": {"start": 0, "duration": 30000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-A3",
+      "type": "audio",
+      "segments": [
+        {
+          "id": "SEG-A-SFX",
+          "material_id": "AUD-SFX",
+          "source_timerange": {"start": 0, "duration": 1500000},
+          "target_timerange": {"start": 0, "duration": 1500000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-STK",
+      "type": "sticker",
+      "segments": [
+        {
+          "id": "SEG-STK",
+          "material_id": "STK-1",
+          "source_timerange": {"start": 0, "duration": 5000000},
+          "target_timerange": {"start": 0, "duration": 5000000},
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-TXT",
+      "type": "text",
+      "segments": [
+        {
+          "id": "SEG-TXT",
+          "material_id": "TEXT-1",
+          "target_timerange": {"start": 0, "duration": 3000000},
+          "extra_material_refs": []
+        }
+      ]
+    }
+  ]
+}

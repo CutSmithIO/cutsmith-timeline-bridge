@@ -1,17 +1,12 @@
 """CutSmith CLI.
 
-Three subcommands:
+Subcommands:
 
-  detect   — classify a draft (project dir or single file). Reports app,
-             version, plaintext/encrypted, supported_status. Run this first
-             on any new real-world sample to decide whether inspect/convert
-             is even applicable.
-
-  inspect  — analyze a draft, write summary JSONs. No XML/report produced.
-             Use this on plaintext drafts to surface schema drift before
-             converting.
-
-  convert  — full pipeline: draft → FCP7 XML + compatibility report.
+  detect       — classify a draft (project dir or single file).
+  inspect      — analyze a draft's schema; write summary JSONs.
+  convert      — full pipeline: draft → FCP7 XML + compatibility report.
+  export-srt   — extract subtitles/captions to SRT / TXT / JSON.
+  scan-assets  — enumerate and classify all referenced materials.
 
 Backwards compat: if the first positional looks like a `.json` path and no
 subcommand keyword is given, we route to `convert` automatically so the
@@ -28,6 +23,9 @@ from pathlib import Path
 from cutsmith import bridge
 from cutsmith.detect import detect_project
 from cutsmith.inspect import inspect_draft
+from cutsmith.subtitle import export_subtitles
+from cutsmith.scanner import scan_assets
+from cutsmith.scanner.manifest import AssetManifest
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -94,6 +92,49 @@ def main(argv: list[str] | None = None) -> int:
                         help="Override sequence name (default: draft stem)")
     p_conv.set_defaults(func=_cmd_convert)
 
+    # ── export-srt ──────────────────────────────────────────────────────────── #
+    p_srt = sub.add_parser(
+        "export-srt",
+        help="Extract subtitles/captions to SRT, TXT, or JSON.",
+        description=(
+            "Extract all text/caption tracks from a draft and write them as "
+            "SRT (default), plain TXT, or structured JSON. Handles both "
+            "plain-text segments (Pattern A) and animated subtitle templates "
+            "(Pattern B / CapCut AI Captions)."
+        ),
+    )
+    p_srt.add_argument("draft", help="Path to draft_info.json or project directory")
+    p_srt.add_argument("-o", "--out-dir", required=True,
+                       help="Output directory")
+    p_srt.add_argument(
+        "--format", dest="formats", action="append",
+        choices=["srt", "txt", "json"], default=None,
+        help="Output format (repeatable; default: srt)",
+    )
+    p_srt.add_argument("-n", "--name", default=None,
+                       help="Override output file stem")
+    p_srt.set_defaults(func=_cmd_export_srt)
+
+    # ── scan-assets ─────────────────────────────────────────────────────────── #
+    p_scan = sub.add_parser(
+        "scan-assets",
+        help="Enumerate and classify all referenced materials.",
+        description=(
+            "Scan a draft and produce a manifest of every material: user media, "
+            "CapCut music/SFX, stickers, effects, filters, and transitions. "
+            "Reports online/offline status and file sizes. Does not copy files."
+        ),
+    )
+    p_scan.add_argument("draft", help="Path to draft_info.json or project directory")
+    p_scan.add_argument("-o", "--out-dir", default=None,
+                        help="Output directory for manifest JSON + scan report "
+                             "(if omitted, prints summary to stdout)")
+    p_scan.add_argument("-s", "--search-root", action="append", default=[],
+                        help="Directory to scan for missing user media (repeatable)")
+    p_scan.add_argument("--json", action="store_true",
+                        help="Print full manifest JSON to stdout (implies no -o output)")
+    p_scan.set_defaults(func=_cmd_scan_assets)
+
     args = parser.parse_args(argv)
     return args.func(args, parser)
 
@@ -104,7 +145,8 @@ def _shim_legacy_invocation(argv: list[str]) -> list[str]:
     if not argv:
         return argv
     first = argv[0]
-    if first in ("detect", "inspect", "convert", "-h", "--help"):
+    if first in ("detect", "inspect", "convert", "export-srt", "scan-assets",
+                 "-h", "--help"):
         return argv
     # If the first arg looks like a path (no leading -) treat as legacy convert.
     if not first.startswith("-"):
@@ -208,6 +250,153 @@ def _cmd_convert(args: argparse.Namespace,
         print(f"     unsupported items: {len(result.timeline.unsupported)} "
               f"(see report)")
     return 0
+
+
+def _cmd_export_srt(args: argparse.Namespace,
+                    parser: argparse.ArgumentParser) -> int:
+    draft = Path(args.draft)
+    # Accept both a directory (auto-detect) and a direct JSON path.
+    if draft.is_dir():
+        result = detect_project(draft)
+        if not result.timeline_entry_path:
+            parser.error(f"no supported draft found in {draft}")
+        draft = Path(result.timeline_entry_path)
+    if not draft.is_file():
+        parser.error(f"draft not found: {draft}")
+
+    formats = args.formats or ["srt"]
+    written = export_subtitles(
+        draft_path=draft,
+        out_dir=args.out_dir,
+        formats=formats,
+        name=args.name,
+    )
+    if not written:
+        print("[export-srt] no subtitle tracks found — nothing written")
+        return 0
+    for p in written:
+        print(f"[ok] wrote {p}")
+    return 0
+
+
+def _cmd_scan_assets(args: argparse.Namespace,
+                     parser: argparse.ArgumentParser) -> int:
+    draft = Path(args.draft)
+    if not draft.exists():
+        parser.error(f"path not found: {draft}")
+
+    manifest = scan_assets(draft, search_roots=args.search_root)
+
+    if args.json:
+        print(manifest.to_json())
+        return 0
+
+    if args.out_dir:
+        out_dir = Path(args.out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        stem = manifest.project_name or "project"
+        json_path = out_dir / f"{stem}.manifest.json"
+        report_path = out_dir / f"{stem}.scan.md"
+        json_path.write_text(manifest.to_json(), encoding="utf-8")
+        report_path.write_text(_render_scan_report(manifest), encoding="utf-8")
+        print(f"[ok] wrote {json_path}")
+        print(f"[ok] wrote {report_path}")
+
+    # Always print summary
+    _print_scan_summary(manifest)
+    return 0
+
+
+def _print_scan_summary(m: AssetManifest) -> None:
+    print()
+    print(f"  project:    {m.project_name}")
+    print(f"  duration:   {m.duration_us / 1_000_000:.2f}s")
+    print(f"  assets:     {m.total_assets} total, "
+          f"{m.online_count} online, {m.offline_count} offline, "
+          f"{m.cached_count} cached")
+    total_mb = m.total_online_size_bytes / (1024 * 1024)
+    print(f"  online size:{total_mb:8.1f} MB")
+    if m.videos:
+        print(f"  videos:     {len(m.videos)}")
+    if m.audios:
+        print(f"  user audio: {len(m.audios)}")
+    if m.music:
+        print(f"  music:      {len(m.music)}")
+    if m.sfx:
+        print(f"  sfx:        {len(m.sfx)}")
+    if m.images:
+        print(f"  images:     {len(m.images)}")
+    if m.stickers:
+        print(f"  stickers:   {len(m.stickers)} (not exported — CapCut proprietary)")
+    if m.effects:
+        print(f"  effects:    {len(m.effects)} (not exported)")
+    if m.filters:
+        print(f"  filters:    {len(m.filters)} (not exported)")
+    if m.transitions:
+        print(f"  transitions:{len(m.transitions)} (not exported)")
+    if m.offline:
+        print(f"  ⚠ offline:  {len(m.offline)} asset(s) unresolved")
+        for e in m.offline[:5]:
+            print(f"      {e.name}  ({e.asset_class.value})")
+        if len(m.offline) > 5:
+            print(f"      … and {len(m.offline) - 5} more — see manifest JSON")
+
+
+def _render_scan_report(m: AssetManifest) -> str:
+    lines: list[str] = []
+    lines.append(f"# Asset Scan Report — {m.project_name}\n")
+    lines.append(f"Source: `{m.source_draft}`\n")
+    lines.append(f"## Summary\n")
+    lines.append(f"| | Count | Notes |")
+    lines.append(f"|---|---|---|")
+    lines.append(f"| Total assets | {m.total_assets} | |")
+    lines.append(f"| Online | {m.online_count} | |")
+    lines.append(f"| Offline | {m.offline_count} | |")
+    lines.append(f"| Cached (CapCut library) | {m.cached_count} | |")
+    mb = m.total_online_size_bytes / (1024 * 1024)
+    lines.append(f"| Total online size | {mb:.1f} MB | |")
+    lines.append("")
+
+    def _table(title: str, entries: list, note: str = "") -> None:
+        if not entries:
+            return
+        lines.append(f"## {title}\n")
+        if note:
+            lines.append(f"_{note}_\n")
+        lines.append("| Name | Online | Size | Cached | Path |")
+        lines.append("|---|---|---|---|---|")
+        for e in entries:
+            size_str = f"{e.file_size_bytes / (1024*1024):.1f} MB" if e.file_size_bytes else "—"
+            online_str = "✓" if e.is_online else "✗"
+            cached_str = "✓" if e.is_cached else ""
+            path = e.original_path or ""
+            lines.append(f"| {e.name} | {online_str} | {size_str} | {cached_str} | `{path}` |")
+        lines.append("")
+
+    _table("User Video", m.videos)
+    _table("User Audio", m.audios)
+    _table("CapCut Music", m.music,
+           "Cached music library tracks. Licensing may be restricted to CapCut/TikTok platforms.")
+    _table("CapCut SFX", m.sfx)
+    _table("Images", m.images)
+    _table("Stickers", m.stickers, "Not exported — CapCut proprietary format.")
+    _table("Effects", m.effects, "Not exported.")
+    _table("Filters", m.filters, "Not exported.")
+    _table("Transitions", m.transitions, "Not exported.")
+
+    if m.offline:
+        lines.append("## ⚠ Offline Assets\n")
+        lines.append("| Name | Class | Last known path |")
+        lines.append("|---|---|---|")
+        for e in m.offline:
+            lines.append(f"| {e.name} | {e.asset_class.value} | `{e.original_path or ''}` |")
+        lines.append("")
+        lines.append("**Suggested actions**:\n")
+        lines.append("- User media: use Premiere's \"Link Media\" after XML import.")
+        lines.append("- CapCut cache: re-download the asset in CapCut, then re-run scan.")
+        lines.append("")
+
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":

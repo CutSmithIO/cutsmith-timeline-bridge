@@ -1,0 +1,105 @@
+{
+  "version": 360000,
+  "fps": 30.0,
+  "duration": 15000000,
+  "canvas_config": {"width": 1080, "height": 1920},
+  "materials": {
+    "videos": [],
+    "audios": [],
+    "texts": [
+      {
+        "id": "TEXT-B1",
+        "name": "b_text_1",
+        "type": "text",
+        "content": "{\"text\": \"Pattern B text one\"}",
+        "recognize_type": 0
+      },
+      {
+        "id": "TEXT-B2",
+        "name": "b_text_2",
+        "type": "text",
+        "content": "{\"text\": \"Pattern B text two\"}",
+        "recognize_type": 0
+      },
+      {
+        "id": "TEXT-B3",
+        "name": "b_text_3",
+        "type": "text",
+        "content": "{\"text\": \"Pattern B text three\"}",
+        "recognize_type": 0
+      }
+    ],
+    "text_templates": [
+      {
+        "id": "TMPL-1",
+        "type": "text_template_subtitle",
+        "name": "",
+        "text_info_resources": [
+          {
+            "id": "RES-1",
+            "text_material_id": "TEXT-B1",
+            "extra_material_refs": []
+          }
+        ],
+        "non_text_info_resources": []
+      },
+      {
+        "id": "TMPL-2",
+        "type": "text_template_subtitle",
+        "name": "",
+        "text_info_resources": [
+          {
+            "id": "RES-2",
+            "text_material_id": "TEXT-B2",
+            "extra_material_refs": []
+          }
+        ],
+        "non_text_info_resources": []
+      },
+      {
+        "id": "TMPL-3",
+        "type": "text_template_subtitle",
+        "name": "",
+        "text_info_resources": [
+          {
+            "id": "RES-3",
+            "text_material_id": "TEXT-B3",
+            "extra_material_refs": []
+          }
+        ],
+        "non_text_info_resources": []
+      }
+    ],
+    "stickers": [],
+    "effects": [],
+    "transitions": [],
+    "filters": [],
+    "video_effects": []
+  },
+  "tracks": [
+    {
+      "id": "TRACK-T2",
+      "type": "text",
+      "segments": [
+        {
+          "id": "SEG-B1",
+          "material_id": "TMPL-1",
+          "target_timerange": {"start": 1000000, "duration": 4000000},
+          "extra_material_refs": ["RES-1"]
+        },
+        {
+          "id": "SEG-B2",
+          "material_id": "TMPL-2",
+          "target_timerange": {"start": 6000000, "duration": 3000000},
+          "extra_material_refs": ["RES-2"]
+        },
+        {
+          "id": "SEG-B3",
+          "material_id": "TMPL-3",
+          "target_timerange": {"start": 10000000, "duration": 5000000},
+          "extra_material_refs": ["RES-3"]
+        }
+      ]
+    }
+  ]
+}
