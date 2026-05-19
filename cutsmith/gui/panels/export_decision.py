@@ -28,9 +28,9 @@ from cutsmith.gui.style import (
 def _make_tree_html(out_dir: Path, stem: str) -> str:
     """Build an HTML-formatted tree for the QLabel (Qt RichText)."""
     ACCENT_C  = "#9b8cff"
-    DIR_C     = "#98989f"
+    DIR_C     = "#aeaeb2"
     FILE_C    = "#636366"
-    ROOT_C    = "#98989f"
+    ROOT_C    = "#aeaeb2"
 
     def span(text: str, color: str) -> str:
         return f'<span style="color:{color};">{text}</span>'
@@ -101,6 +101,14 @@ class ExportDecisionPanel(QWidget):
         self._collect_btn.setEnabled(False)
         self._collect_btn.clicked.connect(self._on_collect)
         root.addWidget(self._collect_btn)
+
+        self._collect_reason = QLabel("")
+        self._collect_reason.setStyleSheet(
+            f"color: {TEXT_FAINT}; font-size: 10px; background: transparent;"
+        )
+        self._collect_reason.setWordWrap(True)
+        self._collect_reason.setAlignment(Qt.AlignCenter)
+        root.addWidget(self._collect_reason)
 
         # "This package will include" list
         include_label = QLabel("THIS PACKAGE WILL INCLUDE")
@@ -174,6 +182,7 @@ class ExportDecisionPanel(QWidget):
         self._out_dir = None
         self._collect_btn.setEnabled(False)
         self._collect_btn.setText("Collect & Package")
+        self._collect_reason.setText("Select a project first")
         self._srt_btn.setEnabled(False)
         self._open_btn.setEnabled(False)
         self._path_label.setText("—")
@@ -190,7 +199,19 @@ class ExportDecisionPanel(QWidget):
         self._refresh_path_label()
         self._refresh_include(r)
         self._refresh_tree(r)
-        self._collect_btn.setEnabled(True)
+        # Collect button: enabled unless encrypted or error
+        enc = (r.detect.encryption or "").lower()
+        is_enc = enc not in ("", "none", "plaintext")
+        is_err = r.detect.supported_status in ("error",)
+        if is_enc:
+            self._collect_btn.setEnabled(False)
+            self._collect_reason.setText("Encrypted project — cannot collect")
+        elif is_err:
+            self._collect_btn.setEnabled(False)
+            self._collect_reason.setText("Project could not be read")
+        else:
+            self._collect_btn.setEnabled(True)
+            self._collect_reason.setText("")
         self._srt_btn.setEnabled(r.subtitle_cue_count > 0)
         notes = []
         if r.manifest and (r.manifest.music or r.manifest.sfx or r.manifest.stickers):

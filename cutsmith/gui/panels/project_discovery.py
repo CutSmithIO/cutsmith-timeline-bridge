@@ -50,12 +50,14 @@ class _ProjectItem(QWidget):
         lay.setSpacing(1)
 
         self._name_lbl = QLabel(entry.display_name)
+        self._name_lbl.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         sub = (
             f"{entry.app_label} · {entry.date_label}"
             if entry.date_label
             else entry.app_label
         )
         self._meta_lbl = QLabel(sub)
+        self._meta_lbl.setAttribute(Qt.WA_TransparentForMouseEvents, True)
 
         enc = (entry.detect.encryption or "").lower()
         self._is_enc = enc not in ("", "none", "plaintext")

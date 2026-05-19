@@ -272,10 +272,12 @@ class ProjectReadinessPanel(QWidget):
         name_lbl.setObjectName("cardName")
         title_lay.addWidget(name_lbl)
 
+        # Schema version hidden from label; shown in tooltip only
         sv = r.detect.schema_version or ""
-        sv_str = f" · schema {sv}" if sv else ""
-        meta_lbl = QLabel(f"{r.entry.app_label}{sv_str} · {r.readability_label}")
+        meta_lbl = QLabel(f"{r.entry.app_label} · {r.readability_label}")
         meta_lbl.setObjectName("cardMeta")
+        if sv:
+            meta_lbl.setToolTip(f"schema {sv}")
         title_lay.addWidget(meta_lbl)
 
         badge = QLabel(
@@ -290,7 +292,8 @@ class ProjectReadinessPanel(QWidget):
         card_row.addWidget(title_w, 1)
         self._content_layout.addWidget(card_w)
 
-        self._content_layout.addSpacing(4)
+        # 10px gap: card → stats strip
+        self._content_layout.addSpacing(10)
 
         # ── Stats strip in a QWidget container ───────────────────────────────
         stats_w = QWidget()

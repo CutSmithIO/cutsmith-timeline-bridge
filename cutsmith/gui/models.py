@@ -129,11 +129,11 @@ class AnalysisResult:
             return "Encrypted"
         schema = self.detect.schema_type or ""
         if schema == "modern_plaintext":
-            return "Plaintext · Readable"
+            return "Plaintext · Ready"
         if schema == "legacy":
             return "Legacy format"
         if st == "supported":
-            return "Supported"
+            return "Ready"
         if st == "unverified":
             return "Plaintext"
         return st
