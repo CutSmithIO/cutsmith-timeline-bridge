@@ -513,6 +513,8 @@ def _cmd_collect(args: argparse.Namespace,
     print()
     _p("Copied:", f"{s.copied_count} files")
     _p("", f"{sz_mb:.1f} MB")
+    if s.embedded_audio_reused_count:
+        _p("Embedded audio reused:", f"{s.embedded_audio_reused_count} (video file, no audio/ copy)")
     if s.deduped_count:
         _p("Shared (deduped):", f"{s.deduped_count} (same file, one copy)")
     if s.extension_normalized_count:

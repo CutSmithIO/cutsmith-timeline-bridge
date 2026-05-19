@@ -316,9 +316,9 @@ class CopyOnlineAssetsTest(unittest.TestCase):
         self.assertEqual(stats.copied_count, 1)
         self.assertEqual(stats.deduped_count, 3)
 
-    def test_same_file_different_subdir_is_not_deduped(self):
-        """The same source file appearing in video and audio tracks should be
-        copied to both subdirs independently (different semantic use)."""
+    def test_same_mp4_video_audio_triggers_embedded_audio_reuse(self):
+        """USER_VIDEO + USER_AUDIO sharing the same .mp4 source: embedded audio
+        reuse collapses them to one copy in media/video/ (v0.3.6 behaviour)."""
         src = self.src_dir / "footage.mp4"
         src.write_bytes(b"data" * 200)
         vid_entry = ManifestEntry(
@@ -335,9 +335,34 @@ class CopyOnlineAssetsTest(unittest.TestCase):
         )
         m = AssetManifest(project_name="p", videos=[vid_entry], audios=[aud_entry])
         override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
-        self.assertEqual(stats.copied_count, 2, "Video and audio copies are independent")
-        self.assertEqual(stats.deduped_count, 0)
-        self.assertNotEqual(override["VID-X"], override["AUD-X"])
+        # v0.3.6: embedded audio reuse → 1 copy, both IDs point to media/video/
+        self.assertEqual(stats.copied_count, 1)
+        self.assertEqual(stats.embedded_audio_reused_count, 1)
+        self.assertEqual(override["VID-X"], override["AUD-X"])
+        self.assertIn("video", override["AUD-X"].replace("\\", "/"))
+
+    def test_same_file_different_non_audio_subdir_is_not_deduped(self):
+        """USER_VIDEO + CAPCUT_MUSIC pointing to same file: copies independently
+        since CAPCUT_MUSIC is not a USER_AUDIO embedded audio reference."""
+        src = self.src_dir / "footage.mp4"
+        src.write_bytes(b"data" * 200)
+        vid_entry = ManifestEntry(
+            asset_id="VID-X", name="footage.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        mus_entry = ManifestEntry(
+            asset_id="MUS-X", name="footage.mp4", asset_class=AssetClass.CAPCUT_MUSIC,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", videos=[vid_entry], music=[mus_entry])
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.copied_count, 2)
+        self.assertEqual(stats.embedded_audio_reused_count, 0)
+        self.assertNotEqual(override["VID-X"], override["MUS-X"])
 
 
 # ─── _write_offline_report ────────────────────────────────────────────────────
@@ -1279,3 +1304,219 @@ class CollectIntegrationV035Test(unittest.TestCase):
         r = self._run_collect()
         content = r.package_summary_path.read_text(encoding="utf-8")
         self.assertIn(str(r.stats.copied_count), content)
+
+
+# ─── embedded audio dedup (v0.3.6) ───────────────────────────────────────────
+
+class EmbeddedAudioReuseTest(unittest.TestCase):
+    """USER_AUDIO entries backed by the same .mp4 as a USER_VIDEO must not
+    produce a second physical copy in media/audio/."""
+
+    def setUp(self):
+        self._src = tempfile.TemporaryDirectory()
+        self._out = tempfile.TemporaryDirectory()
+        self.src_dir = Path(self._src.name)
+        self.out_dir = Path(self._out.name)
+        self.media_dir = self.out_dir / "media"
+
+    def tearDown(self):
+        self._src.cleanup()
+        self._out.cleanup()
+
+    def _make_video_audio_pair(self, filename: str = "A001.MP4") -> AssetManifest:
+        """One source .mp4 referenced by both USER_VIDEO and USER_AUDIO."""
+        src = self.src_dir / filename
+        src.write_bytes(b"videodata" * 200)
+
+        vid = ManifestEntry(
+            asset_id="VID-A", name=filename, asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        aud = ManifestEntry(
+            asset_id="AUD-A", name=filename, asset_class=AssetClass.USER_AUDIO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=10_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        return AssetManifest(project_name="p", videos=[vid], audios=[aud])
+
+    # ── no duplicate physical file ────────────────────────────────────────────
+
+    def test_only_one_physical_copy(self):
+        m = self._make_video_audio_pair()
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        all_files = list(self.media_dir.rglob("*"))
+        files_only = [f for f in all_files if f.is_file()]
+        self.assertEqual(len(files_only), 1, f"Expected 1 file, got: {files_only}")
+
+    def test_copy_is_in_video_subdir(self):
+        m = self._make_video_audio_pair()
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertTrue((self.media_dir / "video").exists())
+        video_files = list((self.media_dir / "video").iterdir())
+        self.assertEqual(len(video_files), 1)
+
+    def test_no_audio_subdir_created(self):
+        m = self._make_video_audio_pair()
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertFalse((self.media_dir / "audio").exists())
+
+    # ── path_override correctness ─────────────────────────────────────────────
+
+    def test_both_asset_ids_in_path_override(self):
+        m = self._make_video_audio_pair()
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertIn("VID-A", override)
+        self.assertIn("AUD-A", override)
+
+    def test_audio_override_points_to_video_copy(self):
+        m = self._make_video_audio_pair()
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(override["VID-A"], override["AUD-A"],
+                         "Both asset IDs must point to the same physical file")
+
+    def test_audio_override_is_in_media_video(self):
+        m = self._make_video_audio_pair()
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertIn("media/video", override["AUD-A"].replace("\\", "/"))
+
+    # ── stats ─────────────────────────────────────────────────────────────────
+
+    def test_copied_count_is_one(self):
+        m = self._make_video_audio_pair()
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.copied_count, 1)
+
+    def test_embedded_audio_reused_count_is_one(self):
+        m = self._make_video_audio_pair()
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.embedded_audio_reused_count, 1)
+
+    def test_size_counts_only_one_file(self):
+        m = self._make_video_audio_pair()
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        src = self.src_dir / "A001.MP4"
+        self.assertEqual(stats.total_copied_size_bytes, src.stat().st_size)
+
+    # ── collect_relative_path on the audio entry ──────────────────────────────
+
+    def test_audio_entry_collect_relative_path_points_to_video(self):
+        m = self._make_video_audio_pair()
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        aud = m.audios[0]
+        self.assertIsNotNone(aud.collect_relative_path)
+        self.assertIn("video", aud.collect_relative_path)
+
+    # ── standalone audio (non-video extension) is still copied normally ───────
+
+    def test_standalone_mp3_audio_still_copied_to_audio_subdir(self):
+        src = self.src_dir / "bgm.mp3"
+        src.write_bytes(b"mp3" * 100)
+        aud = ManifestEntry(
+            asset_id="AUD-B", name="bgm.mp3", asset_class=AssetClass.USER_AUDIO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=5_000_000, used_in_tracks=["A2"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", audios=[aud])
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertTrue((self.media_dir / "audio" / "bgm.mp3").exists())
+
+    def test_mp4_audio_without_matching_video_still_copied(self):
+        """If no USER_VIDEO with same path exists, the audio is copied normally."""
+        src = self.src_dir / "standalone_audio.mp4"
+        src.write_bytes(b"data" * 100)
+        aud = ManifestEntry(
+            asset_id="AUD-C", name="standalone_audio.mp4",
+            asset_class=AssetClass.USER_AUDIO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=5_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", audios=[aud])
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertIn("AUD-C", override)
+        self.assertEqual(stats.embedded_audio_reused_count, 0)
+        self.assertEqual(stats.copied_count, 1)
+
+    # ── multiple clips sharing the same embedded audio ────────────────────────
+
+    def test_multiple_audio_entries_same_video_source(self):
+        """Three audio asset IDs from the same video source → still one copy."""
+        src = self.src_dir / "cam.mp4"
+        src.write_bytes(b"cam" * 300)
+        vid = ManifestEntry(
+            asset_id="VID-X", name="cam.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=30_000_000, used_in_tracks=["V1"], clip_count=3,
+        )
+        auds = [
+            ManifestEntry(
+                asset_id=f"AUD-{i}", name="cam.mp4",
+                asset_class=AssetClass.USER_AUDIO,
+                original_path=str(src), resolved_path=str(src),
+                is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+                duration_us=10_000_000, used_in_tracks=[f"A{i}"], clip_count=1,
+            )
+            for i in range(3)
+        ]
+        m = AssetManifest(project_name="p", videos=[vid], audios=auds)
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        all_files = [f for f in self.media_dir.rglob("*") if f.is_file()]
+        self.assertEqual(len(all_files), 1, "Only one physical copy expected")
+        self.assertEqual(stats.copied_count, 1)
+        self.assertEqual(stats.embedded_audio_reused_count, 3)
+        # All four asset IDs point to the same file
+        dests = {override[aid] for aid in ["VID-X", "AUD-0", "AUD-1", "AUD-2"]}
+        self.assertEqual(len(dests), 1)
+
+    # ── XML path correctness via full integration ─────────────────────────────
+
+    def test_xml_audio_pathurl_points_to_video_file(self):
+        """In the generated XML, the audio master clip's pathurl must point
+        to media/video/, not media/audio/."""
+        import xml.etree.ElementTree as ET
+        from cutsmith.reader import read_draft
+        from cutsmith.writer import write_fcp7_xml
+
+        fixture = Path(__file__).parent / "fixtures" / "mock_draft_content.json"
+        timeline = read_draft(fixture)
+
+        # Pick two asset IDs (first = video, second = audio) and wire them to
+        # the same source .mp4.
+        asset_ids = list(timeline.assets.keys())
+        if len(asset_ids) < 2:
+            self.skipTest("fixture has fewer than 2 assets")
+
+        vid_id, aud_id = asset_ids[0], asset_ids[1]
+
+        src = self.src_dir / "camera.mp4"
+        src.write_bytes(b"cam" * 500)
+        vid_entry = ManifestEntry(
+            asset_id=vid_id, name="camera.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        aud_entry = ManifestEntry(
+            asset_id=aud_id, name="camera.mp4", asset_class=AssetClass.USER_AUDIO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=src.stat().st_size,
+            duration_us=10_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", videos=[vid_entry], audios=[aud_entry])
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        xml_path = self.out_dir / "test.xml"
+        write_fcp7_xml(timeline, xml_path, path_override=override)
+
+        tree = ET.parse(xml_path)
+        pathuris = [el.text or "" for el in tree.findall(".//pathurl")]
+        # No pathurl should contain "audio/" for assets that were reused
+        audio_dir_urls = [u for u in pathuris if "/audio/" in u]
+        self.assertEqual(audio_dir_urls, [],
+                         f"Found unexpected media/audio/ pathurl(s): {audio_dir_urls}")

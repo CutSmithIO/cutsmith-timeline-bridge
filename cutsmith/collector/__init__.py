@@ -13,11 +13,22 @@
 What gets copied
 ----------------
   user_video   → media/video/
-  user_audio   → media/audio/
+  user_audio   → media/audio/  (but see embedded audio rule below)
   capcut_music → media/music/    (licensing note written in report)
   capcut_sfx   → media/sfx/
   user_image   → media/images/
   capcut_sticker (online only, rare) → media/stickers/
+
+Embedded audio dedup rule (v0.3.6)
+-----------------------------------
+  CapCut splits video-with-audio into two materials entries pointing to the
+  same physical file. When a USER_AUDIO entry's source has a video-format
+  extension (.mp4 / .mov / .mkv / …) AND a USER_VIDEO entry already resolved
+  to the same absolute path, the audio entry is classified as an
+  "embedded audio reference". It reuses the media/video/ copy instead of
+  creating a duplicate in media/audio/.
+
+  Result: only ONE physical file; both XML pathurls point to media/video/.
 
 What is NOT copied
 ------------------
@@ -65,6 +76,13 @@ _REPORT_ONLY_CLASSES: frozenset[AssetClass] = frozenset({
     AssetClass.UNKNOWN,
 })
 
+# A USER_AUDIO entry whose source has one of these extensions and resolves to
+# the same path as an already-copied USER_VIDEO is treated as an embedded audio
+# reference — it reuses the video copy instead of making a second file.
+_VIDEO_AUDIO_EXTENSIONS: frozenset[str] = frozenset({
+    ".mp4", ".mov", ".mxf", ".mkv", ".avi", ".m4v", ".m2ts", ".ts", ".mp4v",
+})
+
 # Action hints for the offline report, by asset class.
 _OFFLINE_ACTION: dict[AssetClass, str] = {
     AssetClass.USER_VIDEO:      "locate the file and use Premiere's Link Media to relink",
@@ -88,9 +106,10 @@ _OFFLINE_ACTION: dict[AssetClass, str] = {
 class CollectStats:
     total_assets: int = 0
     copied_count: int = 0
-    deduped_count: int = 0              # same physical file referenced multiple times
-    offline_count: int = 0              # online=False AND copyable class
-    skipped_report_only_count: int = 0  # CAPCUT_EFFECT / FONT / UNKNOWN
+    deduped_count: int = 0                # same physical file, same subdir
+    embedded_audio_reused_count: int = 0  # USER_AUDIO reusing existing video copy
+    offline_count: int = 0               # online=False AND copyable class
+    skipped_report_only_count: int = 0   # CAPCUT_EFFECT / FONT / UNKNOWN
     total_copied_size_bytes: int = 0
     extension_normalized_count: int = 0  # files whose extension was corrected
 
@@ -212,13 +231,19 @@ def _copy_online_assets(
     path_override maps asset_id → absolute destination path string.
     Mutates manifest entries: sets collect_relative_path, original_extension,
     detected_extension, and extension_normalized on copied entries.
+
+    Embedded audio dedup: USER_AUDIO entries whose source is a video-format
+    file already copied as USER_VIDEO reuse the video copy instead of being
+    duplicated in media/audio/.
     """
     stats = CollectStats()
     path_override: dict[str, str] = {}
     used_names: dict[str, set[str]] = {}
-    # Dedup: maps canonical (resolved, subdir, logical_name) → dest path so
-    # multiple IR assets that reference the same physical file share one copy.
+    # Dedup within same subdir: maps "resolved_path|subdir" → dest Path.
     resolved_to_dest: dict[str, Path] = {}
+    # Cross-subdir tracker for embedded audio reuse: maps resolved path str →
+    # dest Path of the already-copied USER_VIDEO entry.
+    video_source_to_dest: dict[str, Path] = {}
 
     for entry in manifest.all_entries():
         stats.total_assets += 1
@@ -232,6 +257,22 @@ def _copy_online_assets(
             continue
 
         src = Path(entry.resolved_path)
+
+        # ── Embedded audio reuse check ────────────────────────────────────────
+        # manifest.all_entries() yields videos before audios, so by the time we
+        # reach a USER_AUDIO entry, all USER_VIDEO copies are already recorded.
+        if (
+            entry.asset_class == AssetClass.USER_AUDIO
+            and src.suffix.lower() in _VIDEO_AUDIO_EXTENSIONS
+        ):
+            video_dest = video_source_to_dest.get(str(src.resolve()))
+            if video_dest is not None:
+                # Reuse the existing video copy — no new file needed.
+                rel = video_dest.relative_to(out_dir)
+                entry.collect_relative_path = str(rel)
+                path_override[entry.asset_id] = str(video_dest.resolve())
+                stats.embedded_audio_reused_count += 1
+                continue
 
         # Detect true file type and normalize extension if needed.
         ft = detect_file_type(src)
@@ -258,6 +299,9 @@ def _copy_online_assets(
             entry.collect_relative_path = str(rel)
             path_override[entry.asset_id] = str(dest.resolve())
             stats.deduped_count += 1
+            # Record for embedded audio reuse even on dedup path.
+            if entry.asset_class == AssetClass.USER_VIDEO:
+                video_source_to_dest[str(src.resolve())] = dest
             continue
 
         dest_dir = media_dir / subdir_name
@@ -282,6 +326,10 @@ def _copy_online_assets(
         rel = dest.relative_to(out_dir)
         entry.collect_relative_path = str(rel)
         path_override[entry.asset_id] = str(dest.resolve())
+
+        # Record USER_VIDEO dest for potential embedded audio reuse.
+        if entry.asset_class == AssetClass.USER_VIDEO:
+            video_source_to_dest[str(src.resolve())] = dest
 
     return path_override, stats
 
@@ -442,6 +490,11 @@ def _write_package_summary(
         lines.append(f"  {(subname + '/'):12s}{n} {unit}")
     lines.append("")
 
+    if stats.embedded_audio_reused_count:
+        lines.append("Embedded audio reused from video assets:")
+        lines.append(f"  {stats.embedded_audio_reused_count} (same physical file — no extra copy in media/audio/)")
+        lines.append("")
+
     if stats.extension_normalized_count:
         lines.append("Normalized extensions:")
         lines.append(f"  {stats.extension_normalized_count} file(s)")
@@ -580,6 +633,17 @@ def _write_relink_guide(
         "- **To recover frames:** use a longer source take in CapCut and re-export, "
         "or manually relink the clip to a longer file in Premiere.\n"
     )
+
+    if stats.embedded_audio_reused_count:
+        lines.append("\n## Audio extracted from video clips\n")
+        lines.append(
+            f"{stats.embedded_audio_reused_count} audio track(s) were extracted by CapCut "
+            "from camera/video clips (CapCut's automatic video-audio split). "
+            "These share the same underlying media file as the corresponding video clips "
+            "and are **not duplicated** in `media/audio/` — they reuse the copy in "
+            "`media/video/`. Both video and audio tracks link to the same file in Premiere, "
+            "which is correct.\n"
+        )
 
     if stats.extension_normalized_count:
         lines.append("\n## Extension normalization\n")
