@@ -246,6 +246,96 @@ class CopyOnlineAssetsTest(unittest.TestCase):
         self.assertNotIn("EFF-X", override)
         self.assertGreater(stats.skipped_report_only_count, 0)
 
+    # ── deduplication (same physical file, multiple asset IDs) ────────────────
+
+    def test_same_physical_file_copied_once_in_same_subdir(self):
+        """Two video asset IDs pointing to the same source file must produce
+        one physical copy, not two."""
+        src = self.src_dir / "interview.mp4"
+        src.write_bytes(b"video" * 200)
+        entry_a = ManifestEntry(
+            asset_id="VID-A1", name="interview.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        entry_b = ManifestEntry(
+            asset_id="VID-A2", name="interview.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V2"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", videos=[entry_a, entry_b])
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        video_files = list((self.media_dir / "video").iterdir())
+        self.assertEqual(len(video_files), 1, "Expected one physical copy, not two")
+
+    def test_deduped_entries_share_path_override(self):
+        """Both asset IDs must point to the same destination in path_override."""
+        src = self.src_dir / "interview.mp4"
+        src.write_bytes(b"video" * 200)
+        entry_a = ManifestEntry(
+            asset_id="VID-A1", name="interview.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        entry_b = ManifestEntry(
+            asset_id="VID-A2", name="interview.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V2"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", videos=[entry_a, entry_b])
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        self.assertIn("VID-A1", override)
+        self.assertIn("VID-A2", override)
+        self.assertEqual(override["VID-A1"], override["VID-A2"],
+                         "Both IDs must point to the same physical file")
+
+    def test_dedup_counted_in_stats(self):
+        src = self.src_dir / "interview.mp4"
+        src.write_bytes(b"video" * 200)
+        entries = [
+            ManifestEntry(
+                asset_id=f"VID-{i}", name="interview.mp4",
+                asset_class=AssetClass.USER_VIDEO,
+                original_path=str(src), resolved_path=str(src),
+                is_cached=False, is_online=True, file_size_bytes=1000,
+                duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+            )
+            for i in range(4)
+        ]
+        m = AssetManifest(project_name="p", videos=entries)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.copied_count, 1)
+        self.assertEqual(stats.deduped_count, 3)
+
+    def test_same_file_different_subdir_is_not_deduped(self):
+        """The same source file appearing in video and audio tracks should be
+        copied to both subdirs independently (different semantic use)."""
+        src = self.src_dir / "footage.mp4"
+        src.write_bytes(b"data" * 200)
+        vid_entry = ManifestEntry(
+            asset_id="VID-X", name="footage.mp4", asset_class=AssetClass.USER_VIDEO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["V1"], clip_count=1,
+        )
+        aud_entry = ManifestEntry(
+            asset_id="AUD-X", name="footage.mp4", asset_class=AssetClass.USER_AUDIO,
+            original_path=str(src), resolved_path=str(src),
+            is_cached=False, is_online=True, file_size_bytes=1000,
+            duration_us=10_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", videos=[vid_entry], audios=[aud_entry])
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.copied_count, 2, "Video and audio copies are independent")
+        self.assertEqual(stats.deduped_count, 0)
+        self.assertNotEqual(override["VID-X"], override["AUD-X"])
+
 
 # ─── _write_offline_report ────────────────────────────────────────────────────
 

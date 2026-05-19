@@ -137,10 +137,11 @@ _BENIGN_REF_CATEGORIES = {"placeholder_infos"}
 # Predicate is called on the material payload dict; True ⇒ deviation from
 # default ⇒ report. Keep these tolerant — missing fields mean default.
 _CONDITIONAL_REF_PREDICATES = {
-    "speeds": lambda p: (
-        abs(float(p.get("speed", 1.0)) - 1.0) > 1e-3
-        or p.get("curve_speed") is not None
-    ),
+    # Only fire for actual variable-speed curves.  Constant speed changes
+    # (speed != 1.0, no curve_speed) are already reported at the segment
+    # level as "speed"; re-reporting them here as "speed_curve" is a
+    # false positive and confuses the reader of the report.
+    "speeds": lambda p: p.get("curve_speed") is not None,
     "material_animations": lambda p: bool(p.get("animations")),
     "vocal_separations": lambda p: bool(p.get("choice")),
     "canvases": lambda p: bool(p.get("color")) or bool(p.get("image")),

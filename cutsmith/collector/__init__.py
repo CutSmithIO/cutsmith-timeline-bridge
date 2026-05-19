@@ -88,6 +88,7 @@ _OFFLINE_ACTION: dict[AssetClass, str] = {
 class CollectStats:
     total_assets: int = 0
     copied_count: int = 0
+    deduped_count: int = 0              # same physical file referenced multiple times
     offline_count: int = 0              # online=False AND copyable class
     skipped_report_only_count: int = 0  # CAPCUT_EFFECT / FONT / UNKNOWN
     total_copied_size_bytes: int = 0
@@ -197,6 +198,9 @@ def _copy_online_assets(
     stats = CollectStats()
     path_override: dict[str, str] = {}
     used_names: dict[str, set[str]] = {}
+    # Dedup: maps canonical (resolved, subdir, logical_name) → dest path so
+    # multiple IR assets that reference the same physical file share one copy.
+    resolved_to_dest: dict[str, Path] = {}
 
     for entry in manifest.all_entries():
         stats.total_assets += 1
@@ -208,11 +212,6 @@ def _copy_online_assets(
         if not entry.is_online or not entry.resolved_path:
             stats.offline_count += 1
             continue
-
-        subdir_name = _COPY_CLASS_TO_SUBDIR.get(entry.asset_class, "misc")
-        dest_dir = media_dir / subdir_name
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        used_names.setdefault(subdir_name, set())
 
         src = Path(entry.resolved_path)
 
@@ -226,14 +225,33 @@ def _copy_online_assets(
         entry.extension_normalized = normalized
 
         if normalized:
-            stats.extension_normalized_count += 1
             logical_name = src.stem + (detected_ext or src.suffix)
         else:
             logical_name = src.name
 
+        subdir_name = _COPY_CLASS_TO_SUBDIR.get(entry.asset_class, "misc")
+        dedup_key = f"{src.resolve()}|{subdir_name}"
+
+        # Dedup: if this exact physical file was already copied to the same
+        # subdir, reuse the destination instead of making a second copy.
+        if dedup_key in resolved_to_dest:
+            dest = resolved_to_dest[dedup_key]
+            rel = dest.relative_to(out_dir)
+            entry.collect_relative_path = str(rel)
+            path_override[entry.asset_id] = str(dest.resolve())
+            stats.deduped_count += 1
+            continue
+
+        dest_dir = media_dir / subdir_name
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        used_names.setdefault(subdir_name, set())
+
         dest = _unique_dest(src, entry.asset_id, dest_dir, used_names[subdir_name],
                             name=logical_name)
         shutil.copy2(src, dest)
+
+        if normalized:
+            stats.extension_normalized_count += 1
 
         try:
             size = dest.stat().st_size
@@ -242,6 +260,7 @@ def _copy_online_assets(
         stats.copied_count += 1
         stats.total_copied_size_bytes += size
 
+        resolved_to_dest[dedup_key] = dest
         rel = dest.relative_to(out_dir)
         entry.collect_relative_path = str(rel)
         path_override[entry.asset_id] = str(dest.resolve())
@@ -290,6 +309,8 @@ def _write_collect_report(
         f.write("| | Count |\n")
         f.write("|---|---|\n")
         f.write(f"| Assets copied | **{stats.copied_count}** |\n")
+        if stats.deduped_count:
+            f.write(f"| Shared (same file, no extra copy) | {stats.deduped_count} |\n")
         if stats.extension_normalized_count:
             f.write(f"| Extension normalized | {stats.extension_normalized_count} |\n")
         f.write(f"| Offline (not copied) | {stats.offline_count} |\n")

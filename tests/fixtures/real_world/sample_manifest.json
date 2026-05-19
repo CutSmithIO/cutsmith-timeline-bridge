@@ -98,6 +98,38 @@
         "speed-curve-report-only"
       ],
       "notes": "Primary stress fixture for v0.2 alpha. Covers: vertical resolution, multi-layer (7 video tracks), constant speed 0.5× and 2.0× (both correctly detected, timeline slot preserved, Premiere shows 100%), speed_curve (report-only), stickers animated+static, named transitions/effects/filters, Pattern B text_template subtitle chain (8 cues). Premiere import confirmed 2026-05-19 by creator. Speed reconstruction gap confirmed: FCP7 implicit speed encoding is not auto-interpreted by Premiere — becomes research track for v0.3+."
+    },
+    {
+      "id": "capcut-desktop-vertical-audio-channel-caption-speed",
+      "category": "capcut_desktop",
+      "app_type": "capcut",
+      "app_version": "167.0.0",
+      "schema_version": 360000,
+      "schema_type": "modern_plaintext",
+      "encryption": "plaintext",
+      "supported_status": "supported",
+      "timeline_entry_path": null,
+      "source_app_path": "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/0519V2/Timelines/3543C571-926B-4C29-BABB-A6A7185E6828/draft_info.json",
+      "added": "2026-05-19",
+      "verified_against": "v0.3.1-alpha",
+      "shape": "2 video tracks (V1: 4 clips@1.0×, V2: 3 clips — 1@2.0× + 2@0.5×), 2 audio tracks (A1: 2 clips, A2: 1 clip); 1080×1920 vertical 30fps NDF; 181.8s total; 10 stickers (all offline — CapCut emoji cache); 33 auto captions / text materials; 10 sound_channel_mappings (all benign acm=0, is_config_open=false); 2 audio_fades; 49 unsupported items (text×34, sticker×10, speed×3, audio_fade×2), 0 false-positives",
+      "notes": "v0.3.1 validation fixture. Key findings: (A) 1080×1920 vertical preserved correctly. (B) 3 real speed changes (2.0× + 0.5× + 0.5×) correctly detected as 'speed', 0 false-positive speed_curve — this sample triggered fix: _CONDITIONAL_REF_PREDICATES['speeds'] was erroneously reporting constant speed segments as speed_curve; fixed to only fire when curve_speed is not None. (C) sound_channel_mappings: 10 present but ALL benign (acm=0, is_config_open=False) — no active channel routing in this project; reader correctly filters them as benign, 0 false-positives. (D) 33 auto captions confirmed exportable via export-srt (33 cues, 39.97s–100.0s range, correct target_timerange timing). (E) collect: 5 unique physical files copied (792MB), 5 deduped references — this sample triggered dedup fix: same 384MB video referenced 5× was being copied 5× before fix. 10 stickers offline (CapCut emoji cache not portable).",
+      "flags": [
+        "vertical-1080x1920-passed",
+        "constant-speed-2x-and-05x-detected",
+        "speed-curve-false-positive-fixed",
+        "sound-channel-mapping-all-benign",
+        "auto-captions-33-cues-exported",
+        "collect-dedup-fix-triggered",
+        "stickers-offline-capcut-emoji-cache"
+      ],
+      "unsupported_breakdown": {
+        "text": 34,
+        "sticker": 10,
+        "speed": 3,
+        "audio_fade": 2,
+        "speed_curve_false_positive": 0
+      }
     }
   ]
 }
