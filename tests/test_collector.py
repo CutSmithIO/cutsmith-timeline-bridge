@@ -494,3 +494,219 @@ class CollectIntegrationTest(unittest.TestCase):
     def test_report_only_not_copied(self):
         r = self._run_collect()
         self.assertGreater(r.stats.skipped_report_only_count, 0)
+
+
+# ─── extension normalization ──────────────────────────────────────────────────
+
+# Shared magic byte constants (duplicated from test_filetype for isolation).
+_PNG_MAGIC  = b"\x89PNG\r\n\x1a\n" + b"\x00" * 100
+_M4A_MAGIC  = b"\x00\x00\x00\x1cftyp" b"M4A " b"\x00\x00\x02\x00" b"isom" + b"\x00" * 100
+_MP3_MAGIC  = b"ID3\x04\x00\x00\x00\x00\x00\x00" + b"\x00" * 100
+
+
+class ExtensionNormalizationCopyTest(unittest.TestCase):
+    """Regression tests for cache extension normalization in _copy_online_assets."""
+
+    def setUp(self):
+        self._src = tempfile.TemporaryDirectory()
+        self._out = tempfile.TemporaryDirectory()
+        self.src_dir = Path(self._src.name)
+        self.out_dir = Path(self._out.name)
+        self.media_dir = self.out_dir / "media"
+
+    def tearDown(self):
+        self._src.cleanup()
+        self._out.cleanup()
+
+    def _single_entry_manifest(
+        self,
+        filename: str,
+        content: bytes,
+        asset_class: AssetClass = AssetClass.CAPCUT_MUSIC,
+        asset_id: str = "TEST-001",
+    ) -> AssetManifest:
+        src = self.src_dir / filename
+        src.write_bytes(content)
+        entry = ManifestEntry(
+            asset_id=asset_id,
+            name=filename,
+            asset_class=asset_class,
+            original_path=str(src),
+            resolved_path=str(src),
+            is_cached=True,
+            is_online=True,
+            file_size_bytes=len(content),
+            duration_us=1_000_000,
+            used_in_tracks=["A1"],
+            clip_count=1,
+        )
+        m = AssetManifest(
+            project_name="norm_test",
+            music=[entry] if asset_class == AssetClass.CAPCUT_MUSIC else [],
+            images=[entry] if asset_class == AssetClass.USER_IMAGE else [],
+        )
+        return m
+
+    # ── extensionless PNG cache file → copied as .png ─────────────────────────
+
+    def test_extensionless_png_copied_as_png(self):
+        """Cache image with no extension and PNG magic bytes → dest gets .png."""
+        m = self._single_entry_manifest(
+            "0a1a1d8f92a53cb1ea79944e5d28cfa0", _PNG_MAGIC,
+            asset_class=AssetClass.USER_IMAGE,
+        )
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        images = list((self.media_dir / "images").iterdir())
+        self.assertEqual(len(images), 1)
+        self.assertEqual(images[0].suffix, ".png")
+
+    def test_extensionless_png_manifest_entry_normalized(self):
+        m = self._single_entry_manifest(
+            "0a1a1d8f92a53cb1ea79944e5d28cfa0", _PNG_MAGIC,
+            asset_class=AssetClass.USER_IMAGE,
+        )
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        entry = m.images[0]
+        self.assertTrue(entry.extension_normalized)
+        self.assertEqual(entry.original_extension, None)  # "" → None (no suffix)
+        self.assertEqual(entry.detected_extension, ".png")
+
+    # ── .mp3 path with M4A ftyp content → copied as .m4a ────────────────────
+
+    def test_mp3_with_m4a_content_copied_as_m4a(self):
+        """CapCut cache music with .mp3 extension but M4A ftyp content → .m4a."""
+        m = self._single_entry_manifest(
+            "5a24a7e2eb1672953b926de5b8429eb6.mp3", _M4A_MAGIC,
+        )
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        music_files = list((self.media_dir / "music").iterdir())
+        self.assertEqual(len(music_files), 1)
+        self.assertEqual(music_files[0].suffix, ".m4a")
+
+    def test_mp3_with_m4a_content_manifest_records_normalization(self):
+        m = self._single_entry_manifest(
+            "5a24a7e2eb1672953b926de5b8429eb6.mp3", _M4A_MAGIC,
+        )
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        entry = m.music[0]
+        self.assertTrue(entry.extension_normalized)
+        self.assertEqual(entry.original_extension, ".mp3")
+        self.assertEqual(entry.detected_extension, ".m4a")
+
+    def test_mp3_with_m4a_content_path_override_uses_m4a(self):
+        """path_override must point at the .m4a file so the XML uses the right path."""
+        m = self._single_entry_manifest(
+            "cache_track.mp3", _M4A_MAGIC, asset_id="MUSIC-001",
+        )
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertIn("MUSIC-001", override)
+        self.assertTrue(override["MUSIC-001"].endswith(".m4a"),
+                        f"Expected .m4a in path_override; got {override['MUSIC-001']}")
+
+    # ── real .mp3 stays .mp3 ─────────────────────────────────────────────────
+
+    def test_real_mp3_stays_mp3(self):
+        """A file with .mp3 extension and genuine ID3 content must not be renamed."""
+        m = self._single_entry_manifest("bgm.mp3", _MP3_MAGIC)
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        music_files = list((self.media_dir / "music").iterdir())
+        self.assertEqual(len(music_files), 1)
+        self.assertEqual(music_files[0].name, "bgm.mp3")
+
+    def test_real_mp3_manifest_not_normalized(self):
+        m = self._single_entry_manifest("bgm.mp3", _MP3_MAGIC)
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        entry = m.music[0]
+        self.assertFalse(entry.extension_normalized)
+
+    # ── stats ─────────────────────────────────────────────────────────────────
+
+    def test_stats_normalized_count(self):
+        """extension_normalized_count increments for each corrected file."""
+        # One M4A-as-mp3 → count = 1
+        m = self._single_entry_manifest("fake.mp3", _M4A_MAGIC)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.extension_normalized_count, 1)
+
+    def test_stats_normalized_count_zero_for_correct_extension(self):
+        m = self._single_entry_manifest("real.mp3", _MP3_MAGIC)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertEqual(stats.extension_normalized_count, 0)
+
+    # ── collision still works after normalization ─────────────────────────────
+
+    def test_collision_after_normalization(self):
+        """Two .mp3 files with M4A content that both normalize to the same stem
+        must be disambiguated in media/music/."""
+        src_a = self.src_dir / "track.mp3"
+        src_b = (self.src_dir / "sub"); src_b.mkdir()
+        src_b = src_b / "track.mp3"
+        src_a.write_bytes(_M4A_MAGIC)
+        src_b.write_bytes(_M4A_MAGIC)
+
+        entry_a = ManifestEntry(
+            asset_id="MUS-A", name="track.mp3", asset_class=AssetClass.CAPCUT_MUSIC,
+            original_path=str(src_a), resolved_path=str(src_a),
+            is_cached=True, is_online=True, file_size_bytes=len(_M4A_MAGIC),
+            duration_us=1_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        entry_b = ManifestEntry(
+            asset_id="MUS-B", name="track.mp3", asset_class=AssetClass.CAPCUT_MUSIC,
+            original_path=str(src_b), resolved_path=str(src_b),
+            is_cached=True, is_online=True, file_size_bytes=len(_M4A_MAGIC),
+            duration_us=1_000_000, used_in_tracks=["A2"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", music=[entry_a, entry_b])
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        music_files = list((self.media_dir / "music").iterdir())
+        self.assertEqual(len(music_files), 2)
+        names = {f.name for f in music_files}
+        # Both files must have .m4a extension.
+        self.assertTrue(all(n.endswith(".m4a") for n in names),
+                        f"Expected all .m4a files; got {names}")
+        # One is the canonical name, the other is disambiguated.
+        self.assertIn("track.m4a", names)
+        non_canonical = [n for n in names if n != "track.m4a"]
+        self.assertEqual(len(non_canonical), 1)
+        # Disambiguated name contains the asset_id prefix.
+        self.assertIn("MUS-B"[:8], non_canonical[0])
+
+    # ── XML uses normalized path ──────────────────────────────────────────────
+
+    def test_xml_pathurl_uses_normalized_extension(self):
+        """When a .mp3 file is normalised to .m4a, the XML <pathurl> must
+        reference the .m4a file, not the original .mp3 path."""
+        import xml.etree.ElementTree as ET
+        from cutsmith.reader import read_draft
+        from cutsmith.writer import write_fcp7_xml
+
+        fixture = Path(__file__).parent / "fixtures" / "mock_draft_content.json"
+        timeline = read_draft(fixture)
+
+        # Pick the first asset and set it up with a fake .mp3 file that is
+        # actually M4A, injecting it into path_override via _copy_online_assets.
+        asset_id, asset = next(iter(timeline.assets.items()))
+
+        fake_src = self.src_dir / "from_cache.mp3"
+        fake_src.write_bytes(_M4A_MAGIC)
+
+        entry = ManifestEntry(
+            asset_id=asset_id, name="from_cache.mp3",
+            asset_class=AssetClass.CAPCUT_MUSIC,
+            original_path=str(fake_src), resolved_path=str(fake_src),
+            is_cached=True, is_online=True, file_size_bytes=len(_M4A_MAGIC),
+            duration_us=1_000_000, used_in_tracks=["A1"], clip_count=1,
+        )
+        m = AssetManifest(project_name="p", music=[entry])
+        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+
+        xml_path = self.out_dir / "test.xml"
+        write_fcp7_xml(timeline, xml_path, path_override=override)
+
+        tree = ET.parse(xml_path)
+        pathuris = [el.text for el in tree.findall(".//pathurl") if el.text]
+        self.assertTrue(
+            any(u.endswith(".m4a") for u in pathuris),
+            f"Expected a .m4a pathurl; got {pathuris}",
+        )

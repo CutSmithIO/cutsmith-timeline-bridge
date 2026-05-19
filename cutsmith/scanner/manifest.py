@@ -30,6 +30,10 @@ class ManifestEntry:
     clip_count: int
     # filled by collector (v0.3), not by scanner
     collect_relative_path: str | None = None
+    # extension normalization — set only when collect copies and detects a mismatch
+    original_extension: str | None = None   # e.g. ".mp3" or "" (no extension)
+    detected_extension: str | None = None   # e.g. ".m4a"
+    extension_normalized: bool = False      # True when dest extension differs from source
 
     def to_dict(self) -> dict:
         return {
@@ -45,6 +49,9 @@ class ManifestEntry:
             "used_in_tracks": self.used_in_tracks,
             "clip_count": self.clip_count,
             "collect_relative_path": self.collect_relative_path,
+            "original_extension": self.original_extension,
+            "detected_extension": self.detected_extension,
+            "extension_normalized": self.extension_normalized,
         }
 
 

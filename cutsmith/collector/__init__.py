@@ -36,6 +36,7 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from cutsmith.collector.filetype import FileType, detect_file_type, should_normalize_extension
 from cutsmith.detect import detect_project
 from cutsmith.ir import AssetClass
 from cutsmith.reader import read_draft
@@ -90,6 +91,7 @@ class CollectStats:
     offline_count: int = 0              # online=False AND copyable class
     skipped_report_only_count: int = 0  # CAPCUT_EFFECT / FONT / UNKNOWN
     total_copied_size_bytes: int = 0
+    extension_normalized_count: int = 0  # files whose extension was corrected
 
 
 @dataclass
@@ -189,7 +191,8 @@ def _copy_online_assets(
 
     Returns (path_override, stats).
     path_override maps asset_id → absolute destination path string.
-    Mutates manifest entries: sets collect_relative_path on copied entries.
+    Mutates manifest entries: sets collect_relative_path, original_extension,
+    detected_extension, and extension_normalized on copied entries.
     """
     stats = CollectStats()
     path_override: dict[str, str] = {}
@@ -212,8 +215,24 @@ def _copy_online_assets(
         used_names.setdefault(subdir_name, set())
 
         src = Path(entry.resolved_path)
-        dest = _unique_dest(src, entry.asset_id, dest_dir, used_names[subdir_name])
 
+        # Detect true file type and normalize extension if needed.
+        ft = detect_file_type(src)
+        detected_ext = ft.ext if ft else None
+        normalized = should_normalize_extension(src.suffix, detected_ext)
+
+        entry.original_extension = src.suffix or None
+        entry.detected_extension = detected_ext
+        entry.extension_normalized = normalized
+
+        if normalized:
+            stats.extension_normalized_count += 1
+            logical_name = src.stem + (detected_ext or src.suffix)
+        else:
+            logical_name = src.name
+
+        dest = _unique_dest(src, entry.asset_id, dest_dir, used_names[subdir_name],
+                            name=logical_name)
         shutil.copy2(src, dest)
 
         try:
@@ -235,13 +254,19 @@ def _unique_dest(
     asset_id: str,
     dest_dir: Path,
     used_names: set[str],
+    name: str | None = None,
 ) -> Path:
-    """Return a unique destination path; disambiguate with asset_id[:8] on collision."""
-    name = src.name
-    if name not in used_names:
-        used_names.add(name)
-        return dest_dir / name
-    disambig = f"{src.stem}_{asset_id[:8]}{src.suffix}"
+    """Return a unique destination path; disambiguate with asset_id[:8] on collision.
+
+    *name* overrides the filename derived from *src* (used after extension
+    normalization so the disambiguated suffix also uses the corrected extension).
+    """
+    effective = Path(name) if name else src
+    final_name = effective.name
+    if final_name not in used_names:
+        used_names.add(final_name)
+        return dest_dir / final_name
+    disambig = f"{effective.stem}_{asset_id[:8]}{effective.suffix}"
     used_names.add(disambig)
     return dest_dir / disambig
 
@@ -258,15 +283,38 @@ def _write_collect_report(
     write_report(timeline, resolution, output_path, xml_output_path=xml_path)
 
     sz_mb = stats.total_copied_size_bytes / 1_048_576
+    normalized_entries = [e for e in manifest.all_entries() if e.extension_normalized]
+
     with output_path.open("a", encoding="utf-8") as f:
         f.write("\n## Collect package\n\n")
         f.write("| | Count |\n")
         f.write("|---|---|\n")
         f.write(f"| Assets copied | **{stats.copied_count}** |\n")
+        if stats.extension_normalized_count:
+            f.write(f"| Extension normalized | {stats.extension_normalized_count} |\n")
         f.write(f"| Offline (not copied) | {stats.offline_count} |\n")
         f.write(f"| Report-only (proprietary) | {stats.skipped_report_only_count} |\n")
         f.write(f"| Total copied size | {sz_mb:.1f} MB |\n")
         f.write("\n")
+
+        if normalized_entries:
+            f.write("### Extension normalization\n\n")
+            f.write(
+                "The following files had incorrect or missing extensions in the CapCut "
+                "cache. Extensions were corrected based on file magic bytes so Premiere "
+                "can open them directly.\n\n"
+            )
+            f.write("| Original filename | Collected as | Detected type |\n")
+            f.write("|---|---|---|\n")
+            for e in normalized_entries:
+                orig_name = Path(e.original_path or e.name).name
+                collected_name = (
+                    Path(e.collect_relative_path).name
+                    if e.collect_relative_path else "?"
+                )
+                f.write(f"| `{orig_name}` | `{collected_name}` | `{e.detected_extension}` |\n")
+            f.write("\n")
+
         f.write(
             "**CapCut proprietary assets** (effects, transitions, filters, stickers) "
             "are **not portable** — they cannot be transferred outside CapCut. "
