@@ -70,10 +70,10 @@ tells you exactly which segments are affected so you can rebuild manually.
 | CapCut filters / HSL / color wheels | Report-only — not in XML | Apply LUTs or Premiere color effects |
 | CapCut effects / video effects | Report-only — not in XML | Apply Premiere native effects |
 | CapCut stickers | Report-only — not in XML | Import PNG/GIF from asset packs |
-| Subtitles / captions (in convert) | Ignored — but extractable | Run `export-srt`, import to Premiere Captions track |
+| Subtitles / captions (in convert) | Ignored in XML — export separately | Run `export-srt`, import to Premiere Captions track |
 | Keyframe animations (position/scale/rotation/opacity) | Not exported | Rebuild in Effect Controls |
 | Compound clips / sub-drafts | Not parsed | Flatten in CapCut before exporting |
-| Encrypted 剪映 PC ≥ 75.0.0 drafts | Refused gracefully | Use CapCut Desktop or older 剪映 builds |
+| Encrypted 剪映 PC ≥ 75.0.0 drafts | Detected and refused — no decryption attempted | Use CapCut Desktop or older 剪映 builds |
 
 ---
 
@@ -114,6 +114,28 @@ The more diverse the CapCut project, the more useful it is. Priority:
 
 10. **Projects heavy on CapCut music library** — validates music licensing
     note and extension normalization on cached music files.
+
+---
+
+## Asset licensing
+
+When `collect` copies music, SFX, or sticker files from the CapCut cache into
+`media/`, those files may carry licensing terms set by CapCut or third-party
+rights holders. Copying them into a portable package does not transfer any
+usage rights.
+
+- **CapCut music / SFX**: subject to CapCut/TikTok licensing terms. Verify
+  distribution rights before publishing content that includes them. Tracks
+  marked for "commercial use" in CapCut may still have restrictions outside
+  the platform.
+- **Stickers and overlay graphics**: if the sticker file is locally cached
+  and copyable, it will be included in `media/stickers/`. Licensing terms
+  vary by pack; check the source before redistribution.
+- **Your own footage, voiceover, and images**: no licensing concern from
+  CutSmith's side — these are files you own and have already stored locally.
+
+When in doubt, remove the third-party asset from the Premiere project and
+replace it with a licensed equivalent.
 
 ---
 

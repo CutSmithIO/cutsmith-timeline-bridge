@@ -2,17 +2,19 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.3.5`
+**Version**: `v0.3.6-alpha`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
 - modern_plaintext schema (`schema_version = 360000`)
 - Premiere Pro FCP7 XML import
 
-把剪映 / CapCut 专业版的草稿时间线迁移到 **Premiere Pro**（通过 FCP7 XML），并将用户素材打包收集到可交付的 Portable Package。
+把 CapCut Desktop（剪映专业版）的草稿时间线迁移到 **Premiere Pro**（通过 FCP7 XML），并将用户素材打包收集到可交付的 Portable Package。
 
 > **定位**：粗剪时间线搬运工 + 素材打包工具，不是 CapCut 全工程转换器。
 > 目标是让你在剪映里"切得差不多"之后，能拿到 PR 里继续精剪，或者把整个包交给协作剪辑师继续工作。
+
+**互操作性声明**：CutSmith 读取 CapCut 写入用户本地文件系统的明文 `draft_info.json`，不修改 CapCut 程序本体，不绕过、不尝试解密任何加密格式。加密草稿（剪映 PC ≥ 75.0.0）会被直接拒绝并报错，不做任何解密操作。CapCut 音乐库、音效等第三方授权素材复制到便携包后，使用权利不随之转让；发布前请自行确认版权。
 
 ## Tested against real-world CapCut Desktop projects
 
@@ -245,7 +247,7 @@ out_collect/<project_name>/
     ├── video/
     ├── audio/
     ├── images/
-    ├── music/                ← 剪映音乐库（注意版权）
+    ├── music/                ← 剪映音乐库（见版权说明）
     ├── sfx/
     └── stickers/
 ```

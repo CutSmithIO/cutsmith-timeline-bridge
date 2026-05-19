@@ -72,7 +72,7 @@ Premiere Pro 2024 / 2025:
 | Portable media package — copy dir to another machine, relink | ✅ |
 | CapCut cache extension normalization (.mp3 → .m4a, extensionless → .png) | ✅ |
 | Embedded audio dedup — video-audio split shares one physical file | ✅ |
-| Subtitle extraction to SRT (for Premiere Captions import) | ✅ Pattern A + B |
+| Subtitle export to SRT (for Premiere Captions import) | ✅ Pattern A + B |
 | Asset manifest JSON | ✅ |
 | Package summary txt + relink guide md | ✅ |
 
@@ -87,7 +87,7 @@ Premiere Pro 2024 / 2025:
 | CapCut effects / transitions / filters | Ignored safely — named in report, absent from XML. Rebuild with Premiere native equivalents. |
 | CapCut stickers | Ignored safely — named in report. |
 | Subtitles in convert/collect | Dropped from XML. Run `export-srt` separately, import as Premiere Captions track. |
-| Encrypted 剪映 PC ≥ 75.0.0 | Detected and refused gracefully (`detect` command). |
+| Encrypted 剪映 PC ≥ 75.0.0 | Detected and refused. No decryption is attempted. |
 | Windows paths on macOS | Requires explicit `-s` search root; basename matching used. |
 
 ---
@@ -192,13 +192,13 @@ python3 -m cutsmith convert "/path/to/draft_info.json" \
 Produces `my_sequence.xml` + `my_sequence.report.md`. Use when you just want
 the XML and will manage media paths manually.
 
-### export-srt — extract subtitles
+### export-srt — export captions to SRT
 
 ```bash
 python3 -m cutsmith export-srt "/path/to/CapCut/project" -o ./captions.srt
 ```
 
-Extracts all caption materials to SRT. Import into Premiere via
+Exports all caption entries to SRT. Import into Premiere via
 `File → Import → Captions`. Supports Pattern A (top-level texts) and
 Pattern B (nested content segments).
 
@@ -244,7 +244,7 @@ offline / cached status and file sizes.
 | Embedded audio dedup | Video-split audio reuses `media/video/` — no MP4 in `media/audio/` |
 | Extension normalization | Magic-byte detection corrects cache file extensions |
 | Asset manifest JSON | `collected_root`, `relink_root_hint`, per-entry stats |
-| Subtitle extraction (export-srt) | Pattern A + B |
+| Subtitle export (export-srt) | Pattern A + B |
 | Schema-drift inspection | `inspect` surfaces unknown fields after CapCut updates |
 
 ### Partially supported
@@ -275,7 +275,7 @@ cutsmith/
 ├── inspect/     # schema-drift detection (independent of reader)
 ├── resolver/    # asset path resolution + offline placeholders
 ├── scanner/     # asset manifest + classification
-├── subtitle/    # SRT extraction
+├── subtitle/    # SRT export
 ├── collector/   # v0.3 collect: copy + relink + package docs
 ├── writer/      # IR → FCP7 XML
 ├── report/      # compatibility_report.md generation
@@ -304,7 +304,7 @@ python3 -m unittest discover -s tests
 - Collector: dedup, offline, path override, extension normalization
 - Package summary + relink guide output
 - Manifest v0.3.4 fields
-- Subtitle extraction (Pattern A + B)
+- Subtitle export (Pattern A + B)
 - Asset manifest and classification
 - Inspect schema drift
 
@@ -318,6 +318,29 @@ python3 -m unittest discover -s tests
 - **v0.3.6 ✅** — embedded audio dedup (video-split shares one file).
 - **Research** — FCPXML output, DaVinci Resolve XML, keyframe animations,
   CapCut Mobile fixture coverage, variable speed curve reconstruction.
+
+---
+
+## Legal / interoperability notice
+
+CutSmith is an **interoperability and workflow portability tool** intended for
+creators working with their own projects and media.
+
+- CutSmith reads `draft_info.json`, a plaintext file CapCut writes into the
+  user's own filesystem. It does not modify CapCut binaries or hook into the
+  CapCut process.
+- CutSmith does not bypass, circumvent, or attempt to decrypt any form of
+  DRM or encryption. Drafts that are detected as encrypted are refused; no
+  decryption is attempted.
+- CutSmith copies files the user already has access to on their own machine,
+  into a portable package they control.
+- **Third-party asset licensing**: some assets bundled or cached by CapCut —
+  including music library tracks, SFX, and sticker packs — may be subject to
+  CapCut's or third-party licensors' terms. Copying these files into a
+  portable package does not transfer any usage rights. Users are responsible
+  for ensuring they have the rights to use exported assets outside the CapCut
+  ecosystem, particularly for published or commercially distributed content.
+- CutSmith has no affiliation with ByteDance, CapCut, or TikTok.
 
 ---
 

@@ -130,7 +130,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - **`scan-assets`** subcommand: enumerate and classify all referenced materials
   into `<stem>.manifest.json` + `<stem>.scan.md`.
-- **`export-srt`** subcommand: extract captions to `.srt` / `.txt` / `.json`.
+- **`export-srt`** subcommand: export captions to `.srt` / `.txt` / `.json`.
   Supports Pattern A (top-level `texts[]`) and Pattern B (nested `content_segments`).
 - **`inspect`** subcommand: schema-drift detection independent of the reader.
   Outputs `schema_summary.json`, `media_summary.json`, `track_summary.json`,

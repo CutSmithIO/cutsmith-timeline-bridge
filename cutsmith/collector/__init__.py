@@ -408,9 +408,11 @@ def _write_collect_report(
             "Rebuild them using Premiere's native equivalents.\n\n"
         )
         f.write(
-            "**CapCut Music licensing**: tracks from the CapCut library remain "
-            "subject to CapCut/TikTok licensing terms. Verify distribution rights "
-            "before publishing content that includes them.\n\n"
+            "**Third-party asset licensing**: music tracks, SFX, and sticker assets "
+            "copied from the CapCut cache may be subject to CapCut's or third-party "
+            "licensors' terms. Copying them into a portable package does not transfer "
+            "usage rights. Verify distribution rights before publishing content that "
+            "includes CapCut library assets, particularly for commercial use.\n\n"
         )
         f.write(
             "**Speed-changed clips**: CutSmith emits an explicit FCP7 `timeremap` filter "
@@ -510,10 +512,10 @@ def _write_package_summary(
         lines.append("  → none — package is fully self-contained")
     lines.append("")
 
-    lines.append("Report-only assets (CapCut proprietary — not portable):")
+    lines.append("CapCut-proprietary assets (not transferable outside CapCut):")
     lines.append(f"  {stats.skipped_report_only_count}")
     lines.append("  → effects / transitions / filters / fonts")
-    lines.append("  → rebuild in Premiere using native equivalents")
+    lines.append("  → listed in report.md; rebuild in Premiere using native equivalents")
     lines.append("")
 
     lines.append("Premiere import:")
@@ -589,9 +591,11 @@ def _write_relink_guide(
     lines.append("└── stickers/   ← sticker assets (rare)")
     lines.append("```\n")
     lines.append(
-        "\\* **CapCut music licensing**: tracks from the CapCut/TikTok library "
-        "remain subject to CapCut/TikTok licensing terms. Verify distribution "
-        "rights before publishing content that includes them.\n"
+        "\\* **Third-party asset licensing**: music, SFX, and sticker files "
+        "copied from the CapCut cache may carry licensing terms from CapCut or "
+        "third-party rights holders. Copying them into a portable package does "
+        "not transfer usage rights. Verify distribution rights before publishing "
+        "content that includes CapCut library assets.\n"
     )
 
     lines.append("\n## Assets NOT included\n")
