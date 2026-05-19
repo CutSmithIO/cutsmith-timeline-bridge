@@ -5,7 +5,7 @@ CapCut Desktop → Premiere Pro XML bridge.
 Convert real-world CapCut timelines into editable Premiere Pro sequences,
 and collect all user media into a portable package ready for Premiere delivery.
 
-**Status**: v0.3-alpha
+**Status**: v0.3.3
 
 **Validated against**:
 - CapCut Desktop 167.0.0
@@ -43,8 +43,9 @@ projects. They live in [`tests/fixtures/real_world/sample_manifest.json`](tests/
 | Multicut | `cutsmith` | V1 with 7 butt-cut clips + V2 overlay + BGM + SFX. 0 unsupported items. |
 | Stress-test | `cutsmith2` | Multi-cut + overlay + captions + stickers + transitions + filters + effects + 0.640× variable speed |
 | Vertical full-stress | `0519V` | 1080×1920, 7 video tracks, 0.5× + 2.0× speed clips, speed_curve, stickers, transitions, effects, filters, 8-cue subtitles (Pattern B) |
+| Vertical multi-speed | `0519V2` | 1080×1920, 30fps NDF, 7 clips with 2.0×/0.5×/0.5× constant speed, 33 auto-captions, 10 stickers; collect dedup fixed |
 
-`collect` validated on: `0509`, `cutsmith`, `0519V`.
+`collect` validated on: `0509`, `cutsmith`, `0519V`, `0519V2`.
 
 ## Supported features
 
@@ -57,11 +58,14 @@ projects. They live in [`tests/fixtures/real_world/sample_manifest.json`](tests/
 - Asset path resolution with offline-friendly placeholders for Premiere's `Link Media`
 
 ### Partial
-- **Speed changes** — timeline slot uses CapCut's target duration (downstream
-  clips don't drift). Source in/out range is preserved. **Premiere shows
-  the clip at 100% speed** — native Premiere speed is not reconstructed.
-  Each flagged segment appears in the report with its speed value so you
-  can apply Speed/Duration manually. (Confirmed: Premiere import test 2026-05-19.)
+- **Constant speed changes** — native Premiere Speed/Duration reconstructed
+  via explicit FCP7 `timeremap` filter (200% and ≈50% confirmed in-app,
+  2026-05-19). Timeline slot uses target duration — downstream clips don't
+  drift. Variable-speed ramps (`speed_curve`) remain report-only; the clip
+  plays at 1.0× in Premiere.
+- **Premiere Project panel** — each asset generates a root-level master clip
+  (`<clip id="masterclip-…">`) so source items appear in the Project panel.
+  Relink-via-parent-folder works for offline clips.
 
 ### Ignored safely
 - Subtitles
@@ -166,18 +170,20 @@ sample — is in
 
 ## Creator validation status
 
-v0.3-alpha is **structurally validated** (108 unit tests pass; real-world
-samples `0509`, `cutsmith`, and `0519V` convert and collect cleanly, including
-Premiere Pro import confirmed 2026-05-19).
+v0.3.3 is **structurally and Premiere-validated** (208 unit tests pass;
+real-world samples `0509`, `cutsmith`, `0519V`, and `0519V2` convert and
+collect cleanly; Premiere import confirmed 2026-05-19).
 
 **Confirmed Premiere behaviours:**
 - Sequence resolution (including vertical 1080×1920) imports correctly.
-- Speed clips: timeline slot and source range are preserved. **Premiere shows
-  clips at 100% speed** — native Premiere speed is not reconstructed from the
-  XML. Apply Speed/Duration manually per the report. This is a known
-  limitation, not a bug.
+- **Project panel source clips appear** — each asset generates a root-level
+  master clip so the Project panel is populated; relink-via-parent-folder works.
+- **Constant speed reconstructed** — 2.0× clips import at 200%, 0.5× clips at
+  ≈50%. Effect Controls → Speed/Duration shows the correct value automatically.
 - `collect` package opens in Premiere without a `Link Media` step for all
   online user assets.
+- Variable-speed ramps (`speed_curve`) play at 1.0× in Premiere — rebuild
+  manually via Effect Controls → Time Remapping → Velocity.
 
 If you import any sample into Premiere and want to report findings, please
 open an issue with the format suggested in

@@ -1,21 +1,23 @@
-# Supported Features Matrix — v0.3 alpha
+# Supported Features Matrix — v0.3.3
 
 ## Validation scope
 
 **Validated**: CapCut Desktop **167.0.0**, `modern_plaintext` schema
 (`schema_version = 360000`).
 
-Four real projects converted end-to-end without manual intervention:
+Five real projects converted end-to-end without manual intervention:
 single-cut (`0509`), multicut (`cutsmith`), stress-test (`cutsmith2`),
-and vertical full-stress (`0519V`).
+vertical full-stress (`0519V`), and vertical multi-speed (`0519V2`).
 See `tests/fixtures/real_world/sample_manifest.json`.
 
-Premiere Pro import confirmed on: `0519V` (2026-05-19) — sequence resolution,
-track layout, offline media, and speed clip behaviour verified in-app.
+Premiere Pro import confirmed on: `0519V` (2026-05-19) and `0519V2`
+(2026-05-19) — sequence resolution, track layout, offline media, master clip
+Project panel entries, speed values (200%, 49.91%), and source trim bounds
+verified in-app.
 
-`collect` pipeline validated on: `0509`, `cutsmith`, `0519V` — online user
-assets copied to `media/`, XML paths rewritten, Premiere opens without
-`Link Media` step.
+`collect` pipeline validated on: `0509`, `cutsmith`, `0519V`, `0519V2` —
+online user assets copied to `media/`, XML paths rewritten, Premiere opens
+without `Link Media` step.
 
 Other apps / versions are best-effort — the reader's structural assumptions
 should generalize, but no other configuration has been confirmed against
@@ -73,6 +75,7 @@ a real draft.
 | Media path resolution | Absolute paths preserved when accessible; otherwise scanned through `--search-root` |
 | Offline media fallback | Unresolved files emit `file:///OFFLINE/<name>` URLs so Premiere's `Link Media` workflow works in bulk |
 | `<file>` dedup | Same source referenced by multiple clipitems emits one body and id-only stubs for the rest |
+| Premiere master clip reconstruction | One `<clip id="masterclip-…">` per asset at xmeml root with `in/out=-1` — creates Project panel source items, enables relink-via-parent-folder, and stabilises trim bounds. Every `<clipitem>` carries a `<masterclipid>` back-reference. |
 | Schema-drift visibility | `inspect` enumerates unknown fields so creators can flag schema-shift quickly after a CapCut update |
 | Sequence name auto-derivation | Walks up past `Timelines/<UUID>/` to find the human-named project dir |
 | Compatibility report | `*.report.md` accompanies every export with categorised unsupported items |
@@ -83,7 +86,7 @@ a real draft.
 
 | Feature | What works | What doesn't |
 |---|---|---|
-| Variable speed (constant ramp) | Timeline slot uses `target_dur` — downstream clips don't drift. Source in/out range preserved verbatim. Speed value, source duration, and target duration all appear in the report. | **Confirmed (Premiere import test, 2026-05-19):** Premiere shows clips at 100% speed regardless of the XML's implicit `end-start ≠ out-in` encoding. Native Premiere speed is NOT reconstructed. Editor must manually apply Speed/Duration or Time Remapping per the report's flagged segments. |
+| Constant speed clips (simple speed change) | Timeline slot uses `target_dur` — downstream clips don't drift. Source in/out range preserved. Explicit FCP7 `<filter><effectid>timeremap</effectid>` emitted so Premiere reconstructs native Speed/Duration on import (200% and 49.91% confirmed in-app, 2026-05-19). `<clipitem><duration>` = source range (`out-in`); `<file><duration>` = full source file for correct trim bounds. | Variable-speed curves (`speed_curve`) are still report-only — the clip plays at 1.0× in Premiere. |
 | Audio of imported videos (when CapCut left no separate audio track) | The report flags video clips whose source has embedded audio that's not on any track. | The audio itself is not emitted. Premiere imports the video silently. User must re-attach in CapCut or link audio manually in PR. |
 | Windows-formatted paths on macOS | Drive-stripped basename matching against `--search-root` directories. | Requires explicit search roots; cross-platform conversion without `-s` will land all clips offline. |
 
@@ -134,7 +137,6 @@ known) so manual rebuild is feasible.
 
 | Category label | Source |
 |---|---|
-| `speed` | Per-segment constant speed change: reported with speed value, source duration, and target duration. Timeline slot preserved. Premiere shows 100% — editor applies Speed/Duration manually. |
 | `speed_curve` | Variable-speed ramp on a segment. Reported as `speed_curve`, not exported. Clip plays at 1.0× in Premiere. |
 
 ### Bookkeeping ("benign refs") — NOT reported
@@ -166,7 +168,7 @@ classifier table is in `cutsmith/reader/jianying_pro.py` at
 | 现代版剪映 PC ≥ 75.0.0 encrypted drafts | Detected and refused | Use CapCut Desktop / CapCut Mobile / older 剪映 builds whose drafts are plaintext |
 | FCPXML output (Final Cut Pro X / 11) | Not planned for v0.3 | Use FCP7 XML; FCP imports it (with auto-conversion) |
 | DaVinci Resolve XML | Not planned | Resolve can import FCP7 XML directly but path / rate quirks are untested — proceed with caution |
-| Premiere native speed reconstruction | Research track — not v0.3 | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap `<filter>` nodes require separate research. Manual workaround: right-click clip → Speed/Duration in Premiere. |
+| Variable speed ramps (speed_curve) | Report-only | `speed_curve` segments logged in report; clip plays at 1.0× in Premiere. Reconstruct via Effect Controls → Time Remapping → Velocity. |
 | Speed ramps (variable curves) | Report-only | Reported as `speed_curve`, clip plays at 1.0× |
 | CapCut proprietary effects / transitions / filters | Report-only — not collectable | Not portable outside CapCut. Listed in report; rebuild with Premiere native equivalents. |
 | Sub-draft / compound clips (`materials.drafts`) | Not parsed | Flatten in CapCut before exporting the draft |

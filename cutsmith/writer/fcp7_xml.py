@@ -81,6 +81,10 @@ def write_fcp7_xml(
 
     xmeml = ET.Element("xmeml", attrib={"version": _XMEML_VERSION})
     state = _WriterState(timeline.settings, path_override=path_override)
+    # Master clips first: emit <clip id="masterclip-{id}"> at the xmeml root
+    # so Premiere creates proper Project panel source items. This also pre-registers
+    # all <file> bodies so clipitems always get id-only stubs.
+    _build_master_clips(xmeml, timeline, state)
     _build_sequence(xmeml, timeline, state)
 
     # Pretty-print via minidom; ElementTree's own indent works in 3.9+ but
@@ -131,6 +135,33 @@ class _WriterState:
         # Stable mapping asset_id → file_id; FCP7 file ids should be like
         # "file-1" / start with a letter. We just prefix.
         return {}
+
+
+# --------------------------------------------------------------------------- #
+# top-level: master clips                                                     #
+# --------------------------------------------------------------------------- #
+
+def _build_master_clips(xmeml: ET.Element, timeline: Timeline, state: _WriterState) -> None:
+    """Emit one <clip id="masterclip-{asset_id}"> per asset at the xmeml root.
+
+    These are what Premiere calls "source clips" — they appear in the Project
+    panel and own the <file> body. Every <clipitem> on the timeline references
+    them via <masterclipid> and uses an id-only <file> stub. Without this
+    structure, Premiere creates orphaned timeline items with no Project panel
+    entry, which breaks relink, trim stability, and media management.
+
+    in/out = -1 means "untrimmed master" — the full source file is available.
+    """
+    for asset_id, asset in timeline.assets.items():
+        mc = ET.SubElement(xmeml, "clip", attrib={"id": f"masterclip-{asset_id}"})
+        _append_text(mc, "name", asset.name)
+        _append_text(mc, "duration", str(state.us_to_frames(asset.duration_us)))
+        _append_rate(mc, state.settings)
+        _append_text(mc, "in", "-1")
+        _append_text(mc, "out", "-1")
+        # <file> body lives here — _build_file_node registers it in state.emitted_files
+        # so all subsequent clipitem references get id-only stubs automatically.
+        _build_file_node(mc, asset, state)
 
 
 # --------------------------------------------------------------------------- #
@@ -264,19 +295,27 @@ def _build_clipitem(
 
     # The on-timeline length comes from the IR's timeline_duration_us
     # (CapCut's target slot), not from the source range. For speed=1.0 clips
-    # the two match; for variable-speed clips they intentionally diverge so
-    # downstream clips line up with what the editor saw — Premiere then
-    # interprets end-start ≠ out-in as an implicit speed change on import.
+    # the two match; for speed-changed clips they diverge — the explicit
+    # <filter timeremap> below tells Premiere to apply the speed change.
     start_frames = state.us_to_frames(clip.timeline_start_us)
     timeline_frames = state.us_to_frames(clip.timeline_duration_us)
     if timeline_frames <= 0:
         timeline_frames = source_frames
     end_frames = start_frames + timeline_frames
 
+    # Speed filter: only when source and timeline durations differ by >1 frame
+    # (rounding tolerance). Value is percentage: 50 = 0.5×, 200 = 2.0×.
+    speed_percent: float | None = None
+    if abs(source_frames - timeline_frames) > 1:
+        speed_percent = (source_frames / timeline_frames) * 100.0
+
     item = ET.SubElement(parent, "clipitem", attrib={"id": f"clipitem-{clip.clip_id}"})
+    _append_text(item, "masterclipid", f"masterclip-{asset.asset_id}")
     _append_text(item, "name", asset.name)
     _append_text(item, "enabled", "TRUE" if clip.enabled else "FALSE")
-    _append_text(item, "duration", str(state.us_to_frames(asset.duration_us) or source_frames))
+    # clipitem duration = source frames consumed (out - in), NOT the full asset
+    # or the timeline slot. Premiere uses <file><duration> for trim bounds.
+    _append_text(item, "duration", str(source_frames))
     _append_rate(item, state.settings)
     _append_text(item, "start", str(start_frames))
     _append_text(item, "end", str(end_frames))
@@ -296,6 +335,8 @@ def _build_clipitem(
         _append_audio_level_filter(item, clip.volume)
     if kind == TrackKind.VIDEO and abs(clip.opacity - 1.0) > 1e-3:
         _append_opacity_filter(item, clip.opacity)
+    if speed_percent is not None:
+        _append_speed_filter(item, speed_percent, kind)
 
 
 # --------------------------------------------------------------------------- #
@@ -368,6 +409,37 @@ def _append_rate(parent: ET.Element, settings: SequenceSettings) -> ET.Element:
     _append_text(rate, "timebase", str(settings.timebase))
     _append_text(rate, "ntsc", "TRUE" if settings.is_ntsc else "FALSE")
     return rate
+
+
+def _append_speed_filter(clipitem: ET.Element, speed_percent: float, kind: TrackKind) -> None:
+    """FCP7 Time Remap filter — explicit speed encoding for Premiere import.
+
+    Without this, Premiere ignores the implicit end-start vs out-in divergence
+    and plays the clip at 100% with a black tail (for slow-motion clips) or
+    cuts short (for fast-motion clips). The explicit filter makes speed stick.
+    """
+    mediatype = "video" if kind == TrackKind.VIDEO else "audio"
+    flt = ET.SubElement(clipitem, "filter")
+    eff = ET.SubElement(flt, "effect")
+    _append_text(eff, "name", "Time Remap")
+    _append_text(eff, "effectid", "timeremap")
+    _append_text(eff, "effectcategory", "motion")
+    _append_text(eff, "effecttype", "motion")
+    _append_text(eff, "mediatype", mediatype)
+    param = ET.SubElement(eff, "parameter", attrib={"authoringApp": "PremierePro"})
+    _append_text(param, "parameterid", "speed")
+    _append_text(param, "name", "speed")
+    _append_text(param, "valuemin", "-10000")
+    _append_text(param, "valuemax", "10000")
+    _append_text(param, "value", f"{speed_percent:.4f}")
+    param2 = ET.SubElement(eff, "parameter", attrib={"authoringApp": "PremierePro"})
+    _append_text(param2, "parameterid", "reverse")
+    _append_text(param2, "name", "reverse")
+    _append_text(param2, "value", "FALSE")
+    param3 = ET.SubElement(eff, "parameter", attrib={"authoringApp": "PremierePro"})
+    _append_text(param3, "parameterid", "frameblending")
+    _append_text(param3, "name", "frameblending")
+    _append_text(param3, "value", "FALSE")
 
 
 def _append_audio_level_filter(clipitem: ET.Element, volume: float) -> None:

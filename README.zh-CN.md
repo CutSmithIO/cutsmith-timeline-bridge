@@ -2,7 +2,7 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.3-alpha`
+**Version**: `v0.3.3`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
@@ -25,8 +25,9 @@ modern_plaintext 布局）的多类真实工程上端到端跑通：
 | multicut | `cutsmith` | V1 七刀 + V2 叠加 + BGM/SFX，0 unsupported |
 | stress-test | `cutsmith2` | 多刀 + 叠加 + 字幕 + 贴纸 + 转场 + 滤镜 + 特效 + 变速，15 unsupported 分类清楚 |
 | 竖屏全压力 | `0519V` | 1080×1920，7 视频轨，0.5× + 2.0× 变速片段，speed_curve，贴纸，转场，特效，滤镜，8 条字幕（Pattern B），Premiere 实测导入通过 |
+| 竖屏多变速 | `0519V2` | 1080×1920，30fps NDF，2.0×/0.5×/0.5× 变速片段，33 条自动字幕，10 个贴纸，collect dedup 修复验证 |
 
-collect 已验证：`0509` / `cutsmith` / `0519V`。
+collect 已验证：`0509` / `cutsmith` / `0519V` / `0519V2`。
 
 样本登记在
 [`tests/fixtures/real_world/sample_manifest.json`](tests/fixtures/real_world/sample_manifest.json)。
@@ -37,23 +38,26 @@ collect 已验证：`0509` / `cutsmith` / `0519V`。
 - [`docs/supported_features_matrix.md`](docs/supported_features_matrix.md) — fully / partially / ignored / unsupported 四级矩阵
 - [`docs/known_limitations.md`](docs/known_limitations.md) — 已知边界和注意事项
 
-## v0.1 范围
+## v0.3.3 支持范围
 
-支持：
+**已完整支持：**
 
 1. 视频片段切点（in/out + 时间线位置）
-2. 独立音频轨道（BGM、配音，以及 CapCut 自动从视频里拆出的原音轨——只要它在 draft 里以独立 audio track 存在，就会被原样搬运）
+2. 独立音频轨道（BGM、配音，以及 CapCut 自动从视频里拆出的原音轨）
 3. 多轨顺序与叠加（V1/V2/A1/A2…）
 4. 素材路径解析 + 离线占位（Premiere "Link Media" 友好）
-5. `compatibility_report.md` 自动列出"已迁移 / 已丢弃 / 需手工补"
+5. **Premiere Project 面板素材条目** — 每个素材生成 `<clip id="masterclip-…">` root clip，Project Browser 有完整 source items；支持"选父目录 relink"
+6. **常量变速重建** — FCP7 `timeremap` filter，Premiere 导入后直接显示 200%、49.91% 等正确速度，Effect Controls 即可确认
+7. `compatibility_report.md` 自动列出"已迁移 / 已丢弃 / 需手工补"
+8. `collect` 打包：所有用户素材复制到 `media/`，XML 路径重写，Premiere 免 `Link Media` 直接打开
 
-**不支持**（被识别为不支持的项会写进报告，**不会**被静默丢弃）：
+**仍不支持（报告可见，不静默丢弃）：**
 
-- FCPXML 输出（v0.2）
-- 关键帧动画（位置/缩放/旋转/不透明度的曲线）
-- 变速曲线（speed ramp）
-- 转场、滤镜、特效、贴纸、花字
+- 关键帧动画（位置/缩放/旋转/不透明度）
+- 变速曲线（speed ramp / speed_curve — 播放时为 1.0×，Premiere 中用 Time Remapping 手工补）
+- 转场、滤镜、特效、贴纸
 - 字幕（剪映自身导 SRT，再导 PR 的 Captions）
+- FCPXML 输出（Final Cut Pro X / 11）
 
 ## 安装
 

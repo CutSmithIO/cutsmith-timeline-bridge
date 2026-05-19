@@ -1,4 +1,4 @@
-# Creator Validation Checklist — v0.3-alpha
+# Creator Validation Checklist — v0.3.3
 
 This is the manual-verification protocol for confirming a CutSmith export
 (and collect package) opens correctly in Premiere Pro. CLI tests pin
@@ -21,13 +21,17 @@ if step 1 fails, don't bother with the rest until that's understood.
 **Import procedure — convert output:**
 1. New Premiere project, any preset.
 2. `File → Import…`, pick the `.xml`. **Do not** use `Open Project`.
-3. Premiere creates a Sequence and Project items. Open the Sequence.
+3. Premiere creates a Sequence and Project items (one source clip per media
+   asset in the Project panel — this is the v0.3.3 master clip reconstruction).
+   Open the Sequence.
 4. Open the matching `*.report.md` side-by-side; tick items as you confirm
    them.
 
 If a clip imports as **Offline**, right-click it in the Project panel →
-`Link Media…` → pick any matching file. Premiere will auto-link the rest
-by name from the same folder.
+`Link Media…` → pick any one matching file and point Premiere at the parent
+folder. Premiere auto-links the rest by name from the same folder (works
+because every clipitem carries a `<masterclipid>` back-reference to the
+correct source clip).
 
 **Import procedure — collect package:**
 1. New Premiere project, any preset.
@@ -64,6 +68,9 @@ bug is in CutSmith's core path — don't waste time on stress tests yet.
 - [ ] A2 SFX hit lines up with the moment expected (22.633s in CapCut).
 - [ ] No phantom A3/A4 tracks (this would be the pre-v0.1.1 double-audio bug).
 - [ ] Playback works: scrub through; no offline media markers.
+- [ ] **Project panel** (v0.3.3): 10 source clips appear in the Project panel
+      (one per unique CapCut asset). None of them are "orphaned" — each
+      corresponds to a track item.
 
 **If anything fails here:** stop, capture the failing clipitem's start/end
 frames vs. what Premiere shows, and check `out_ir/capcut_multicut/ir_summary.json`
@@ -144,42 +151,29 @@ This is the most important manual test. Everything that v0.1.1 ships works
       visual result.
 - [ ] No duplicate audio.
 
-### Critical observation — the speed-changed V2 clip
+### Critical observation — the speed-changed V2 clip (v0.3.3 update)
 
-This is the variable-speed clip. v0.1.1's design is:
-
-- The timeline slot uses **target_dur** (13.800s) so subsequent clips
-  align with what CapCut showed.
-- The source range stays as **source_timerange** (8.833s of source
-  content).
-- The writer does NOT add an explicit `<filter>` for Time Remapping.
-- The XML's `end-start` (13.800s) thus differs from `out-in` (8.833s).
-  Premiere will interpret that ratio as an implied speed factor.
+From v0.3.3, CutSmith emits an explicit FCP7 `<filter><effectid>timeremap</effectid>`
+for every speed-changed clip. Premiere reads this and applies the speed
+natively on import — no manual Speed/Duration step needed.
 
 **What you should see in Premiere:**
 
-- [ ] V2.1 occupies 2.333s–11.167s on the timeline (the 13.800s slot —
-      not 8.833s).
-- [ ] When you select V2.1, the clip's "Speed/Duration" panel
-      (`Clip → Speed/Duration…` or right-click on the clip) shows a
-      non-100% speed value, approximately **64.0%** (the 8.833/13.800 ratio).
-- [ ] Playback shows the source content stretched over 13.8s — visually
-      slower than the original.
+- [ ] V2.1 occupies 2.333s–11.167s on the timeline (the 13.800s slot).
+- [ ] Right-click V2.1 → `Speed/Duration…` shows approximately **64.0%**
+      (8.833s source / 13.800s slot) — automatically, without any manual
+      adjustment.
+- [ ] Playback shows the source content slowed to fill 13.8s.
+- [ ] No black tail / empty region at the end of V2.1's slot.
 
-**If Premiere shows this clip at 100% playing in 8.833s (i.e., the rest of
-the V2 slot is empty):** the implicit-speed interpretation didn't trigger.
-Report it — this is the assumption the v0.1.1 design hinges on.
+**If Speed/Duration shows 100%:** report it with your Premiere build number —
+the `timeremap` filter may not be parsed correctly.
 
-**If you want to override the implied speed:**
-
-1. Right-click V2.1 → `Speed/Duration…`
-2. Set Speed to 100%, untick "Maintain audio pitch" if needed.
-3. The clip will now play at 1.0× for its 8.833s of source content; the
-   trailing 4.967s of the 13.800s timeline slot will go empty.
-
-That's the manual override path the report mentions ("re-apply Time
-Remapping where flagged"). It's not what most users want, but it's
-available.
+**Note on this sample (`cutsmith2`):** V2.1's CapCut speed material includes
+a `speed_curve` (variable curve), which is still report-only. What's
+reconstructed is the constant speed factor (≈64%). If the curve was active in
+CapCut, the playback won't exactly match CapCut's appearance; apply Time
+Remapping → Velocity manually for the curve portion.
 
 ### Other things to spot-check
 

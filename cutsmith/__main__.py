@@ -208,12 +208,23 @@ def _cmd_detect(args: argparse.Namespace,
     return 0 if result.supported_status != "error" else 1
 
 
+def _resolve_draft_entry(path: Path, parser: argparse.ArgumentParser) -> Path:
+    """Resolve a project root, Timelines dir, or direct JSON path to draft_info.json."""
+    if path.is_file():
+        return path
+    if path.is_dir():
+        result = detect_project(path)
+        if not result.timeline_entry_path:
+            parser.error(f"no supported draft found in {path}")
+        if result.encryption != "plaintext":
+            parser.error(f"draft is encrypted — only plaintext drafts are supported")
+        return Path(result.timeline_entry_path)
+    parser.error(f"path not found: {path}")
+
+
 def _cmd_inspect(args: argparse.Namespace,
                  parser: argparse.ArgumentParser) -> int:
-    draft = Path(args.draft)
-    if not draft.is_file():
-        parser.error(f"draft not found: {draft}")
-
+    draft = _resolve_draft_entry(Path(args.draft), parser)
     result = inspect_draft(draft, args.out_dir, raw_paths=args.raw_paths)
 
     print(f"[inspect] read {draft}")
@@ -252,9 +263,7 @@ def _cmd_inspect(args: argparse.Namespace,
 
 def _cmd_convert(args: argparse.Namespace,
                  parser: argparse.ArgumentParser) -> int:
-    draft = Path(args.draft)
-    if not draft.is_file():
-        parser.error(f"draft not found: {draft}")
+    draft = _resolve_draft_entry(Path(args.draft), parser)
 
     result = bridge.run(
         draft=draft,
@@ -275,24 +284,30 @@ def _cmd_convert(args: argparse.Namespace,
     return 0
 
 
+_SUBTITLE_EXTENSIONS = frozenset({".srt", ".txt", ".json"})
+
+
 def _cmd_export_srt(args: argparse.Namespace,
                     parser: argparse.ArgumentParser) -> int:
-    draft = Path(args.draft)
-    # Accept both a directory (auto-detect) and a direct JSON path.
-    if draft.is_dir():
-        result = detect_project(draft)
-        if not result.timeline_entry_path:
-            parser.error(f"no supported draft found in {draft}")
-        draft = Path(result.timeline_entry_path)
-    if not draft.is_file():
-        parser.error(f"draft not found: {draft}")
+    draft = _resolve_draft_entry(Path(args.draft), parser)
+
+    # -o may be a directory (default) or a direct file path ending in a subtitle
+    # extension (e.g. -o captions.srt). In the latter case, derive out_dir and
+    # name from the file path so the output lands exactly where requested.
+    out_path = Path(args.out_dir)
+    if out_path.suffix in _SUBTITLE_EXTENSIONS and not out_path.is_dir():
+        out_dir = out_path.parent
+        name = args.name or out_path.stem
+    else:
+        out_dir = out_path
+        name = args.name
 
     formats = args.formats or ["srt"]
     written = export_subtitles(
         draft_path=draft,
-        out_dir=args.out_dir,
+        out_dir=out_dir,
         formats=formats,
-        name=args.name,
+        name=name,
     )
     if not written:
         print("[export-srt] no subtitle tracks found — nothing written")
