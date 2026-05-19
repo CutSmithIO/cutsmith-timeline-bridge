@@ -13,6 +13,7 @@ from cutsmith.collector import (
     _copy_online_assets,
     _unique_dest,
     _write_offline_report,
+    _write_relink_guide,
 )
 from cutsmith.ir import AssetClass
 from cutsmith.scanner.manifest import AssetManifest, ManifestEntry
@@ -800,3 +801,260 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
             any(u.endswith(".m4a") for u in pathuris),
             f"Expected a .m4a pathurl; got {pathuris}",
         )
+
+
+# ─── _write_relink_guide ──────────────────────────────────────────────────────
+
+class RelinkGuideTest(unittest.TestCase):
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _guide_content(self, *, offline: bool = False, normalized: int = 0) -> str:
+        src_dir = self.out / "src"
+        src_dir.mkdir(exist_ok=True)
+        m = _make_manifest(src_dir, with_offline_user=offline)
+        m.relink_root_hint = str(self.out / "media")
+        m.package_portable = "partial" if offline else "full"
+        stats = CollectStats(
+            extension_normalized_count=normalized,
+            offline_count=1 if offline else 0,
+        )
+        guide = self.out / "proj.relink_guide.md"
+        _write_relink_guide(m, stats, guide, "proj")
+        return guide.read_text(encoding="utf-8")
+
+    def test_relink_guide_created(self):
+        src_dir = self.out / "src"
+        src_dir.mkdir()
+        m = _make_manifest(src_dir)
+        m.relink_root_hint = str(self.out / "media")
+        m.package_portable = "full"
+        guide = self.out / "proj.relink_guide.md"
+        _write_relink_guide(m, CollectStats(), guide, "proj")
+        self.assertTrue(guide.exists())
+
+    def test_guide_contains_stem_name(self):
+        content = self._guide_content()
+        self.assertIn("proj", content)
+
+    def test_guide_contains_media_root_hint(self):
+        content = self._guide_content()
+        self.assertIn(str(self.out / "media"), content)
+
+    def test_guide_mentions_link_media(self):
+        content = self._guide_content()
+        self.assertIn("Link Media", content)
+
+    def test_guide_full_package_says_automatic(self):
+        content = self._guide_content(offline=False)
+        self.assertIn("link automatically", content)
+
+    def test_guide_partial_package_mentions_offline(self):
+        content = self._guide_content(offline=True)
+        self.assertIn("Offline", content)
+
+    def test_guide_mentions_speed_trim_boundary(self):
+        content = self._guide_content()
+        self.assertIn("trim", content.lower())
+        self.assertIn("wavy", content.lower())
+
+    def test_guide_mentions_proprietary_not_portable(self):
+        content = self._guide_content()
+        self.assertIn("not portable", content)
+
+    def test_guide_extension_section_present_when_normalized(self):
+        content = self._guide_content(normalized=2)
+        self.assertIn("Extension normalization", content)
+
+    def test_guide_extension_section_absent_when_zero(self):
+        content = self._guide_content(normalized=0)
+        self.assertNotIn("Extension normalization", content)
+
+
+# ─── manifest new fields (v0.3.4) ────────────────────────────────────────────
+
+class ManifestV034FieldsTest(unittest.TestCase):
+    """Verify AssetManifest carries the new v0.3.4 collector fields."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _minimal_manifest(self) -> AssetManifest:
+        return AssetManifest(project_name="test", source_draft="/tmp/draft.json")
+
+    def test_default_path_mode_is_original(self):
+        m = self._minimal_manifest()
+        self.assertEqual(m.path_mode, "original")
+
+    def test_default_package_portable_is_unknown(self):
+        m = self._minimal_manifest()
+        self.assertEqual(m.package_portable, "unknown")
+
+    def test_default_collected_root_is_none(self):
+        m = self._minimal_manifest()
+        self.assertIsNone(m.collected_root)
+
+    def test_default_relink_root_hint_is_none(self):
+        m = self._minimal_manifest()
+        self.assertIsNone(m.relink_root_hint)
+
+    def test_to_dict_contains_collected_root(self):
+        m = self._minimal_manifest()
+        m.collected_root = "/some/out"
+        d = m.to_dict()
+        self.assertIn("collected_root", d)
+        self.assertEqual(d["collected_root"], "/some/out")
+
+    def test_to_dict_contains_relink_root_hint(self):
+        m = self._minimal_manifest()
+        m.relink_root_hint = "/some/out/media"
+        d = m.to_dict()
+        self.assertIn("relink_root_hint", d)
+        self.assertEqual(d["relink_root_hint"], "/some/out/media")
+
+    def test_to_dict_contains_path_mode(self):
+        m = self._minimal_manifest()
+        m.path_mode = "collected_absolute"
+        d = m.to_dict()
+        self.assertEqual(d["path_mode"], "collected_absolute")
+
+    def test_to_dict_contains_package_portable(self):
+        m = self._minimal_manifest()
+        m.package_portable = "full"
+        d = m.to_dict()
+        self.assertEqual(d["package_portable"], "full")
+
+    def test_to_dict_stats_contains_report_only_count(self):
+        m = self._minimal_manifest()
+        m.report_only_count = 5
+        d = m.to_dict()
+        self.assertIn("report_only_count", d["stats"])
+        self.assertEqual(d["stats"]["report_only_count"], 5)
+
+    def test_to_dict_stats_contains_normalized_extension_count(self):
+        m = self._minimal_manifest()
+        m.normalized_extension_count = 3
+        d = m.to_dict()
+        self.assertIn("normalized_extension_count", d["stats"])
+        self.assertEqual(d["stats"]["normalized_extension_count"], 3)
+
+
+# ─── CollectIntegration v0.3.4 additions ─────────────────────────────────────
+
+class CollectIntegrationV034Test(unittest.TestCase):
+    """Verify v0.3.4 additions in the full collect() pipeline."""
+
+    def setUp(self):
+        self._src_tmp = tempfile.TemporaryDirectory()
+        self._out_tmp = tempfile.TemporaryDirectory()
+        self.src_dir = Path(self._src_tmp.name)
+        self.out_dir = Path(self._out_tmp.name)
+
+        self.video_a = self.src_dir / "clip_a.mp4"; self.video_a.write_bytes(b"video_a" * 100)
+        self.video_b = self.src_dir / "clip_b.mp4"; self.video_b.write_bytes(b"video_b" * 100)
+        self.music   = self.src_dir / "bgm.mp3";    self.music.write_bytes(b"music" * 100)
+        self.sfx     = self.src_dir / "sfx.mp3";    self.sfx.write_bytes(b"sfx" * 100)
+        self.audio   = self.src_dir / "voice.mp3";  self.audio.write_bytes(b"voice" * 100)
+
+        with FIXTURE_COLLECT.open("r", encoding="utf-8") as f:
+            raw = f.read()
+        raw = (raw
+               .replace("__PLACEHOLDER_VIDEO_A__", str(self.video_a))
+               .replace("__PLACEHOLDER_VIDEO_B__", str(self.video_b))
+               .replace("__PLACEHOLDER_MUSIC__", str(self.music))
+               .replace("__PLACEHOLDER_SFX__", str(self.sfx))
+               .replace("__PLACEHOLDER_AUDIO__", str(self.audio)))
+        self.patched_fixture = self.src_dir / "draft_info.json"
+        self.patched_fixture.write_text(raw, encoding="utf-8")
+
+    def tearDown(self):
+        self._src_tmp.cleanup()
+        self._out_tmp.cleanup()
+
+    def _run_collect(self):
+        from cutsmith.collector import collect
+        return collect(
+            project_path=self.patched_fixture,
+            out_dir=self.out_dir,
+            search_roots=[str(self.src_dir)],
+        )
+
+    def test_relink_guide_written(self):
+        r = self._run_collect()
+        self.assertIsNotNone(r.relink_guide_path)
+        self.assertTrue(r.relink_guide_path.exists())
+
+    def test_relink_guide_in_written_files(self):
+        r = self._run_collect()
+        self.assertIn(r.relink_guide_path, r.written_files)
+
+    def test_relink_guide_contains_media_root(self):
+        r = self._run_collect()
+        content = r.relink_guide_path.read_text(encoding="utf-8")
+        expected_media = str(self.out_dir / "media")
+        self.assertIn(expected_media, content)
+
+    def test_manifest_has_collected_root(self):
+        r = self._run_collect()
+        data = json.loads(r.manifest_path.read_text(encoding="utf-8"))
+        self.assertIn("collected_root", data)
+        self.assertIsNotNone(data["collected_root"])
+
+    def test_manifest_has_relink_root_hint(self):
+        r = self._run_collect()
+        data = json.loads(r.manifest_path.read_text(encoding="utf-8"))
+        self.assertIn("relink_root_hint", data)
+        self.assertIn("media", data["relink_root_hint"])
+
+    def test_manifest_path_mode_is_collected_absolute(self):
+        r = self._run_collect()
+        data = json.loads(r.manifest_path.read_text(encoding="utf-8"))
+        self.assertEqual(data["path_mode"], "collected_absolute")
+
+    def test_manifest_stats_has_report_only_count(self):
+        r = self._run_collect()
+        data = json.loads(r.manifest_path.read_text(encoding="utf-8"))
+        self.assertIn("report_only_count", data["stats"])
+        self.assertGreater(data["stats"]["report_only_count"], 0)
+
+    def test_xml_master_clip_pathurls_point_to_media_dir(self):
+        """All master clip <pathurl>s must reference the collected media/ directory."""
+        import xml.etree.ElementTree as ET
+        r = self._run_collect()
+        tree = ET.parse(r.xml_path)
+        # Pathurls in the master clips (direct <clip> children of <xmeml>)
+        xmeml = tree.getroot()
+        master_clip_files = xmeml.findall("clip/file/pathurl")
+        collected_media = str(self.out_dir / "media")
+        for el in master_clip_files:
+            url = el.text or ""
+            if "OFFLINE" in url:
+                continue  # skip assets that were offline
+            self.assertIn("media", url,
+                          f"Master clip pathurl not pointing to collected media: {url}")
+
+    def test_report_only_assets_not_in_xml_pathuris(self):
+        """Effects/transitions/filters must not appear as XML pathurls."""
+        import xml.etree.ElementTree as ET
+        r = self._run_collect()
+        tree = ET.parse(r.xml_path)
+        pathuris = [el.text or "" for el in tree.findall(".//pathurl")]
+        for url in pathuris:
+            # No pathurl should point into a CapCut effect cache
+            self.assertNotIn("capcut_effect", url.lower())
+
+    def test_report_speed_text_updated(self):
+        r = self._run_collect()
+        content = r.report_path.read_text(encoding="utf-8")
+        self.assertIn("timeremap", content)
+        # Old misleading text must be gone
+        self.assertNotIn("shows clips at 100% speed", content)

@@ -1,4 +1,4 @@
-# Known Limitations — v0.3.3
+# Known Limitations — v0.3.4
 
 What CutSmith does NOT do, and the caveats that apply to what it does do.
 Read this before filing a bug or before promising a result to a creator.
@@ -62,6 +62,21 @@ range used, `<file><duration>` = total source file available.
 report carry explicit speed metadata in the XML. Premiere imports them with the
 correct Speed/Duration value automatically, but confirming visually in the
 Effect Controls panel takes one second and is worth doing before delivery.
+
+### Speed clip trim boundary — known edge case
+
+When a speed-changed clip uses the entire source file (its CapCut `out` position
+equals the file's total duration), Premiere will show **wavy trim handles** if
+you try to extend the clip beyond its current boundaries. This is expected
+behaviour:
+
+- The exported timeline slot is correct — CutSmith uses `target_timerange.duration`
+  for the slot, so downstream clips don't drift.
+- The wavy lines indicate the source material has no additional frames available.
+- **To recover frames:** use a longer source take in CapCut before re-exporting,
+  or manually relink the clip to a longer file in Premiere.
+
+This edge case is documented in `<stem>.relink_guide.md` for any collected package.
 
 ### Speed ramps (variable curves) — dropped
 
@@ -223,6 +238,8 @@ into Premiere, use `Link Media` to relink those clips.
 | Subtitle extraction (export-srt) | ✅ v0.2 | Pattern A + B |
 | collect / relink (media gather) | ✅ v0.3 | Validated on `0509`, `cutsmith`, `0519V`, `0519V2` |
 | Premiere master clip reconstruction | ✅ v0.3.3 | `<clip id="masterclip-…">` at xmeml root; Project panel entries + relink-via-parent-folder confirmed |
+| Relink guide (`<stem>.relink_guide.md`) | ✅ v0.3.4 | Per-package import instructions with media root path, speed trim-boundary note |
+| Manifest collect fields | ✅ v0.3.4 | `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`, `report_only_count`, `normalized_extension_count` |
 | CapCut proprietary effects / transitions / filters | report-only, not collectable | Not portable outside CapCut |
 | CapCut Mobile / legacy plaintext → PR | best-effort | No fixture confirmed |
 | FCPXML output (Final Cut Pro X / 11) | not planned | |

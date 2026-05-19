@@ -5,7 +5,7 @@ CapCut Desktop → Premiere Pro XML bridge.
 Convert real-world CapCut timelines into editable Premiere Pro sequences,
 and collect all user media into a portable package ready for Premiere delivery.
 
-**Status**: v0.3.3
+**Status**: v0.3.4
 
 **Validated against**:
 - CapCut Desktop 167.0.0
@@ -148,10 +148,11 @@ manifest + offline report. Output structure:
 
 ```
 collected/
-├── my_sequence.xml          ← paths rewritten to collected media
-├── my_sequence.report.md    ← compat report + collect summary
-├── my_sequence.manifest.json
-├── my_sequence.offline.md   ← only if assets could not be found
+├── my_sequence.xml              ← paths rewritten to collected media
+├── my_sequence.report.md        ← compat report + collect summary
+├── my_sequence.manifest.json    ← collected_root, relink_root_hint, path_mode, stats
+├── my_sequence.relink_guide.md  ← Premiere import + relink instructions
+├── my_sequence.offline.md       ← only if assets could not be found
 └── media/
     ├── video/
     ├── audio/
@@ -170,7 +171,7 @@ sample — is in
 
 ## Creator validation status
 
-v0.3.3 is **structurally and Premiere-validated** (208 unit tests pass;
+v0.3.4 is **structurally and Premiere-validated** (238 unit tests pass;
 real-world samples `0509`, `cutsmith`, `0519V`, and `0519V2` convert and
 collect cleanly; Premiere import confirmed 2026-05-19).
 
@@ -226,9 +227,12 @@ the reader learns new fields.
   Pattern A + B subtitle support. ✅ shipped.
 - **v0.3** — `collect`: copy user media alongside the XML, rewrite paths for
   Premiere delivery. ✅ shipped. Validated on `0509` / `cutsmith` / `0519V`.
-- **Research track** — Premiere native speed reconstruction via explicit
-  Time Remap `<filter>` nodes. (FCP7 implicit encoding confirmed not
-  auto-interpreted by Premiere.)
+- **v0.3.4** — `<stem>.relink_guide.md` per collect package (Premiere import
+  instructions, relink root hint, speed trim-boundary edge case). Manifest
+  gains `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`,
+  `report_only_count`, `normalized_extension_count`. Speed report text updated
+  to reflect v0.3.3 `timeremap` behaviour (no manual Speed/Duration needed).
+  Speed trim-boundary edge case documented in `known_limitations.md`. ✅ shipped.
 - **Later** — FCPXML output, DaVinci Resolve XML, keyframe animations,
   CapCut Mobile fixture coverage.
 
@@ -238,9 +242,10 @@ the reader learns new fields.
 python3 -m unittest discover -s tests
 ```
 
-108 tests as of v0.3-alpha — pipeline smoke, inspect schema drift,
-writer audio contract, reader regressions, subtitle extraction (Pattern A + B),
-asset manifest and classification.
+238 tests as of v0.3.4 — pipeline smoke, inspect schema drift, writer audio
+contract, speed filter (timeremap), master clip reconstruction, reader
+regressions, subtitle extraction (Pattern A + B), asset manifest and
+classification, collector relink guide, manifest v0.3.4 fields.
 
 ## Repository
 

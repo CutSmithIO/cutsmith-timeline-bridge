@@ -1,4 +1,4 @@
-# Creator Validation Checklist — v0.3.3
+# Creator Validation Checklist — v0.3.4
 
 This is the manual-verification protocol for confirming a CutSmith export
 (and collect package) opens correctly in Premiere Pro. CLI tests pin
@@ -206,7 +206,8 @@ collected_test/
 ├── <name>.xml
 ├── <name>.report.md
 ├── <name>.manifest.json
-├── <name>.offline.md   ← only if any assets offline
+├── <name>.relink_guide.md  ← Premiere import + relink instructions
+├── <name>.offline.md       ← only if any assets offline
 └── media/
     ├── video/
     ├── audio/
@@ -220,9 +221,12 @@ collected_test/
 - [ ] `media/video/` contains the expected source video files (check against
       `<name>.manifest.json`).
 - [ ] `<name>.manifest.json` has `collect_relative_path` populated for each
-      copied asset.
+      copied asset; also has `collected_root`, `relink_root_hint`,
+      `path_mode: "collected_absolute"`, `package_portable`.
 - [ ] `<name>.offline.md` exists only if there were unresolved assets; its
       entries match assets that `manifest.json` shows as `is_online: false`.
+- [ ] `<name>.relink_guide.md` exists and the `media/` path inside it matches
+      the actual `media/` subdirectory of the collected package.
 - [ ] Import `<name>.xml` into Premiere — no Offline clips for user media
       that was successfully copied.
 - [ ] CapCut proprietary items (effects, transitions, filters, stickers) do
@@ -230,8 +234,9 @@ collected_test/
       from the collect package directory.
 - [ ] Report's "Collect package" section shows a non-zero **Assets copied**
       count and a plausible total copied size in MB.
-- [ ] Speed-changed clips: confirm the report's "Collect package" section
-      includes the reminder to apply Speed/Duration manually.
+- [ ] Speed-changed clips: confirm the report says `timeremap` (not the old
+      "shows clips at 100% speed" text). Speed/Duration should already be
+      correct on import.
 
 **If any user asset is missing from `media/`:** check that `-s` points to
 the correct search root and that `manifest.json` shows `is_online: true` for

@@ -2,7 +2,7 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.3.3`
+**Version**: `v0.3.4`
 
 **Tested against**:
 - CapCut Desktop 167.0.0

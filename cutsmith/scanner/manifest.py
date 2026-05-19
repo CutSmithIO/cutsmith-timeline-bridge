@@ -83,6 +83,13 @@ class AssetManifest:
     offline_count: int = 0
     cached_count: int = 0
     total_online_size_bytes: int = 0
+    # Filled by collector (v0.3.4) — absent / default when produced by scan-assets alone
+    collected_root: str | None = None        # absolute path of out_dir
+    relink_root_hint: str | None = None      # absolute path of media/ subdir
+    path_mode: str = "original"             # "original" | "collected_absolute"
+    package_portable: str = "unknown"       # "full" | "partial" | "unknown"
+    report_only_count: int = 0
+    normalized_extension_count: int = 0
 
     def all_entries(self) -> list[ManifestEntry]:
         return (
@@ -101,12 +108,18 @@ class AssetManifest:
             "source_draft": self.source_draft,
             "app_version": self.app_version,
             "duration_us": self.duration_us,
+            "collected_root": self.collected_root,
+            "relink_root_hint": self.relink_root_hint,
+            "path_mode": self.path_mode,
+            "package_portable": self.package_portable,
             "stats": {
                 "total_assets": self.total_assets,
                 "online_count": self.online_count,
                 "offline_count": self.offline_count,
                 "cached_count": self.cached_count,
                 "total_online_size_bytes": self.total_online_size_bytes,
+                "report_only_count": self.report_only_count,
+                "normalized_extension_count": self.normalized_extension_count,
             },
             "videos":      _entries(self.videos),
             "audios":      _entries(self.audios),

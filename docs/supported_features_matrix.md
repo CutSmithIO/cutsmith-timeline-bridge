@@ -1,4 +1,4 @@
-# Supported Features Matrix — v0.3.3
+# Supported Features Matrix — v0.3.4
 
 ## Validation scope
 
@@ -49,6 +49,8 @@ a real draft.
 | XML `<pathurl>` rewrite | ✅ | Paths rewritten to collected `media/` files; Premiere opens without `Link Media` |
 | Asset manifest | ✅ | `<stem>.manifest.json` with `collect_relative_path` per entry |
 | Offline report | ✅ | `<stem>.offline.md` written only when assets could not be found |
+| Relink guide | ✅ v0.3.4 | `<stem>.relink_guide.md` — Premiere import instructions, media root hint, speed trim-boundary note |
+| Manifest collect fields | ✅ v0.3.4 | `collected_root`, `relink_root_hint`, `path_mode`, `package_portable`, `report_only_count`, `normalized_extension_count` |
 | CapCut proprietary effects | ⊘ Report-only | Not portable outside CapCut; listed in report + offline.md |
 | CapCut proprietary transitions | ⊘ Report-only | Not portable outside CapCut |
 | CapCut proprietary filters | ⊘ Report-only | Not portable outside CapCut |
