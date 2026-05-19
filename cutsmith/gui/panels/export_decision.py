@@ -19,28 +19,41 @@ from PySide6.QtWidgets import (
 )
 
 from cutsmith.gui.models import AnalysisResult
-from cutsmith.gui.style import ACCENT, GREEN, ORANGE, RED, TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY
+from cutsmith.gui.style import (
+    ACCENT, BG_BASE, BG_DEEP, BG_RAISED, GREEN, ORANGE, RED,
+    TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
+)
 
 
-def _make_tree(out_dir: Path, stem: str) -> str:
-    lines = [f"out_collect/{out_dir.name}/"]
-    files = [
-        f"{stem}.xml",
-        f"{stem}.package_summary.txt",
-        f"{stem}.report.md",
-        f"{stem}.relink_guide.md",
-        f"{stem}.manifest.json",
-        "media/",
+def _make_tree_html(out_dir: Path, stem: str) -> str:
+    """Build an HTML-formatted tree for the QLabel (Qt RichText)."""
+    ACCENT_C  = "#9b8cff"
+    DIR_C     = "#98989f"
+    FILE_C    = "#636366"
+    ROOT_C    = "#98989f"
+
+    def span(text: str, color: str) -> str:
+        return f'<span style="color:{color};">{text}</span>'
+
+    lines = [span(f"out_collect/{out_dir.name}/", ROOT_C)]
+    entries = [
+        (f"{stem}.xml",              ACCENT_C, False),
+        (f"{stem}.package_summary.txt", FILE_C, False),
+        (f"{stem}.report.md",        FILE_C,   False),
+        (f"{stem}.relink_guide.md",  FILE_C,   False),
+        (f"{stem}.manifest.json",    FILE_C,   False),
+        ("media/",                   DIR_C,    True),
     ]
-    for i, f in enumerate(files):
-        prefix = "└── " if i == len(files) - 1 else "├── "
-        lines.append(f"  {prefix}{f}")
-    # media subdirs
-    subdirs = ["video/", "audio/", "images/", "music/", "sfx/"]
-    for i, d in enumerate(subdirs):
-        prefix = "    └── " if i == len(subdirs) - 1 else "    ├── "
-        lines.append(f"  {prefix}{d}")
-    return "\n".join(lines)
+    for i, (name, color, is_last_parent) in enumerate(entries):
+        is_last = i == len(entries) - 1
+        pre = "└── " if is_last else "├── "
+        lines.append(f"  {span(pre, FILE_C)}{span(name, color)}")
+        if is_last_parent:
+            subdirs = ["video/", "audio/", "images/", "music/", "sfx/"]
+            for j, d in enumerate(subdirs):
+                sp = "    └── " if j == len(subdirs) - 1 else "    ├── "
+                lines.append(f"  {span(sp, FILE_C)}{span(d, DIR_C)}")
+    return "<br>".join(lines)
 
 
 class ExportDecisionPanel(QWidget):
@@ -52,6 +65,7 @@ class ExportDecisionPanel(QWidget):
         super().__init__(parent)
         self.setObjectName("rightPanel")
         self.setFixedWidth(280)
+        self.setStyleSheet(f"background: {BG_RAISED};")
 
         self._result: AnalysisResult | None = None
         self._out_dir: Path | None = None
@@ -106,6 +120,7 @@ class ExportDecisionPanel(QWidget):
 
         self._tree_label = QLabel("—")
         self._tree_label.setObjectName("treeDisplay")
+        self._tree_label.setTextFormat(Qt.RichText)
         self._tree_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self._tree_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         root.addWidget(self._tree_label)
@@ -232,7 +247,7 @@ class ExportDecisionPanel(QWidget):
         if self._out_dir is None:
             return
         stem = r.entry.display_name
-        tree = _make_tree(self._out_dir, stem)
+        tree = _make_tree_html(self._out_dir, stem)
         self._tree_label.setText(tree)
 
     def _on_browse(self) -> None:

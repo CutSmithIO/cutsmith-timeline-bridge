@@ -1,34 +1,59 @@
 """QSS stylesheet tokens and builder for the CutSmith GUI."""
 
 # ─── colour tokens ────────────────────────────────────────────────────────────
-BG_BASE     = "#1c1c1e"
-BG_RAISED   = "#242426"
-BG_HOVER    = "#2c2c2e"
-BORDER      = "#3a3a3c"
+BG_BASE      = "#1c1c1e"
+BG_RAISED    = "#242426"
+BG_HOVER     = "#2c2c2e"
+BG_DEEP      = "#161618"
+BORDER       = "#3a3a3c"
 BORDER_FAINT = "#2c2c2e"
 
-ACCENT_DARK = "#5a4fcf"
-ACCENT      = "#9b8cff"
-ACCENT_DIM  = "#3d3570"
+ACCENT_DARK  = "#5a4fcf"
+ACCENT       = "#9b8cff"
+ACCENT_DIM   = "#3d3570"
+ACCENT_SEL   = "rgba(155, 140, 255, 0.18)"
 
-GREEN       = "#30d158"
-ORANGE      = "#ff9f0a"
-RED         = "#ff453a"
+GREEN        = "#30d158"
+ORANGE       = "#ff9f0a"
+RED          = "#ff453a"
 
-TEXT_PRIMARY = "#e5e5ea"
-TEXT_MUTED   = "#636366"
-TEXT_FAINT   = "#48484a"
+TEXT_PRIMARY   = "#e5e5ea"
+TEXT_SECONDARY = "#98989f"
+TEXT_MUTED     = "#636366"
+TEXT_FAINT     = "#48484a"
 
-FONT_MONO = "IBM Plex Mono, Menlo, Monaco, Courier New, monospace"
-FONT_SANS = "SF Pro Display, -apple-system, Helvetica Neue, Arial, sans-serif"
+FONT_MONO = "\"IBM Plex Mono\", Menlo, Monaco, \"Courier New\", monospace"
+FONT_SANS = "\"-apple-system\", \"Helvetica Neue\", Arial, sans-serif"
 
 # ─── full QSS ─────────────────────────────────────────────────────────────────
 APP_QSS = f"""
-QMainWindow, QWidget#root {{
-    background: {BG_BASE};
+/* ── reset: stop Qt white from bleeding through ── */
+QWidget {{
+    background: transparent;
     color: {TEXT_PRIMARY};
     font-family: {FONT_MONO};
     font-size: 12px;
+}}
+
+QMainWindow {{
+    background: {BG_BASE};
+}}
+
+QWidget#root {{
+    background: {BG_BASE};
+}}
+
+/* Scroll areas: force dark on both the QScrollArea frame and its internal viewport */
+QScrollArea {{
+    background: {BG_BASE};
+    border: none;
+}}
+QScrollArea > QWidget {{
+    background: {BG_BASE};
+}}
+QAbstractScrollArea {{
+    background: {BG_BASE};
+    border: none;
 }}
 
 /* ── scrollbars ── */
@@ -36,6 +61,7 @@ QScrollBar:vertical {{
     background: {BG_BASE};
     width: 6px;
     margin: 0;
+    border: none;
 }}
 QScrollBar::handle:vertical {{
     background: {BORDER};
@@ -43,8 +69,15 @@ QScrollBar::handle:vertical {{
     min-height: 20px;
 }}
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
-QScrollBar:horizontal {{ height: 6px; background: {BG_BASE}; }}
-QScrollBar::handle:horizontal {{ background: {BORDER}; border-radius: 3px; }}
+QScrollBar:horizontal {{
+    height: 6px;
+    background: {BG_BASE};
+    border: none;
+}}
+QScrollBar::handle:horizontal {{
+    background: {BORDER};
+    border-radius: 3px;
+}}
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 
 /* ── panels ── */
@@ -60,32 +93,52 @@ QWidget#rightPanel {{
     border-left: 1px solid {BORDER};
 }}
 
-/* ── group labels ── */
+/* ── group / section labels ── */
 QLabel#groupLabel {{
     color: {TEXT_MUTED};
     font-size: 10px;
-    font-family: {FONT_MONO};
     letter-spacing: 0.08em;
-    padding: 4px 12px 2px 12px;
+    background: transparent;
+}}
+QLabel#sectionHeader {{
+    color: {TEXT_SECONDARY};
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 8px 0 4px 0;
+    background: transparent;
 }}
 
-/* ── project list items ── */
-QPushButton#projItem {{
+/* ── left project items (QWidget-based, styled inline) ── */
+QWidget#projItem {{
     background: transparent;
-    border: none;
     border-left: 2px solid transparent;
-    color: {TEXT_PRIMARY};
-    font-family: {FONT_MONO};
-    font-size: 12px;
-    padding: 6px 12px;
-    text-align: left;
 }}
-QPushButton#projItem:hover {{
+QWidget#projItem:hover {{
     background: {BG_HOVER};
 }}
-QPushButton#projItem[selected="true"] {{
-    background: {ACCENT_DIM};
+QWidget#projItem[selected="true"] {{
+    background: {ACCENT_SEL};
     border-left: 2px solid {ACCENT};
+}}
+QLabel#projName {{
+    color: {TEXT_PRIMARY};
+    font-size: 12px;
+    background: transparent;
+}}
+QLabel#projMeta {{
+    color: {TEXT_MUTED};
+    font-size: 10px;
+    background: transparent;
+}}
+QLabel#projNameDim {{
+    color: {TEXT_FAINT};
+    font-size: 12px;
+    background: transparent;
+}}
+QLabel#projMetaDim {{
+    color: {TEXT_FAINT};
+    font-size: 10px;
+    background: transparent;
 }}
 
 /* ── left footer buttons ── */
@@ -93,8 +146,7 @@ QPushButton#lfBtn {{
     background: transparent;
     border: 1px solid {BORDER};
     border-radius: 4px;
-    color: {TEXT_MUTED};
-    font-family: {FONT_MONO};
+    color: {TEXT_SECONDARY};
     font-size: 11px;
     padding: 4px 10px;
 }}
@@ -103,58 +155,59 @@ QPushButton#lfBtn:hover {{
     color: {TEXT_PRIMARY};
 }}
 
-/* ── section headers in center panel ── */
-QLabel#sectionHeader {{
-    color: {TEXT_MUTED};
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    padding: 8px 0 4px 0;
-}}
-
 /* ── large project name card ── */
 QLabel#cardName {{
     color: {TEXT_PRIMARY};
     font-family: {FONT_SANS};
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
+    background: transparent;
 }}
 QLabel#cardMeta {{
-    color: {TEXT_MUTED};
+    color: {TEXT_SECONDARY};
     font-size: 11px;
+    background: transparent;
 }}
 
 /* ── readiness items ── */
 QLabel#riIcon {{
     font-size: 12px;
     min-width: 16px;
+    background: transparent;
 }}
 QLabel#riLabel {{
     color: {TEXT_PRIMARY};
     font-size: 12px;
+    background: transparent;
 }}
 QLabel#riLabelWarn {{
     color: {ORANGE};
     font-size: 12px;
+    background: transparent;
 }}
 QLabel#riDetail {{
-    color: {TEXT_MUTED};
+    color: {TEXT_SECONDARY};
     font-size: 11px;
+    background: transparent;
 }}
 
 /* ── asset table ── */
 QLabel#assetGroupLabel {{
-    color: {TEXT_FAINT};
+    color: {TEXT_MUTED};
     font-size: 10px;
     letter-spacing: 0.08em;
     padding: 6px 0 2px 0;
+    background: transparent;
 }}
 QLabel#assetRow {{
     color: {TEXT_PRIMARY};
     font-size: 11px;
+    background: transparent;
 }}
 QLabel#assetRowMuted {{
     color: {TEXT_MUTED};
     font-size: 11px;
+    background: transparent;
 }}
 
 /* ── stat cells ── */
@@ -162,30 +215,32 @@ QLabel#statVal {{
     color: {TEXT_PRIMARY};
     font-size: 16px;
     font-weight: 600;
+    background: transparent;
 }}
 QLabel#statKey {{
     color: {TEXT_MUTED};
-    font-size: 10px;
+    font-size: 9px;
+    background: transparent;
 }}
 
-/* ── right panel labels ── */
+/* ── right panel ── */
 QLabel#rpLabel {{
     color: {TEXT_MUTED};
     font-size: 10px;
     letter-spacing: 0.05em;
     padding-bottom: 2px;
+    background: transparent;
 }}
 QLabel#rpValue {{
     color: {TEXT_PRIMARY};
     font-size: 11px;
+    background: transparent;
 }}
-
-/* ── path display ── */
 QLabel#pathLabel {{
-    background: {BG_BASE};
+    background: {BG_DEEP};
     border: 1px solid {BORDER};
     border-radius: 4px;
-    color: {TEXT_MUTED};
+    color: {TEXT_SECONDARY};
     font-size: 10px;
     padding: 4px 8px;
 }}
@@ -214,23 +269,25 @@ QPushButton#secondaryBtn {{
     background: transparent;
     border: 1px solid {BORDER};
     border-radius: 4px;
-    color: {TEXT_PRIMARY};
+    color: {TEXT_SECONDARY};
     font-size: 11px;
     padding: 6px 10px;
 }}
 QPushButton#secondaryBtn:hover {{
     background: {BG_HOVER};
+    color: {TEXT_PRIMARY};
 }}
 QPushButton#secondaryBtn:disabled {{
     color: {TEXT_FAINT};
+    border-color: {BORDER_FAINT};
 }}
 
 /* ── output tree ── */
 QLabel#treeDisplay {{
-    background: {BG_BASE};
+    background: {BG_DEEP};
     border: 1px solid {BORDER_FAINT};
     border-radius: 4px;
-    color: {TEXT_MUTED};
+    color: {TEXT_SECONDARY};
     font-size: 10px;
     padding: 8px;
 }}
@@ -245,7 +302,7 @@ QStatusBar {{
 
 /* ── progress bar ── */
 QProgressBar {{
-    background: {BG_BASE};
+    background: {BG_DEEP};
     border: 1px solid {BORDER};
     border-radius: 3px;
     height: 4px;
@@ -256,7 +313,7 @@ QProgressBar::chunk {{
     border-radius: 3px;
 }}
 
-/* ── badge labels ── */
+/* ── badges ── */
 QLabel#badgeOk {{
     background: {GREEN};
     border-radius: 3px;
@@ -264,7 +321,7 @@ QLabel#badgeOk {{
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
-    padding: 1px 5px;
+    padding: 1px 6px;
 }}
 QLabel#badgeWarn {{
     background: {ORANGE};
@@ -273,7 +330,7 @@ QLabel#badgeWarn {{
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
-    padding: 1px 5px;
+    padding: 1px 6px;
 }}
 QLabel#badgeError {{
     background: {RED};
@@ -282,7 +339,7 @@ QLabel#badgeError {{
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
-    padding: 1px 5px;
+    padding: 1px 6px;
 }}
 QLabel#badgeDim {{
     background: {TEXT_FAINT};
@@ -291,12 +348,13 @@ QLabel#badgeDim {{
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
-    padding: 1px 5px;
+    padding: 1px 6px;
 }}
 
 /* ── dividers ── */
 QFrame#divider {{
     background: {BORDER};
     max-height: 1px;
+    border: none;
 }}
 """

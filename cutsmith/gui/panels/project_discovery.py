@@ -17,9 +17,12 @@ from PySide6.QtWidgets import (
 )
 
 from cutsmith.gui.models import ProjectEntry
-from cutsmith.gui.style import ACCENT, GREEN, ORANGE, RED, TEXT_FAINT, TEXT_MUTED
+from cutsmith.gui.style import (
+    ACCENT, ACCENT_DIM, ACCENT_SEL, BG_HOVER, BG_RAISED,
+    TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
+)
 
-_GROUP_ORDER = ["capcut", "jianying", "encrypted", "unknown"]
+_GROUP_ORDER  = ["capcut", "jianying", "encrypted", "unknown"]
 _GROUP_LABELS = {
     "capcut":    "CAPCUT PROJECTS",
     "jianying":  "JIANYING PROJECTS",
@@ -28,31 +31,95 @@ _GROUP_LABELS = {
 }
 
 
-class _ProjectButton(QPushButton):
+class _ProjectItem(QWidget):
+    """Single project row — QWidget with two QLabels for full color control."""
+
+    clicked = Signal()
+
     def __init__(self, entry: ProjectEntry, parent=None):
         super().__init__(parent)
         self.entry = entry
-        self.setObjectName("projItem")
-        self.setCheckable(False)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self._refresh()
+        self._selected = False
 
-    def _refresh(self):
-        enc = (self.entry.detect.encryption or "").lower()
-        is_enc = enc not in ("", "none", "plaintext")
-        name = self.entry.display_name
-        sub = f"{self.entry.app_label} · {self.entry.date_label}" if self.entry.date_label else self.entry.app_label
-        self.setText(f"{name}\n{sub}")
-        self.setEnabled(not is_enc)
+        self.setObjectName("projItem")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(14, 6, 12, 6)
+        lay.setSpacing(1)
+
+        self._name_lbl = QLabel(entry.display_name)
+        sub = (
+            f"{entry.app_label} · {entry.date_label}"
+            if entry.date_label
+            else entry.app_label
+        )
+        self._meta_lbl = QLabel(sub)
+
+        enc = (entry.detect.encryption or "").lower()
+        self._is_enc = enc not in ("", "none", "plaintext")
+
+        if self._is_enc:
+            self._name_lbl.setObjectName("projNameDim")
+            self._meta_lbl.setObjectName("projMetaDim")
+            self.setCursor(Qt.ForbiddenCursor)
+        else:
+            self._name_lbl.setObjectName("projName")
+            self._meta_lbl.setObjectName("projMeta")
+
+        lay.addWidget(self._name_lbl)
+        lay.addWidget(self._meta_lbl)
+
+        self._apply_state()
+
+    # ── interaction ────────────────────────────────────────────────────────────
+
+    def mousePressEvent(self, event):
+        if not self._is_enc:
+            self.clicked.emit()
+        super().mousePressEvent(event)
+
+    def enterEvent(self, event):
+        if not self._selected and not self._is_enc:
+            self.setStyleSheet(f"background: {BG_HOVER}; border-left: 2px solid transparent;")
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if not self._selected:
+            self._apply_state()
+        super().leaveEvent(event)
+
+    # ── public ─────────────────────────────────────────────────────────────────
 
     def set_selected(self, sel: bool):
-        self.setProperty("selected", "true" if sel else "false")
-        self.style().unpolish(self)
-        self.style().polish(self)
+        self._selected = sel
+        self._apply_state()
+
+    # ── private ────────────────────────────────────────────────────────────────
+
+    def _apply_state(self):
+        if self._is_enc:
+            self.setStyleSheet(
+                f"background: transparent; border-left: 2px solid transparent;"
+                f" opacity: 0.45;"
+            )
+        elif self._selected:
+            self.setStyleSheet(
+                f"background: {ACCENT_SEL}; border-left: 2px solid {ACCENT};"
+            )
+            self._name_lbl.setStyleSheet(f"color: #ffffff; font-weight: 600; background: transparent;")
+            self._meta_lbl.setStyleSheet(f"color: {TEXT_SECONDARY}; background: transparent;")
+        else:
+            self.setStyleSheet(
+                f"background: transparent; border-left: 2px solid transparent;"
+            )
+            self._name_lbl.setStyleSheet(f"color: {TEXT_PRIMARY}; font-weight: normal; background: transparent;")
+            self._meta_lbl.setStyleSheet(f"color: {TEXT_MUTED}; background: transparent;")
 
 
 class ProjectDiscoveryPanel(QWidget):
-    project_selected = Signal(object)  # ProjectEntry
+    project_selected = Signal(object)   # ProjectEntry
     rescan_requested = Signal()
     add_folder_requested = Signal(Path)
 
@@ -62,35 +129,40 @@ class ProjectDiscoveryPanel(QWidget):
         self.setFixedWidth(220)
 
         self._entries: list[ProjectEntry] = []
-        self._buttons: list[_ProjectButton] = []
+        self._items: list[_ProjectItem] = []
         self._selected: ProjectEntry | None = None
 
-        root_layout = QVBoxLayout(self)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(0)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
         # Header
         header = QLabel("PROJECTS")
         header.setObjectName("groupLabel")
-        header.setContentsMargins(12, 10, 12, 6)
-        root_layout.addWidget(header)
+        header.setContentsMargins(14, 10, 12, 6)
+        root.addWidget(header)
 
-        # Scroll area for project list
+        # Scrollable list
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setStyleSheet(f"background: {BG_RAISED}; border: none;")
+        scroll.viewport().setStyleSheet(f"background: {BG_RAISED};")
+
         self._list_widget = QWidget()
+        self._list_widget.setStyleSheet(f"background: {BG_RAISED};")
         self._list_layout = QVBoxLayout(self._list_widget)
-        self._list_layout.setContentsMargins(0, 0, 0, 0)
+        self._list_layout.setContentsMargins(0, 4, 0, 4)
         self._list_layout.setSpacing(0)
         self._list_layout.addStretch()
         scroll.setWidget(self._list_widget)
-        root_layout.addWidget(scroll, 1)
+        root.addWidget(scroll, 1)
 
-        # Footer buttons
+        # Footer
         footer = QWidget()
         footer.setFixedHeight(44)
+        footer.setStyleSheet(f"background: {BG_RAISED}; border-top: 1px solid #3a3a3c;")
         fl = QHBoxLayout(footer)
         fl.setContentsMargins(8, 6, 8, 6)
         fl.setSpacing(6)
@@ -100,7 +172,7 @@ class ProjectDiscoveryPanel(QWidget):
         btn_rescan.setObjectName("lfBtn")
         fl.addWidget(btn_add)
         fl.addWidget(btn_rescan)
-        root_layout.addWidget(footer)
+        root.addWidget(footer)
 
         btn_add.clicked.connect(self._on_add_folder)
         btn_rescan.clicked.connect(self.rescan_requested)
@@ -116,44 +188,41 @@ class ProjectDiscoveryPanel(QWidget):
         self._selected = None
         self._rebuild_list()
 
-    def set_status(self, msg: str) -> None:
-        pass  # status shown in main window status bar
-
     # ── private ────────────────────────────────────────────────────────────────
 
     def _rebuild_list(self):
-        # Remove all widgets from list layout (except stretch)
         while self._list_layout.count() > 1:
             item = self._list_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
-        self._buttons.clear()
+        self._items.clear()
 
         grouped: dict[str, list[ProjectEntry]] = {g: [] for g in _GROUP_ORDER}
         for e in self._entries:
             g = e.group if e.group in grouped else "unknown"
             grouped[g].append(e)
 
-        insert_pos = 0
+        pos = 0
         for g in _GROUP_ORDER:
             entries = grouped[g]
             if not entries:
                 continue
             lbl = QLabel(_GROUP_LABELS[g])
             lbl.setObjectName("groupLabel")
-            self._list_layout.insertWidget(insert_pos, lbl)
-            insert_pos += 1
+            lbl.setContentsMargins(14, 8, 12, 3)
+            self._list_layout.insertWidget(pos, lbl)
+            pos += 1
             for e in entries:
-                btn = _ProjectButton(e)
-                btn.clicked.connect(lambda checked, entry=e: self._on_select(entry))
-                self._list_layout.insertWidget(insert_pos, btn)
-                self._buttons.append(btn)
-                insert_pos += 1
+                item = _ProjectItem(e)
+                item.clicked.connect(lambda entry=e: self._on_select(entry))
+                self._list_layout.insertWidget(pos, item)
+                self._items.append(item)
+                pos += 1
 
     def _on_select(self, entry: ProjectEntry):
         self._selected = entry
-        for btn in self._buttons:
-            btn.set_selected(btn.entry is entry)
+        for item in self._items:
+            item.set_selected(item.entry is entry)
         self.project_selected.emit(entry)
 
     def _on_add_folder(self):

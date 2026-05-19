@@ -18,21 +18,24 @@ from PySide6.QtWidgets import (
 
 from cutsmith.gui.models import AnalysisResult
 from cutsmith.gui.style import (
-    ACCENT, ACCENT_DIM, GREEN, ORANGE, RED, TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY
+    ACCENT, ACCENT_DIM, BG_BASE, BG_RAISED, BORDER,
+    GREEN, ORANGE, TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
 )
 
 # ── cover thumbnail ────────────────────────────────────────────────────────────
 
-_COVER_SIZE = 72
+_COVER_W = 96
+_COVER_H = 72
 
 
 class _CoverThumbnail(QLabel):
-    """72×72 cover image or dark placeholder with project initials."""
+    """96×72 cover image or dark placeholder with project initials."""
 
     def __init__(self, cover_path: Path | None, name: str, parent=None):
         super().__init__(parent)
-        self.setFixedSize(_COVER_SIZE, _COVER_SIZE)
+        self.setFixedSize(_COVER_W, _COVER_H)
         self.setScaledContents(False)
+        self.setStyleSheet(f"border-radius: 6px; background: {ACCENT_DIM};")
         pix = self._load(cover_path) or self._placeholder(name)
         self.setPixmap(pix)
 
@@ -42,22 +45,21 @@ class _CoverThumbnail(QLabel):
         pix = QPixmap(str(cover_path))
         if pix.isNull():
             return None
-        # Scale to fill, then center-crop to exact square
-        pix = pix.scaled(_COVER_SIZE, _COVER_SIZE,
+        pix = pix.scaled(_COVER_W, _COVER_H,
                           Qt.KeepAspectRatioByExpanding,
                           Qt.SmoothTransformation)
-        if pix.width() > _COVER_SIZE or pix.height() > _COVER_SIZE:
-            x = (pix.width() - _COVER_SIZE) // 2
-            y = (pix.height() - _COVER_SIZE) // 2
-            pix = pix.copy(x, y, _COVER_SIZE, _COVER_SIZE)
+        if pix.width() > _COVER_W or pix.height() > _COVER_H:
+            x = (pix.width() - _COVER_W) // 2
+            y = (pix.height() - _COVER_H) // 2
+            pix = pix.copy(x, y, _COVER_W, _COVER_H)
         return pix
 
     def _placeholder(self, name: str) -> QPixmap:
-        pix = QPixmap(_COVER_SIZE, _COVER_SIZE)
+        pix = QPixmap(_COVER_W, _COVER_H)
         pix.fill(QColor(ACCENT_DIM))
         painter = QPainter(pix)
         painter.setRenderHint(QPainter.Antialiasing)
-        font = QFont("SF Pro Display", 26, QFont.Bold)
+        font = QFont("Helvetica Neue", 24, QFont.Bold)
         painter.setFont(font)
         painter.setPen(QColor(ACCENT))
         initials = (name[:2] if len(name) >= 2 else name).upper()
@@ -82,12 +84,19 @@ def _section_header(text: str) -> QLabel:
     return lbl
 
 
+def _wrap(layout) -> QWidget:
+    """Wrap a bare layout in a QWidget so _clear() can deleteLater() it."""
+    w = QWidget()
+    w.setLayout(layout)
+    return w
+
+
 class _StatCell(QWidget):
     def __init__(self, val: str, key: str, parent=None):
         super().__init__(parent)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.setSpacing(0)
+        lay.setContentsMargins(4, 6, 4, 6)
+        lay.setSpacing(2)
         v = QLabel(val)
         v.setObjectName("statVal")
         v.setAlignment(Qt.AlignCenter)
@@ -98,12 +107,20 @@ class _StatCell(QWidget):
         lay.addWidget(k)
 
 
+class _StatSep(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFrameShape(QFrame.VLine)
+        self.setFixedWidth(1)
+        self.setStyleSheet(f"background: {BORDER}; border: none;")
+
+
 class _ReadinessRow(QWidget):
     def __init__(self, ok: bool | None, label: str, detail: str, parent=None):
         super().__init__(parent)
         lay = QHBoxLayout(self)
-        lay.setContentsMargins(0, 2, 0, 2)
-        lay.setSpacing(8)
+        lay.setContentsMargins(0, 3, 0, 3)
+        lay.setSpacing(10)
 
         if ok is True:
             icon_text, icon_color = "✓", GREEN
@@ -115,37 +132,44 @@ class _ReadinessRow(QWidget):
         icon = QLabel(icon_text)
         icon.setObjectName("riIcon")
         icon.setFixedWidth(16)
-        icon.setStyleSheet(f"color: {icon_color}; font-size: 12px;")
-        lay.addWidget(icon)
+        icon.setStyleSheet(f"color: {icon_color}; font-size: 12px; background: transparent;")
+        lay.addWidget(icon, 0, Qt.AlignTop)
 
-        text_col = QVBoxLayout()
-        text_col.setSpacing(1)
+        text_w = QWidget()
+        text_lay = QVBoxLayout(text_w)
+        text_lay.setContentsMargins(0, 0, 0, 0)
+        text_lay.setSpacing(2)
+
         lbl = QLabel(label)
-        lbl.setObjectName("riLabel" if ok is not False else "riLabelWarn")
         if ok is False:
-            lbl.setStyleSheet(f"color: {ORANGE};")
+            lbl.setObjectName("riLabelWarn")
+            lbl.setStyleSheet(f"color: {ORANGE}; background: transparent;")
+        else:
+            lbl.setObjectName("riLabel")
+
         dtl = QLabel(detail)
         dtl.setObjectName("riDetail")
         dtl.setWordWrap(True)
-        text_col.addWidget(lbl)
-        text_col.addWidget(dtl)
-        lay.addLayout(text_col, 1)
+        text_lay.addWidget(lbl)
+        text_lay.addWidget(dtl)
+
+        lay.addWidget(text_w, 1)
 
 
 class _AssetRow(QWidget):
     def __init__(self, icon: str, name: str, count_label: str, muted: bool = False, parent=None):
         super().__init__(parent)
         lay = QHBoxLayout(self)
-        lay.setContentsMargins(0, 1, 0, 1)
+        lay.setContentsMargins(0, 2, 0, 2)
         lay.setSpacing(8)
         icon_lbl = QLabel(icon)
         icon_lbl.setFixedWidth(16)
-        icon_lbl.setStyleSheet(f"color: {TEXT_MUTED}; font-size: 11px;")
+        icon_lbl.setStyleSheet(f"color: {TEXT_MUTED}; font-size: 11px; background: transparent;")
         name_lbl = QLabel(name)
         name_lbl.setObjectName("assetRowMuted" if muted else "assetRow")
         count_lbl = QLabel(count_label)
         count_lbl.setObjectName("assetRowMuted")
-        count_lbl.setAlignment(Qt.AlignRight)
+        count_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         lay.addWidget(icon_lbl)
         lay.addWidget(name_lbl, 1)
         lay.addWidget(count_lbl)
@@ -157,6 +181,7 @@ class ProjectReadinessPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("centerPanel")
+        self.setStyleSheet(f"background: {BG_BASE};")
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -165,7 +190,12 @@ class ProjectReadinessPanel(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        # Force dark on the scroll frame and its internal viewport widget
+        scroll.setStyleSheet(f"background: {BG_BASE}; border: none;")
+        scroll.viewport().setStyleSheet(f"background: {BG_BASE};")
+
         self._content = QWidget()
+        self._content.setStyleSheet(f"background: {BG_BASE};")
         self._content_layout = QVBoxLayout(self._content)
         self._content_layout.setContentsMargins(24, 20, 24, 20)
         self._content_layout.setSpacing(8)
@@ -181,6 +211,7 @@ class ProjectReadinessPanel(QWidget):
         lbl = QLabel(f"Analyzing {name}…")
         lbl.setObjectName("cardMeta")
         lbl.setAlignment(Qt.AlignCenter)
+        self._content_layout.addStretch()
         self._content_layout.addWidget(lbl)
         self._content_layout.addStretch()
 
@@ -196,9 +227,9 @@ class ProjectReadinessPanel(QWidget):
     def show_error(self, msg: str) -> None:
         self._clear()
         lbl = QLabel(f"Analysis failed:\n{msg}")
-        lbl.setObjectName("cardMeta")
-        lbl.setStyleSheet(f"color: #ff453a;")
+        lbl.setStyleSheet(f"color: #ff453a; background: transparent;")
         lbl.setWordWrap(True)
+        self._content_layout.addStretch()
         self._content_layout.addWidget(lbl)
         self._content_layout.addStretch()
 
@@ -207,11 +238,10 @@ class ProjectReadinessPanel(QWidget):
     def _clear(self):
         while self._content_layout.count():
             item = self._content_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-            elif item.layout():
-                # clean sub-layouts
-                pass
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
+            # Spacer items (QSpacerItem) need no action
 
     def _show_empty(self):
         lbl = QLabel("Select a project to begin")
@@ -222,47 +252,51 @@ class ProjectReadinessPanel(QWidget):
         self._content_layout.addStretch()
 
     def _build_card(self, r: AnalysisResult):
-        # Cover + title row
-        card_row = QHBoxLayout()
+        # ── Cover + title in a QWidget container ──────────────────────────────
+        card_w = QWidget()
+        card_row = QHBoxLayout(card_w)
+        card_row.setContentsMargins(0, 0, 0, 0)
         card_row.setSpacing(14)
         card_row.setAlignment(Qt.AlignTop)
 
-        # Cover thumbnail (72×72)
         thumb = _CoverThumbnail(r.cover_path, r.entry.display_name)
-        thumb.setStyleSheet(
-            f"border-radius: 6px; background: {ACCENT_DIM};"
-        )
         card_row.addWidget(thumb, 0, Qt.AlignTop)
 
-        # Name + meta stacked on the right
-        text_col = QVBoxLayout()
-        text_col.setSpacing(3)
-        text_col.setAlignment(Qt.AlignTop)
+        title_w = QWidget()
+        title_lay = QVBoxLayout(title_w)
+        title_lay.setContentsMargins(0, 0, 0, 0)
+        title_lay.setSpacing(4)
+        title_lay.setAlignment(Qt.AlignTop)
 
         name_lbl = QLabel(r.entry.display_name)
         name_lbl.setObjectName("cardName")
-        text_col.addWidget(name_lbl)
+        title_lay.addWidget(name_lbl)
 
         sv = r.detect.schema_version or ""
         sv_str = f" · schema {sv}" if sv else ""
-        meta = f"{r.entry.app_label}{sv_str} · {r.readability_label}"
-        meta_lbl = QLabel(meta)
+        meta_lbl = QLabel(f"{r.entry.app_label}{sv_str} · {r.readability_label}")
         meta_lbl.setObjectName("cardMeta")
-        text_col.addWidget(meta_lbl)
+        title_lay.addWidget(meta_lbl)
 
-        badge = QLabel("PORTABLE PACKAGE READY" if r.is_portable else "PARTIAL — SOME ASSETS OFFLINE")
+        badge = QLabel(
+            "PORTABLE PACKAGE READY" if r.is_portable
+            else "PARTIAL — SOME ASSETS OFFLINE"
+        )
         badge.setObjectName("badgeOk" if r.is_portable else "badgeWarn")
         badge.setFixedHeight(18)
         badge.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        text_col.addWidget(badge)
+        title_lay.addWidget(badge)
 
-        card_row.addLayout(text_col, 1)
-        self._content_layout.addLayout(card_row)
+        card_row.addWidget(title_w, 1)
+        self._content_layout.addWidget(card_w)
 
-        self._content_layout.addSpacing(8)
+        self._content_layout.addSpacing(4)
 
-        # Stats strip
-        stats_row = QHBoxLayout()
+        # ── Stats strip in a QWidget container ───────────────────────────────
+        stats_w = QWidget()
+        stats_w.setFixedHeight(52)
+        stats_row = QHBoxLayout(stats_w)
+        stats_row.setContentsMargins(0, 0, 0, 0)
         stats_row.setSpacing(0)
         cells = [
             (r.duration_label, "Duration"),
@@ -271,14 +305,10 @@ class ProjectReadinessPanel(QWidget):
             (str(r.clip_count), "Clips"),
         ]
         for i, (val, key) in enumerate(cells):
-            cell = _StatCell(val, key)
-            stats_row.addWidget(cell, 1)
+            stats_row.addWidget(_StatCell(val, key), 1)
             if i < len(cells) - 1:
-                sep = QFrame()
-                sep.setFrameShape(QFrame.VLine)
-                sep.setStyleSheet(f"color: #3a3a3c;")
-                stats_row.addWidget(sep)
-        self._content_layout.addLayout(stats_row)
+                stats_row.addWidget(_StatSep())
+        self._content_layout.addWidget(stats_w)
 
     def _build_readiness(self, r: AnalysisResult):
         self._content_layout.addWidget(_section_header("Project Readiness"))
@@ -291,24 +321,22 @@ class ProjectReadinessPanel(QWidget):
             (True, "Asset paths resolved",
              f"{r.total_online} online"
              + (f" · {r.total_offline} offline" if r.total_offline else "")),
-            (True, "FCP7 XML export", "Sequence + master clips · constant speed via timeremap"),
+            (True, "FCP7 XML export",
+             "Sequence + master clips · constant speed via timeremap"),
         ]
 
         if r.speed_clip_count:
             rows.append((False, "Constant speed clips",
                           f"{r.speed_clip_count} clip{'s' if r.speed_clip_count != 1 else ''} "
                           "— speed preserved via timeremap filter"))
-
         if r.speed_curve_count:
             rows.append((False, "Speed curves",
                           f"{r.speed_curve_count} clip{'s' if r.speed_curve_count != 1 else ''} "
                           "— exported as 1.0× · rebuild via Time Remapping in Premiere"))
-
         if r.subtitle_cue_count:
             rows.append((False, "Subtitles",
                           f"{r.subtitle_cue_count} cue{'s' if r.subtitle_cue_count != 1 else ''} "
                           "— not in XML · export separately via Export SRT"))
-
         if r.total_report_only:
             rows.append((False, "Proprietary assets",
                           f"{r.total_report_only} item{'s' if r.total_report_only != 1 else ''} "
@@ -324,15 +352,16 @@ class ProjectReadinessPanel(QWidget):
 
         self._content_layout.addWidget(_section_header("Assets"))
 
-        # Fully migrated
         migrated = []
         if m.videos:
-            migrated.append(("▶", "Video clips", f"{len(m.videos)} file{'s' if len(m.videos) != 1 else ''}"))
+            migrated.append(("▶", "Video clips",
+                              f"{len(m.videos)} file{'s' if len(m.videos) != 1 else ''}"))
         if m.audios:
-            migrated.append(("♪", "Audio tracks", f"{len(m.audios)} file{'s' if len(m.audios) != 1 else ''}"))
+            migrated.append(("♪", "Audio tracks",
+                              f"{len(m.audios)} file{'s' if len(m.audios) != 1 else ''}"))
         if m.images:
-            migrated.append(("□", "Images", f"{len(m.images)} file{'s' if len(m.images) != 1 else ''}"))
-
+            migrated.append(("□", "Images",
+                              f"{len(m.images)} file{'s' if len(m.images) != 1 else ''}"))
         if migrated:
             grp = QLabel("FULLY MIGRATED")
             grp.setObjectName("assetGroupLabel")
@@ -340,23 +369,22 @@ class ProjectReadinessPanel(QWidget):
             for icon, name, count in migrated:
                 self._content_layout.addWidget(_AssetRow(icon, name, count))
 
-        # With warning
         warned = []
         if m.music:
-            warned.append(("♫", "CapCut music", f"{len(m.music)} — verify rights before publishing"))
+            warned.append(("♫", "CapCut music",
+                            f"{len(m.music)} — verify rights before publishing"))
         if m.sfx:
-            warned.append(("~", "SFX", f"{len(m.sfx)} — verify rights before publishing"))
+            warned.append(("~", "SFX",
+                            f"{len(m.sfx)} — verify rights before publishing"))
         if m.stickers:
             warned.append(("◈", "Stickers (cached)", f"{len(m.stickers)}"))
-
         if warned:
             grp = QLabel("INCLUDED WITH WARNING")
             grp.setObjectName("assetGroupLabel")
             self._content_layout.addWidget(grp)
             for icon, name, count in warned:
-                self._content_layout.addWidget(_AssetRow(icon, name, count, muted=False))
+                self._content_layout.addWidget(_AssetRow(icon, name, count))
 
-        # Report-only
         report = []
         if m.effects:
             report.append(("✦", "Effects", f"{len(m.effects)} — CapCut only"))
@@ -364,7 +392,6 @@ class ProjectReadinessPanel(QWidget):
             report.append(("◫", "Filters/LUTs", f"{len(m.filters)} — CapCut only"))
         if m.transitions:
             report.append(("⇌", "Transitions", f"{len(m.transitions)} — CapCut only"))
-
         if report:
             grp = QLabel("REPORT-ONLY · NOT PORTABLE")
             grp.setObjectName("assetGroupLabel")
