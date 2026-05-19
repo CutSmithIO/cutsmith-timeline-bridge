@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CutSmith Timeline Bridge — Project Handoff Assistant (Prototype)</title>
+<style>
+/* ================================================================
+   CutSmith Timeline Bridge — GUI Prototype
+   Inherits visual system from CutSmith Subtitle Studio reference.
+   Font / color / spacing tokens preserved exactly.
+   ================================================================ */
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{background:#111;font-family:'IBM Plex Mono','SF Mono',monospace;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:32px 16px 64px;min-height:100vh}
+
+.prototype-label{font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:#48484a;letter-spacing:0.1em;margin-bottom:16px;text-align:center}
+
+/* ── APP SHELL ── */
+.app{background:#1c1c1e;border-radius:10px;border:1px solid #3a3a3c;
+  overflow:hidden;font-family:'IBM Plex Mono','SF Mono',monospace;
+  font-size:12px;color:#e5e5ea;display:grid;
+  grid-template-rows:auto 1fr;width:960px;height:700px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.7)}
+
+.titlebar{background:#2c2c2e;border-bottom:1px solid #3a3a3c;height:36px;
+  display:flex;align-items:center;padding:0 14px;
+  position:relative;justify-content:center}
+.wc{width:12px;height:12px;border-radius:50%;position:absolute;
+  top:50%;transform:translateY(-50%)}
+.wc-r{background:#ff5f57;left:14px}
+.wc-y{background:#febc2e;left:32px}
+.wc-g{background:#28c840;left:50px}
+.app-title{font-size:11px;color:#636366;letter-spacing:0.03em}
+
+.body{display:grid;grid-template-columns:220px 1fr 280px;height:100%;overflow:hidden}
+
+/* ================================================================
+   LEFT PANEL — PROJECTS
+   ================================================================ */
+.left{background:#1c1c1e;border-right:1px solid #3a3a3c;
+  overflow:hidden;display:flex;flex-direction:column}
+
+.left-brand{padding:13px 16px 10px;border-bottom:1px solid #3a3a3c;flex-shrink:0}
+.brand-name{font-size:13px;font-weight:600;color:#e5e5ea;margin-bottom:3px;
+  font-family:'IBM Plex Sans',sans-serif}
+.brand-sub{font-size:9px;color:#48484a;letter-spacing:0.03em;line-height:1.7}
+
+.scan-btn{margin:8px 12px 3px;background:#5a4fcf;border:none;border-radius:3px;
+  padding:7px;font-size:10px;color:white;cursor:pointer;font-family:inherit;
+  width:calc(100% - 24px);letter-spacing:0.04em;flex-shrink:0}
+.scan-btn:hover{background:#6b60e0}
+
+.search-wrap{padding:3px 12px 6px;flex-shrink:0}
+.search-input{width:100%;background:#2c2c2e;border:1px solid #3a3a3c;
+  border-radius:3px;padding:5px 10px;font-size:10px;color:#636366;
+  font-family:inherit}
+
+.section-label{font-size:9px;color:#636366;letter-spacing:0.1em;
+  padding:7px 16px 5px;border-bottom:1px solid #2c2c2e;flex-shrink:0}
+
+.proj-list{overflow-y:auto;flex:1}
+
+.proj-item{display:flex;align-items:flex-start;gap:8px;
+  padding:9px 12px;border-bottom:1px solid #2c2c2e;
+  cursor:pointer;transition:background 0.1s}
+.proj-item:hover{background:#242426}
+.proj-item.selected{background:rgba(155,140,255,0.08);
+  border-left:2px solid #9b8cff;padding-left:10px}
+
+.proj-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dot-ok{background:#30d158}
+.dot-warn{background:#ff9f0a;animation:qpulse 2.4s ease-in-out infinite}
+.dot-err{background:#ff453a}
+.dot-idle{background:#3a3a3c}
+@keyframes qpulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.proj-info{flex:1;min-width:0}
+.proj-name{font-size:10px;color:#e5e5ea;font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
+.proj-app{font-size:9px;color:#636366;margin-bottom:1px}
+.proj-date{font-size:9px;color:#48484a}
+
+.proj-badge{font-size:8px;border-radius:2px;padding:1px 5px;
+  flex-shrink:0;align-self:flex-start;margin-top:1px;letter-spacing:0.03em;
+  background:#242426;border:1px solid #3a3a3c;color:#636366}
+.badge-ok{border-color:rgba(48,209,88,0.3);color:#30d158;
+  background:rgba(48,209,88,0.06)}
+.badge-warn{border-color:rgba(255,159,10,0.35);color:#ff9f0a;
+  background:rgba(255,159,10,0.07)}
+.badge-err{border-color:rgba(255,69,58,0.4);color:#ff453a;
+  background:rgba(255,69,58,0.08)}
+
+.log-bar{padding:6px 14px;border-top:1px solid #3a3a3c;
+  font-size:9px;color:#48484a;flex-shrink:0}
+.log-bar em{font-style:normal;color:#636366}
+
+/* ================================================================
+   CENTER PANEL — MIGRATION STATUS
+   ================================================================ */
+.center{display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid #3a3a3c}
+
+/* Header row: title + project name + portability badge */
+.mig-header{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 14px;border-bottom:1px solid #3a3a3c;
+  background:#242426;flex-shrink:0}
+.mig-left{}
+.mig-section-label{font-size:9px;letter-spacing:0.1em;color:#636366;margin-bottom:2px}
+.mig-proj-name{font-size:11px;color:#e5e5ea;
+  font-family:'IBM Plex Sans',sans-serif;font-weight:500}
+.mig-proj-sub{font-size:9px;color:#636366}
+
+.port-badge{font-size:8px;border-radius:2px;padding:3px 8px;
+  letter-spacing:0.07em;font-weight:500}
+.port-ok{background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.3);color:#30d158}
+.port-partial{background:rgba(255,159,10,0.1);border:1px solid rgba(255,159,10,0.3);color:#ff9f0a}
+.port-enc{background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.35);color:#ff453a}
+
+/* Timeline metadata — 4 × 2 grid */
+.timeline-grid{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:5px;padding:9px 10px;border-bottom:1px solid #3a3a3c;
+  background:#1c1c1e;flex-shrink:0}
+.meta-cell{background:#242426;border:1px solid #2c2c2e;
+  border-radius:3px;padding:6px 8px}
+.meta-key{font-size:8px;color:#48484a;letter-spacing:0.06em;margin-bottom:3px}
+.meta-val{font-size:11px;font-weight:500;color:#e5e5ea}
+.mv-accent{color:#9b8cff}
+.mv-orange{color:#ff9f0a}
+.mv-green{color:#30d158}
+.mv-muted{color:#48484a}
+
+/* Asset category table */
+.at-head{display:grid;grid-template-columns:8px 1fr 48px 96px;
+  gap:0;padding:5px 12px;border-bottom:1px solid #3a3a3c;
+  background:#1a1a1c;flex-shrink:0}
+.at-head-cell{font-size:8px;color:#48484a;letter-spacing:0.08em}
+.at-head-cell.ac{text-align:right;padding-right:8px}
+
+.asset-rows{overflow-y:auto;flex:1}
+
+.at-row{display:grid;grid-template-columns:8px 1fr 48px 96px;
+  gap:0;align-items:center;padding:6px 12px;
+  border-bottom:1px solid #2c2c2e;min-height:34px;
+  transition:background 0.1s}
+.at-row:hover{background:#242426}
+
+.at-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.adk{background:#30d158}
+.adw{background:#ff9f0a}
+.adn{background:#2c2c2e}
+
+.at-name-wrap{padding:0 8px}
+.at-name{font-size:10px;color:#e5e5ea}
+.at-sub{font-size:8px;color:#48484a;margin-top:1px}
+
+.at-count{font-size:11px;color:#98989f;text-align:right;padding-right:10px}
+.at-count.na{color:#3a3a3c}
+
+.at-stat{font-size:9px}
+.as-ok{color:#30d158}
+.as-warn{color:#ff9f0a}
+.as-report{color:#636366}
+.as-na{color:#3a3a3c}
+
+/* Report-only pinned section */
+.report-strip{border-top:1px solid #3a3a3c;padding:8px 12px;
+  background:#1a1a1c;flex-shrink:0}
+.rs-header{font-size:9px;letter-spacing:0.1em;color:#636366;margin-bottom:6px}
+.rs-items{display:flex;flex-direction:column;gap:3px}
+.rs-row{display:flex;align-items:center;gap:8px}
+.rs-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rs-dot-warn{background:#ff9f0a}
+.rs-dot-info{background:#48484a}
+.rs-text{font-size:9px;color:#98989f;flex:1;line-height:1.4}
+.rs-tag{font-size:8px;color:#636366;background:#2c2c2e;
+  border:1px solid #2c2c2e;border-radius:2px;padding:1px 5px;white-space:nowrap}
+
+.center-status{display:flex;align-items:center;gap:12px;
+  padding:5px 12px;background:#2c2c2e;border-top:1px solid #3a3a3c;
+  font-size:9px;color:#636366;white-space:nowrap;flex-shrink:0}
+.sb-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
+.sb-green{background:#30d158}
+.sb-orange{background:#ff9f0a;animation:pulse2 2s ease-in-out infinite 0.5s}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ================================================================
+   RIGHT PANEL — EXPORT INSPECTOR
+   ================================================================ */
+.right{background:#1c1c1e;overflow-y:auto;display:flex;flex-direction:column}
+
+.r-header{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 14px;border-bottom:1px solid #3a3a3c;flex-shrink:0}
+.r-title{font-size:13px;color:#e5e5ea;font-family:'IBM Plex Sans',sans-serif}
+.r-enc-badge{font-size:8px;border-radius:2px;padding:2px 6px;
+  border:1px solid rgba(48,209,88,0.3);color:#30d158;
+  background:rgba(48,209,88,0.07)}
+
+.r-section{padding:10px 14px;border-bottom:1px solid #2c2c2e}
+.r-sec-label{font-size:9px;letter-spacing:0.1em;color:#636366;margin-bottom:8px}
+
+.field-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.field-label{font-size:10px;color:#636366}
+.field-select{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;
+  padding:3px 7px;font-size:10px;color:#e5e5ea;font-family:inherit}
+
+.path-label{font-size:9px;color:#48484a;margin-bottom:3px}
+.path-field{background:#242426;border:1px solid #3a3a3c;border-radius:3px;
+  padding:5px 8px;font-size:9px;color:#636366;margin-bottom:5px;
+  word-break:break-all;line-height:1.5}
+.browse-row{display:flex;justify-content:flex-end}
+.browse-btn{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;
+  padding:3px 9px;font-size:9px;color:#98989f;cursor:pointer;font-family:inherit}
+.browse-btn:hover{background:#3a3a3c;color:#e5e5ea}
+
+/* Export actions */
+.export-zone{border-bottom:1px solid #2c2c2e;flex-shrink:0}
+.ez-label{font-size:9px;letter-spacing:0.1em;color:#636366;
+  padding:10px 14px 0}
+.export-primary{width:100%;background:#5a4fcf;border:none;padding:11px 14px;
+  font-size:12px;font-weight:500;color:white;cursor:pointer;
+  font-family:inherit;letter-spacing:0.03em;text-align:left;
+  display:flex;align-items:center;gap:10px}
+.export-primary:hover{background:#6b60e0}
+.ep-icon{font-size:14px;opacity:0.8}
+.ep-text{}
+.ep-sub{font-size:9px;color:rgba(255,255,255,0.5);display:block;margin-top:1px}
+
+.sec-row{display:flex;border-top:1px solid #2c2c2e}
+.sec-btn{flex:1;background:#1c1c1e;border:none;
+  border-right:1px solid #3a3a3c;padding:7px 4px;
+  font-size:9px;color:#98989f;cursor:pointer;
+  font-family:inherit;text-align:center}
+.sec-btn:last-child{border-right:none}
+.sec-btn:hover{background:#2c2c2e;color:#e5e5ea}
+
+/* Warnings */
+.warn-item{display:flex;align-items:flex-start;gap:8px;
+  padding:5px 0;border-bottom:1px solid #1a1a1c}
+.warn-item:last-child{border-bottom:none}
+.wi-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.wi-orange{background:#ff9f0a}
+.wi-muted{background:#48484a}
+.wi-text{font-size:9px;color:#98989f;flex:1;line-height:1.5}
+.wi-text strong{color:#e5e5ea;font-weight:500}
+
+.licensing-box{background:#1a1a1c;border:1px solid #2c2c2e;border-radius:3px;
+  padding:7px 9px;font-size:9px;color:#48484a;line-height:1.6}
+
+/* Analysis tools */
+.tool-row{display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:5px}
+.tool-label{font-size:10px;color:#636366}
+.tool-btn{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;
+  padding:3px 9px;font-size:9px;color:#98989f;cursor:pointer;font-family:inherit}
+.tool-btn:hover{background:#3a3a3c;color:#e5e5ea}
+
+.r-footer{margin-top:auto;padding:8px 14px 10px;
+  border-top:1px solid #3a3a3c;flex-shrink:0}
+.r-footer-text{font-size:9px;color:#3a3a3c;text-align:center;
+  line-height:1.7;font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="prototype-label">CUTSMITH TIMELINE BRIDGE — GUI PROTOTYPE v0.1 · HTML MOCKUP · NOT A WORKING APP</div>
+
+<div class="app" role="img"
+  aria-label="CutSmith Timeline Bridge — Project Handoff Assistant GUI prototype">
+
+<!-- ── TITLEBAR ── -->
+<div class="titlebar">
+  <div class="wc wc-r"></div>
+  <div class="wc wc-y"></div>
+  <div class="wc wc-g"></div>
+  <span class="app-title">CutSmith Timeline Bridge — Project Handoff Assistant</span>
+</div>
+
+<!-- ── BODY ── -->
+<div class="body">
+
+<!-- ════════════════════════════════════
+     LEFT: PROJECTS
+     ════════════════════════════════════ -->
+<div class="left">
+
+  <div class="left-brand">
+    <div class="brand-name">CutSmith Bridge</div>
+    <div class="brand-sub">
+      v0.3.6-alpha · CapCut → Premiere handoff<br>
+      Interoperability tool · standard library only
+    </div>
+  </div>
+
+  <button class="scan-btn">⟳  Scan Projects</button>
+
+  <div class="search-wrap">
+    <input class="search-input" placeholder="Filter projects…" readonly>
+  </div>
+
+  <div class="section-label">PROJECTS &nbsp;&nbsp;5 found</div>
+
+  <div class="proj-list">
+
+    <!-- selected: 0519V -->
+    <div class="proj-item selected">
+      <div class="proj-dot dot-warn"></div>
+      <div class="proj-info">
+        <div class="proj-name">0519V</div>
+        <div class="proj-app">CapCut Desktop 167.0.0 · plaintext</div>
+        <div class="proj-date">2026-05-19 · 1080×1920 · 30 NDF</div>
+      </div>
+      <div class="proj-badge badge-warn">2 warn</div>
+    </div>
+
+    <div class="proj-item">
+      <div class="proj-dot dot-ok"></div>
+      <div class="proj-info">
+        <div class="proj-name">0519V2</div>
+        <div class="proj-app">CapCut Desktop 167.0.0 · plaintext</div>
+        <div class="proj-date">2026-05-19 · 1080×1920 · 30 NDF</div>
+      </div>
+      <div class="proj-badge badge-ok">ready</div>
+    </div>
+
+    <div class="proj-item">
+      <div class="proj-dot dot-ok"></div>
+      <div class="proj-info">
+        <div class="proj-name">cutsmith</div>
+        <div class="proj-app">CapCut Desktop 167.0.0 · plaintext</div>
+        <div class="proj-date">2026-05-17 · 1920×1080 · 30 NDF</div>
+      </div>
+      <div class="proj-badge badge-ok">ready</div>
+    </div>
+
+    <div class="proj-item">
+      <div class="proj-dot dot-warn"></div>
+      <div class="proj-info">
+        <div class="proj-name">cutsmith2</div>
+        <div class="proj-app">CapCut Desktop 167.0.0 · plaintext</div>
+        <div class="proj-date">2026-05-16 · 1920×1080 · 30 NDF</div>
+      </div>
+      <div class="proj-badge badge-warn">5 warn</div>
+    </div>
+
+    <!-- encrypted: refused -->
+    <div class="proj-item">
+      <div class="proj-dot dot-err"></div>
+      <div class="proj-info">
+        <div class="proj-name">剪映项目_2024</div>
+        <div class="proj-app">剪映 PC 76.0.0 · encrypted</div>
+        <div class="proj-date">2024-11-03 · — · unsupported</div>
+      </div>
+      <div class="proj-badge badge-err">encrypted</div>
+    </div>
+
+  </div><!-- /proj-list -->
+
+  <div class="log-bar">
+    LOG 10:42:11 <em>5 projects · 1 encrypted · 2 with warnings</em>
+  </div>
+
+</div><!-- /left -->
+
+
+<!-- ════════════════════════════════════
+     CENTER: MIGRATION STATUS
+     ════════════════════════════════════ -->
+<div class="center">
+
+  <!-- Header: project name + portability -->
+  <div class="mig-header">
+    <div class="mig-left">
+      <div class="mig-section-label">MIGRATION STATUS</div>
+      <div class="mig-proj-name">0519V</div>
+      <div class="mig-proj-sub">CapCut Desktop 167.0.0 · schema 360000 · modern_plaintext</div>
+    </div>
+    <div class="port-badge port-ok">PORTABLE</div>
+  </div>
+
+  <!-- Timeline metadata: 4 × 2 grid -->
+  <div class="timeline-grid">
+    <div class="meta-cell">
+      <div class="meta-key">DURATION</div>
+      <div class="meta-val">02:14.8</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">RESOLUTION</div>
+      <div class="meta-val" style="font-size:10px">1080×1920</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">FRAME RATE</div>
+      <div class="meta-val">30 NDF</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">CLIP COUNT</div>
+      <div class="meta-val mv-accent">12</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">VIDEO TRACKS</div>
+      <div class="meta-val mv-accent">7</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">AUDIO TRACKS</div>
+      <div class="meta-val mv-accent">4</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">SPEED CLIPS</div>
+      <div class="meta-val mv-orange">3</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">SUBTITLES</div>
+      <div class="meta-val">8 cues</div>
+    </div>
+  </div>
+
+  <!-- Asset category table -->
+  <div class="at-head">
+    <div class="at-head-cell"></div>
+    <div class="at-head-cell" style="padding-left:8px">CATEGORY</div>
+    <div class="at-head-cell ac">FILES</div>
+    <div class="at-head-cell" style="padding-left:4px">PORTABILITY</div>
+  </div>
+
+  <div class="asset-rows">
+
+    <div class="at-row">
+      <div class="at-dot adk"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">User Video</div>
+      </div>
+      <div class="at-count">2</div>
+      <div class="at-stat as-ok">✓ Copied</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adk"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">Embedded Audio</div>
+        <div class="at-sub">video-split · reuses video copy</div>
+      </div>
+      <div class="at-count">2</div>
+      <div class="at-stat as-ok">✓ Reused</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adw"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">CapCut Music</div>
+        <div class="at-sub">verify licensing before publish</div>
+      </div>
+      <div class="at-count">1</div>
+      <div class="at-stat as-warn">⚠ Copied*</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adk"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">CapCut SFX</div>
+        <div class="at-sub">verify licensing before publish</div>
+      </div>
+      <div class="at-count">3</div>
+      <div class="at-stat as-ok">✓ Copied</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adn"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">User Images</div>
+      </div>
+      <div class="at-count na">—</div>
+      <div class="at-stat as-na">—</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adw"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">Stickers</div>
+        <div class="at-sub">CapCut-proprietary · not portable</div>
+      </div>
+      <div class="at-count">2</div>
+      <div class="at-stat as-report">Report-only</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adw"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">Effects</div>
+        <div class="at-sub">CapCut-proprietary · not portable</div>
+      </div>
+      <div class="at-count">1</div>
+      <div class="at-stat as-report">Report-only</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adn"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">Transitions</div>
+      </div>
+      <div class="at-count na">—</div>
+      <div class="at-stat as-na">—</div>
+    </div>
+
+    <div class="at-row">
+      <div class="at-dot adn"></div>
+      <div class="at-name-wrap">
+        <div class="at-name">Fonts</div>
+      </div>
+      <div class="at-count na">—</div>
+      <div class="at-stat as-na">—</div>
+    </div>
+
+  </div><!-- /asset-rows -->
+
+  <!-- Report-only pinned strip -->
+  <div class="report-strip">
+    <div class="rs-header">REPORT-ONLY ITEMS</div>
+    <div class="rs-items">
+      <div class="rs-row">
+        <div class="rs-dot rs-dot-warn"></div>
+        <div class="rs-text">1 speed_curve segment → plays at 1.0× in Premiere</div>
+        <div class="rs-tag">Time Remapping</div>
+      </div>
+      <div class="rs-row">
+        <div class="rs-dot rs-dot-warn"></div>
+        <div class="rs-text">2 stickers + 1 effect → rebuild in Premiere native</div>
+        <div class="rs-tag">3 items</div>
+      </div>
+      <div class="rs-row">
+        <div class="rs-dot rs-dot-info"></div>
+        <div class="rs-text">3 constant-speed clips (0.5×, 0.5×, 2.0×) → timeremap filter emitted</div>
+        <div class="rs-tag">auto</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="center-status">
+    <span><span class="sb-dot sb-green"></span>draft_info.json · plaintext · 360000</span>
+    <span style="margin-left:auto">5 files · 5.8 MB · 0 offline</span>
+  </div>
+
+</div><!-- /center -->
+
+
+<!-- ════════════════════════════════════
+     RIGHT: EXPORT INSPECTOR
+     ════════════════════════════════════ -->
+<div class="right">
+
+  <div class="r-header">
+    <span class="r-title">Export Inspector</span>
+    <div class="r-enc-badge">PLAINTEXT</div>
+  </div>
+
+  <!-- Output config -->
+  <div class="r-section">
+    <div class="r-sec-label">OUTPUT CONFIG</div>
+    <div class="field-row">
+      <span class="field-label">Target NLE</span>
+      <select class="field-select">
+        <option>Premiere Pro (FCP7 XML)</option>
+      </select>
+    </div>
+    <div class="path-label">Output folder</div>
+    <div class="path-field">~/cutsmith-timeline-bridge/<br>out_collect/0519V/</div>
+    <div class="browse-row"><button class="browse-btn">Browse…</button></div>
+  </div>
+
+  <!-- Export actions -->
+  <div class="export-zone">
+    <div class="ez-label">EXPORT ACTIONS</div>
+
+    <!-- Primary: Collect -->
+    <button class="export-primary">
+      <span class="ep-icon">⬡</span>
+      <div class="ep-text">
+        Collect Portable Package
+        <span class="ep-sub">XML + media/ copy + relink guide</span>
+      </div>
+    </button>
+
+    <!-- Secondary row -->
+    <div class="sec-row">
+      <button class="sec-btn">Export SRT</button>
+      <button class="sec-btn">XML Only</button>
+      <button class="sec-btn">Open Output</button>
+    </div>
+  </div>
+
+  <!-- Warnings -->
+  <div class="r-section">
+    <div class="r-sec-label">WARNINGS</div>
+    <div class="warn-item">
+      <div class="wi-dot wi-orange"></div>
+      <div class="wi-text">
+        <strong>speed_curve</strong> — 1 clip has variable speed ramp.
+        Plays at 1.0× in Premiere. Rebuild via Effect Controls → Time Remapping.
+      </div>
+    </div>
+    <div class="warn-item">
+      <div class="wi-dot wi-orange"></div>
+      <div class="wi-text">
+        <strong>2 stickers, 1 effect</strong> — CapCut-proprietary.
+        Not portable. Listed in report.md; rebuild in Premiere.
+      </div>
+    </div>
+    <div class="warn-item">
+      <div class="wi-dot wi-muted"></div>
+      <div class="wi-text">
+        Encrypted 剪映 project in project list — detected and refused.
+        No decryption attempted.
+      </div>
+    </div>
+  </div>
+
+  <!-- Licensing notice -->
+  <div class="r-section">
+    <div class="r-sec-label">LICENSING</div>
+    <div class="licensing-box">
+      CapCut music and SFX in media/ may carry third-party licensing terms.
+      Copying does not transfer usage rights.
+      Verify before publishing content that includes CapCut library assets.
+    </div>
+  </div>
+
+  <!-- Analysis tools -->
+  <div class="r-section" style="flex:1">
+    <div class="r-sec-label">ANALYSIS TOOLS</div>
+    <div class="tool-row">
+      <span class="tool-label">Scan assets</span>
+      <button class="tool-btn">Run scan-assets</button>
+    </div>
+    <div class="tool-row">
+      <span class="tool-label">Schema drift check</span>
+      <button class="tool-btn">Run inspect</button>
+    </div>
+    <div class="tool-row">
+      <span class="tool-label">Detect / triage</span>
+      <button class="tool-btn">Run detect</button>
+    </div>
+  </div>
+
+  <!-- Footer tagline -->
+  <div class="r-footer">
+    <div class="r-footer-text">
+      CutSmith moves your rough-cut structure.<br>
+      You bring the grade.
+    </div>
+  </div>
+
+</div><!-- /right -->
+
+</div><!-- /body -->
+</div><!-- /app -->
+
+<!--
+  ================================================================
+  COMPONENT MAP (see gui_bridge_plan.md for full detail)
+  ================================================================
+
+  ProjectPanel (left)
+    ProjectListItem × N
+    ScanButton
+    SearchFilter
+
+  MigrationPanel (center)
+    MigrationHeader
+      ProjectNameLabel
+      PortabilityBadge
+    TimelineMetadataGrid
+      MetaCard × 8
+    AssetCategoryTable
+      AssetRow × N
+    ReportOnlyStrip
+      ReportItem × N
+    CenterStatusBar
+
+  ExportInspectorPanel (right)
+    OutputConfigSection
+      NLESelector
+      OutputFolderField + BrowseButton
+    ExportActionsZone
+      CollectButton (primary)
+      ExportSRTButton
+      XMLOnlyButton
+      OpenOutputButton
+    WarningsSection
+      WarningItem × N
+    LicensingNotice
+    AnalysisToolsSection
+    FooterTagline
+
+  ================================================================
+-->
+
+</body>
+</html>
