@@ -1,13 +1,17 @@
-# Supported Features Matrix — v0.1.1 alpha
+# Supported Features Matrix — v0.2 alpha
 
 ## Validation scope
 
 **Validated**: CapCut Desktop **167.0.0**, `modern_plaintext` schema
 (`schema_version = 360000`).
 
-Three real projects converted end-to-end without manual intervention:
-single-cut (`0509`), multicut (`cutsmith`), and stress-test (`cutsmith2`).
+Four real projects converted end-to-end without manual intervention:
+single-cut (`0509`), multicut (`cutsmith`), stress-test (`cutsmith2`),
+and vertical full-stress (`0519V`).
 See `tests/fixtures/real_world/sample_manifest.json`.
+
+Premiere Pro import confirmed on: `0519V` (2026-05-19) — sequence resolution,
+track layout, offline media, and speed clip behaviour verified in-app.
 
 Other apps / versions are best-effort — the reader's structural assumptions
 should generalize, but no other configuration has been confirmed against
@@ -32,7 +36,7 @@ a real draft.
 |---|---|
 | Sequence frame rate (NDF) | 24 / 25 / 30 / 60 |
 | Sequence frame rate (NTSC) | 23.976 / 29.97 / 59.94, detected within 0.02 tolerance |
-| Sequence resolution | Read from `canvas_config.width / height`; default 1920×1080 |
+| Sequence resolution | Read from `canvas_config.width / height`; vertical (e.g. 1080×1920) preserved correctly |
 | Video clip cuts (in / out / timeline start) | Per-frame accuracy verified against 7-cut samples |
 | Multi-track video order | V1, V2, V3… preserved as separate FCP7 video tracks |
 | Multi-track audio order | A1, A2, A3… preserved as separate FCP7 audio tracks |
@@ -54,7 +58,7 @@ a real draft.
 
 | Feature | What works | What doesn't |
 |---|---|---|
-| Variable speed (constant ramp) | Timeline slot uses `target_dur`, source range uses `source_timerange`, downstream clips don't drift. XML's `end-start ≠ out-in` is left for Premiere to interpret as implied speed. | No explicit Time Remapping `<filter>` is emitted, so the user can override by setting Speed to 100% in PR. Premiere's auto-interpretation of the implied speed is **assumed** to work — verify against `docs/creator_validation_checklist.md` Sample 3. |
+| Variable speed (constant ramp) | Timeline slot uses `target_dur` — downstream clips don't drift. Source in/out range preserved verbatim. Speed value, source duration, and target duration all appear in the report. | **Confirmed (Premiere import test, 2026-05-19):** Premiere shows clips at 100% speed regardless of the XML's implicit `end-start ≠ out-in` encoding. Native Premiere speed is NOT reconstructed. Editor must manually apply Speed/Duration or Time Remapping per the report's flagged segments. |
 | Audio of imported videos (when CapCut left no separate audio track) | The report flags video clips whose source has embedded audio that's not on any track. | The audio itself is not emitted. Premiere imports the video silently. User must re-attach in CapCut or link audio manually in PR. |
 | Windows-formatted paths on macOS | Drive-stripped basename matching against `--search-root` directories. | Requires explicit search roots; cross-platform conversion without `-s` will land all clips offline. |
 
@@ -105,8 +109,8 @@ known) so manual rebuild is feasible.
 
 | Category label | Source |
 |---|---|
-| `speed` | Per-segment speed change reported at segment level (segment.speed ≠ 1.0 or duration delta > 1ms) |
-| `speed_curve` | `materials.speeds` referenced from a segment with speed ≠ 1.0 or non-null `curve_speed` |
+| `speed` | Per-segment constant speed change: reported with speed value, source duration, and target duration. Timeline slot preserved. Premiere shows 100% — editor applies Speed/Duration manually. |
+| `speed_curve` | Variable-speed ramp on a segment. Reported as `speed_curve`, not exported. Clip plays at 1.0× in Premiere. |
 
 ### Bookkeeping ("benign refs") — NOT reported
 
@@ -137,8 +141,8 @@ classifier table is in `cutsmith/reader/jianying_pro.py` at
 | 现代版剪映 PC ≥ 75.0.0 encrypted drafts | Detected and refused | Use CapCut Desktop / CapCut Mobile / older 剪映 builds whose drafts are plaintext |
 | FCPXML output (Final Cut Pro X / 11) | Planned v0.2 | Use FCP7 XML; FCP imports it (with auto-conversion) |
 | DaVinci Resolve XML | Not planned for v0.1 / v0.2 | Resolve can import FCP7 XML directly but path / rate quirks are untested — proceed with caution |
-| Explicit Time Remapping filter for variable speed | Planned v0.2 | v0.1.1 relies on implicit speed via XML mismatch (see "Partially supported") |
-| Speed ramps (curve speed) | Reported as `speed_curve`, dropped | Manual Time Remap in Premiere |
+| Premiere native speed reconstruction | Research track — not v0.2 | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap `<filter>` nodes require separate research. Manual workaround: right-click clip → Speed/Duration in Premiere. |
+| Speed ramps (variable curves) | Report-only — not v0.2 | Reported as `speed_curve`, clip plays at 1.0× |
 | Sub-draft / compound clips (`materials.drafts`) | Not parsed | Flatten in CapCut before exporting the draft |
 | Multi-language captions | Not parsed | Export SRT per language from CapCut |
 | Digital humans / AI-generated content placeholders | Not parsed | Replace with conventional clips before drafting |

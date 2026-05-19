@@ -36,6 +36,7 @@ v0.1.1-alpha has been end-to-end validated against three real CapCut Desktop
 | Single-cut | `0509` | One 151.4s slice from a long source + 154 ignored captions — validates long-timeline stability |
 | Multicut | `cutsmith` | V1 with 7 butt-cut clips + V2 overlay + BGM + SFX. 0 unsupported items. |
 | Stress-test | `cutsmith2` | Multi-cut + overlay + captions + stickers + transitions + filters + effects + 0.640× variable speed |
+| Vertical full-stress | `0519V` | 1080×1920, 7 video tracks, 0.5× + 2.0× speed clips, speed_curve, stickers, transitions, effects, filters, 8-cue subtitles (Pattern B) |
 
 ## Supported features
 
@@ -48,9 +49,11 @@ v0.1.1-alpha has been end-to-end validated against three real CapCut Desktop
 - Asset path resolution with offline-friendly placeholders for Premiere's `Link Media`
 
 ### Partial
-- **Speed changes** — exported as 1.0× clips; each is flagged in the report
-  for manual retiming in Premiere. The clip occupies CapCut's target slot so
-  downstream alignment is preserved.
+- **Speed changes** — timeline slot uses CapCut's target duration (downstream
+  clips don't drift). Source in/out range is preserved. **Premiere shows
+  the clip at 100% speed** — native Premiere speed is not reconstructed.
+  Each flagged segment appears in the report with its speed value so you
+  can apply Speed/Duration manually. (Confirmed: Premiere import test 2026-05-19.)
 
 ### Ignored safely
 - Subtitles
@@ -125,19 +128,20 @@ sample — is in
 
 ## Creator validation status
 
-v0.1.1-alpha is **structurally validated** (44 unit tests pass; three
-real-world samples convert cleanly) but **awaits real-world Premiere Pro
-import feedback** before promotion to limited creator testing.
+v0.2-alpha is **structurally validated** (108 unit tests pass; four
+real-world samples convert cleanly, including Premiere Pro import of `0519V`
+on 2026-05-19).
 
-The biggest unverified assumption is the variable-speed clip behaviour:
-v0.1.1 leaves the duration mismatch in the XML for Premiere to interpret
-as implied speed, rather than writing an explicit Time Remap filter. The
-`cutsmith2.xml` sample exercises this directly — see Sample 3 in the
-[validation checklist](docs/creator_validation_checklist.md).
+**Confirmed Premiere behaviours:**
+- Sequence resolution (including vertical 1080×1920) imports correctly.
+- Speed clips: timeline slot and source range are preserved. **Premiere shows
+  clips at 100% speed** — native Premiere speed is not reconstructed from the
+  XML. Apply Speed/Duration manually per the report. This is a known
+  limitation, not a bug.
 
-If you import any of the three samples into Premiere and want to report
-findings, please open an issue with the format suggested at the end of
-the checklist.
+If you import any sample into Premiere and want to report findings, please
+open an issue with the format suggested in
+[`docs/creator_validation_checklist.md`](docs/creator_validation_checklist.md).
 
 ## Project layout
 
@@ -173,10 +177,14 @@ the reader learns new fields.
   an audio track from a video asset when no explicit audio track covers
   the same source over the same target range. See the limitation note in
   [`docs/known_limitations.md`](docs/known_limitations.md#embedded-audio-of-video-clips).
-- **v0.2** — FCPXML output (Final Cut Pro X / 11), explicit Time Remap
-  filter for variable speed, keyframe animations.
-- **Later** — DaVinci Resolve XML, CapCut Mobile fixture coverage,
-  legacy plaintext fixture coverage.
+- **v0.2** — Asset manifest (`scan-assets`), subtitle extraction (`export-srt`),
+  Pattern A + B subtitle support. ✅ shipped.
+- **v0.3** — collect / relink (gather + copy user media alongside the XML).
+- **Research track** — Premiere native speed reconstruction via explicit
+  Time Remap `<filter>` nodes. (FCP7 implicit encoding confirmed not
+  auto-interpreted by Premiere.)
+- **Later** — FCPXML output, DaVinci Resolve XML, keyframe animations,
+  CapCut Mobile fixture coverage.
 
 ## Tests
 
@@ -184,9 +192,9 @@ the reader learns new fields.
 python3 -m unittest discover -s tests
 ```
 
-44 tests as of v0.1.1-alpha — pipeline smoke, inspect schema drift,
-writer audio contract, P1 reader regressions (speed tolerance + extra
-ref classification), P3 timeline duration, name fallback.
+108 tests as of v0.2-alpha — pipeline smoke, inspect schema drift,
+writer audio contract, reader regressions, subtitle extraction (Pattern A + B),
+asset manifest and classification.
 
 ## Repository
 

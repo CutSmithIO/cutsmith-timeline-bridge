@@ -189,9 +189,20 @@ def _section_next_steps(
         steps.append("Relink offline clips: select one in Project panel → "
                      "right-click → Link Media → choose any matching file → "
                      "Premiere finds the rest by name.")
-    if any(u.category in {"speed", "speed_curve"} for u in timeline.unsupported):
-        steps.append("Speed-changed segments were exported at 1.0×; "
-                     "re-apply Time Remapping where flagged above.")
+    if any(u.category == "speed" for u in timeline.unsupported):
+        steps.append(
+            "Speed-changed clips: timeline duration is preserved but Premiere "
+            "shows these clips at 100% speed — native speed is NOT reconstructed. "
+            "For each flagged segment, right-click in Premiere → "
+            "Speed/Duration… and enter the speed value shown in the report above, "
+            "or use Effect Controls → Time Remapping to ramp manually."
+        )
+    if any(u.category == "speed_curve" for u in timeline.unsupported):
+        steps.append(
+            "Variable-speed ramps (speed_curve) were not exported. "
+            "The clip plays at 1.0× in Premiere. "
+            "Reconstruct using Effect Controls → Time Remapping → Velocity."
+        )
     if any(u.category == "keyframe" for u in timeline.unsupported):
         steps.append("Keyframed motion/opacity was flattened to static; "
                      "rebuild keyframes on the listed clips.")

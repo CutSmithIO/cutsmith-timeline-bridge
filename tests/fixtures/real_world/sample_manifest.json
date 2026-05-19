@@ -69,6 +69,35 @@
       "verified_against": "v0.1.1",
       "shape": "2 video tracks (V1: 7 clips + V2: 2 incl. 0.640× speed-changed clip), 2 audio tracks, 1 text track, 1 sticker track, 1 filter track, 15 unsupported (text 3, sticker 3, transition 2, effect, video_effect, hsl, loudness, filter, speed, speed_curve)",
       "notes": "Stress test for v0.1.1 alpha: captions + stickers + effects + filters + transitions + variable speed all in one draft. Validates: P3 fix (V2.1 speed clip occupies target_dur=13.800s, not source_dur=8.833s, subsequent clips don't drift), P1 extra_refs categorization (every unsupported item has a specific category — no blanket extra_refs), name fallback (cutsmith2 not draft_info). Premiere import requires manual verification by user; the report's Time Remapping suggestion applies to V2.1 specifically."
+    },
+    {
+      "id": "capcut-desktop-vertical-full-stress",
+      "category": "capcut_desktop",
+      "app_type": "capcut",
+      "app_version": "167.0.0",
+      "schema_version": 360000,
+      "schema_type": "modern_plaintext",
+      "encryption": "plaintext",
+      "supported_status": "supported",
+      "timeline_entry_path": null,
+      "source_app_path": "~/Movies/CapCut/User Data/Projects/com.lveditor.draft/0519V/Timelines/7CDF20CB-063E-4828-B2A0-E30F457F01A3/draft_info.json",
+      "added": "2026-05-19",
+      "verified_against": "v0.2-alpha",
+      "premiere_import_verified": true,
+      "premiere_import_date": "2026-05-19",
+      "shape": "7 video tracks (13 clips), 4 audio tracks; 1080×1920 vertical; V2=0.5× speed, V3=2.0× speed; stickers×9, transitions×2, effects×2, filters×2, speed_curve×2, text/subtitle×8 cues (Pattern B); 28 unsupported items, 0 false-positives",
+      "premiere_confirmed": {
+        "sequence_resolution": "1080×1920 — correct, vertical preserved",
+        "speed_clips": "clips show 100% speed in Premiere; FCP7 implicit encoding NOT auto-interpreted as native speed. Manual Speed/Duration required.",
+        "track_layout": "all 7 video + 4 audio tracks import correctly",
+        "offline_media": "0 offline user clips (all paths resolved); 15 CapCut-proprietary assets (stickers/effects) correctly offline"
+      },
+      "flags": [
+        "vertical-1080x1920-passed",
+        "constant-speed-detected-not-reconstructed",
+        "speed-curve-report-only"
+      ],
+      "notes": "Primary stress fixture for v0.2 alpha. Covers: vertical resolution, multi-layer (7 video tracks), constant speed 0.5× and 2.0× (both correctly detected, timeline slot preserved, Premiere shows 100%), speed_curve (report-only), stickers animated+static, named transitions/effects/filters, Pattern B text_template subtitle chain (8 cues). Premiere import confirmed 2026-05-19 by creator. Speed reconstruction gap confirmed: FCP7 implicit speed encoding is not auto-interpreted by Premiere — becomes research track for v0.3+."
     }
   ]
 }

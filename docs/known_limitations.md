@@ -1,4 +1,4 @@
-# Known Limitations — v0.1.1 alpha
+# Known Limitations — v0.2 alpha
 
 What CutSmith does NOT do, and the caveats that apply to what it does do.
 Read this before filing a bug or before promising a result to a creator.
@@ -8,9 +8,12 @@ Read this before filing a bug or before promising a result to a creator.
 ### Validated
 
 - **CapCut Desktop 167.0.0** (`new_version = "167.0.0"`,
-  `schema_version = 360000`, modern_plaintext layout) — three real
+  `schema_version = 360000`, modern_plaintext layout) — four real
   projects converted end-to-end and registered in
-  `tests/fixtures/real_world/sample_manifest.json`.
+  `tests/fixtures/real_world/sample_manifest.json`, including
+  `0519V` (capcut-desktop-vertical-full-stress): vertical 1080×1920,
+  7-track multi-layer, 0.5× + 2.0× constant speed clips, speed_curve,
+  stickers, transitions, effects, filters, subtitles.
 
 ### Best-effort (not yet end-to-end verified by fixtures)
 
@@ -41,24 +44,29 @@ the reader assumes.
 
 ## Time-and-speed handling
 
-### Variable-speed clips — implicit, not explicit
+### Variable-speed clips — timeline preserved, Premiere speed NOT reconstructed
 
-v0.1.1 does not emit an explicit Time Remapping `<filter>` in the FCP7 XML.
-Instead:
+**Confirmed behaviour (Premiere import test, 2026-05-19):**
 
-- The clip occupies `target_timerange.duration` on the timeline (subsequent
-  clips don't drift).
-- The clip's source range stays as `source_timerange` (the editor's
-  intended source slice).
-- When `source_dur ≠ target_dur`, the XML's `end-start ≠ out-in`. Premiere
-  interprets this ratio as an implied speed factor on import.
+CutSmith does not emit an explicit Time Remapping `<filter>` in the FCP7 XML.
+The XML encodes implicit speed via `end-start ≠ out-in`.
 
-The user can override by right-clicking the clip → `Speed/Duration…` →
-setting Speed to 100%. The report flags every speed-changed segment.
+Premiere does **not** auto-interpret this mismatch as native speed.
+The clip plays at 100% in Premiere regardless of the original CapCut speed value.
 
-**The assumption that Premiere auto-applies the implicit speed has not yet
-been verified end-to-end by a creator.** See
-`docs/creator_validation_checklist.md` Sample 3 for the manual check.
+What is preserved:
+- The clip occupies `target_timerange.duration` on the Premiere timeline —
+  downstream clips don't drift.
+- The source in/out range (`source_timerange`) is preserved verbatim in the XML.
+- Every speed-changed segment is reported with its exact speed value, source
+  duration, and target duration so the editor can apply Time Remapping manually.
+
+What the editor must do manually:
+- Right-click the flagged clip → `Speed/Duration…` and enter the speed value
+  listed in the report, **or** use Effect Controls → Time Remapping to ramp.
+
+Explicit Premiere native speed reconstruction (Time Remap `<filter>` nodes with
+keyframes) is a separate research track — see the v0.1 vs v0.2 table below.
 
 ### Speed ramps (variable curves) — dropped
 
@@ -180,15 +188,19 @@ spot-checked against PR 2024 builds; other consumers may differ:
 
 ## v0.1 vs v0.2
 
-| Feature | v0.1 | v0.2 (planned) |
+| Feature | v0.1 / v0.2 | Notes |
 |---|---|---|
-| CapCut Desktop modern_plaintext → PR | ✅ | ✅ |
-| CapCut Mobile / legacy plaintext → PR | best-effort | ✅ (fixtures planned) |
-| FCPXML output (Final Cut Pro X / 11) | ✗ | planned |
-| Keyframe animations | ✗ | planned |
-| Variable-speed ramps as explicit Time Remap filter | ✗ (implicit only) | planned |
-| DaVinci Resolve XML | ✗ | planned later |
-| Modern encrypted Jianying drafts | ✗ | not planned (research track) |
+| CapCut Desktop modern_plaintext → PR | ✅ | Validated on CapCut 167.0.0 |
+| Asset manifest (scan-assets) | ✅ v0.2 | |
+| Subtitle extraction (export-srt) | ✅ v0.2 | Pattern A + B |
+| collect / relink (media gather) | planned v0.3 | |
+| CapCut Mobile / legacy plaintext → PR | best-effort | No fixture confirmed |
+| FCPXML output (Final Cut Pro X / 11) | not planned v0.2 | |
+| Keyframe animations | not planned v0.2 | |
+| Premiere native speed reconstruction | ✗ research track | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap filter nodes require separate research. |
+| Speed ramps (variable curves) | report-only | speed_curve logged, clip plays at 1.0× |
+| DaVinci Resolve XML | not planned | |
+| Modern encrypted Jianying drafts | ✗ not planned | Detected and refused gracefully |
 
 ## Reporting bugs
 

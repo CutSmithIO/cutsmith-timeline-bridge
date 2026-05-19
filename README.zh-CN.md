@@ -2,7 +2,7 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.1.1-alpha`
+**Version**: `v0.2-alpha`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
@@ -21,9 +21,10 @@ modern_plaintext 布局）的三类真实工程上端到端跑通：
 
 | 类型 | 样本 | 形态 |
 |---|---|---|
-| single-cut | `0509` | 长 take + 154 条字幕,验证长时间线稳定性 |
-| multicut | `cutsmith` | V1 七刀 + V2 叠加 + BGM/SFX,0 unsupported |
-| stress-test | `cutsmith2` | 多刀 + 叠加 + 字幕 + 贴纸 + 转场 + 滤镜 + 特效 + 变速,15 unsupported 分类清楚 |
+| single-cut | `0509` | 长 take + 154 条字幕，验证长时间线稳定性 |
+| multicut | `cutsmith` | V1 七刀 + V2 叠加 + BGM/SFX，0 unsupported |
+| stress-test | `cutsmith2` | 多刀 + 叠加 + 字幕 + 贴纸 + 转场 + 滤镜 + 特效 + 变速，15 unsupported 分类清楚 |
+| 竖屏全压力 | `0519V` | 1080×1920，7 视频轨，0.5× + 2.0× 变速片段，speed_curve，贴纸，转场，特效，滤镜，8 条字幕（Pattern B），Premiere 实测导入通过 |
 
 三个样本登记在
 [`tests/fixtures/real_world/sample_manifest.json`](tests/fixtures/real_world/sample_manifest.json)。
@@ -200,8 +201,11 @@ cutsmith/
 
 - **NTSC 帧率**：CapCut 把 29.97 有时候存成 `29.97`，有时候存成 `29.97002997`。我们用 0.05 的容差判 NTSC，应该够用。如果你的 60p NTSC 序列翻车了告诉我。
 - **Windows 路径在 macOS 打开**：reader 会把 `C:\...` 路径的盘符部分丢掉，只用 basename 在 `--search-root` 里找。这意味着跨平台搬运基本一定要带 `-s`。
-- **CapCut 的 speed != 1.0**：v0.1 一律按 1.0× 导出，但会按目标时长在时间线上占位（即"切点对得上，但播放速度错了"）。报告里会列出来。
+- **变速片段（speed ≠ 1.0）**：时间线 slot 按 CapCut 的 target duration 占位（下游片段不漂移），源素材 in/out 保留。**Premiere 实测确认（2026-05-19）：导入后片段显示 100% 速度，Premiere 不会自动解析 FCP7 XML 的隐式速度编码。** 需手工右键 → Speed/Duration 按报告里的速度值修改。变速曲线（speed_curve）仅报告、不导出，片段按 1.0× 播放。
 
-## v0.2 路线
+## v0.2 已完成 / v0.3 路线
 
-按优先级：FCPXML 输出 → 关键帧 → 变速 → DaVinci Resolve 适配。
+- **v0.2 ✅**：素材扫描（`scan-assets`）、字幕提取（`export-srt`）、Pattern A + B 字幕支持、108 单元测试通过
+- **v0.3**：collect / relink（把用户素材收集到 XML 旁边，方便交付）
+- **Research track**：Premiere native 变速重建（显式 Time Remap filter 节点）。FCP7 隐式编码已确认不被 Premiere 自动识别。
+- **后续**：FCPXML 输出、DaVinci Resolve XML、关键帧动画、CapCut Mobile 样本覆盖

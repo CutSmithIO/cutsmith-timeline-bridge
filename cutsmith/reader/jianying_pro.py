@@ -438,7 +438,7 @@ def _parse_segment(
             category="speed",
             detail=f"segment {seg.get('id')} has speed={speed:.3f} "
                    f"(source={source_dur}us, target={target_dur}us); "
-                   f"exported at constant 1.0× — re-time in Premiere",
+                   f"timeline slot preserved; Premiere shows 100% — apply Speed/Duration manually",
             track_hint=track_hint,
             time_hint_us=target_start,
         ))
