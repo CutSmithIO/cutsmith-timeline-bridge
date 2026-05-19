@@ -5,6 +5,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v0.4.0] — 2026-05-20
+
+### Added
+- **GUI: Project Handoff Assistant** (`cutsmith.gui`) — PySide6 three-panel desktop app:
+  - Left: auto-scans default CapCut/JianyingPro project roots; grouped project list
+    (CapCut Projects / JianyingPro Projects / Encrypted); `+ Add Folder…` + `↺ Rescan`.
+  - Center: large project card (name, app version, schema, portable badge) →
+    Readiness checklist (✓/⚠ per feature) → grouped asset table
+    (Fully Migrated / With Warning / Report-Only).
+  - Right: output folder picker → dominant **Collect & Package** button →
+    "This package will include" list → output tree preview → `Export SRT` +
+    `Open in Finder` secondary buttons → licensing footer note.
+  - Entry point: `python3 -m cutsmith.gui` (requires PySide6).
+- `cutsmith/gui/models.py`: `ProjectEntry` + `AnalysisResult` dataclasses
+  (all display-derived properties, no GUI imports — tested without PySide6).
+- `cutsmith/gui/style.py`: colour tokens + full QSS from prototype visual system.
+- `cutsmith/gui/workers/`: `ScanWorker`, `AnalyzeWorker`, `CollectWorker`,
+  `SRTWorker` — all QThread-based; core stays GUI-independent.
+- 18 new tests in `tests/test_gui_models.py` (294 total).
+
+---
+
 ## [v0.3.6-alpha] — 2026-05-19
 
 ### Added
