@@ -7,6 +7,7 @@ Subcommands:
   convert      — full pipeline: draft → FCP7 XML + compatibility report.
   export-srt   — extract subtitles/captions to SRT / TXT / JSON.
   scan-assets  — enumerate and classify all referenced materials.
+  collect      — copy + relink: scan → copy media → rewrite XML paths.
 
 Backwards compat: if the first positional looks like a `.json` path and no
 subcommand keyword is given, we route to `convert` automatically so the
@@ -21,6 +22,7 @@ import sys
 from pathlib import Path
 
 from cutsmith import bridge
+from cutsmith.collector import collect as _collect
 from cutsmith.detect import detect_project
 from cutsmith.inspect import inspect_draft
 from cutsmith.subtitle import export_subtitles
@@ -135,6 +137,27 @@ def main(argv: list[str] | None = None) -> int:
                         help="Print full manifest JSON to stdout (implies no -o output)")
     p_scan.set_defaults(func=_cmd_scan_assets)
 
+    # ── collect ─────────────────────────────────────────────────────────────── #
+    p_collect = sub.add_parser(
+        "collect",
+        help="Copy + relink: scan → copy media → rewrite XML paths.",
+        description=(
+            "Full v0.3 collect pipeline: scan all materials, copy online user "
+            "assets to media/<class>/, rewrite XML <pathurl> to point at the "
+            "copied files, and write a manifest + offline report. The output "
+            "directory is a self-contained package ready to open in Premiere."
+        ),
+    )
+    p_collect.add_argument("project",
+                           help="Project directory or path to draft_info.json")
+    p_collect.add_argument("-o", "--out-dir", required=True,
+                           help="Output directory for the collected package")
+    p_collect.add_argument("-s", "--search-root", action="append", default=[],
+                           help="Extra directory to scan for missing user media (repeatable)")
+    p_collect.add_argument("-n", "--name", default=None,
+                           help="Override sequence / project name")
+    p_collect.set_defaults(func=_cmd_collect)
+
     args = parser.parse_args(argv)
     return args.func(args, parser)
 
@@ -146,7 +169,7 @@ def _shim_legacy_invocation(argv: list[str]) -> list[str]:
         return argv
     first = argv[0]
     if first in ("detect", "inspect", "convert", "export-srt", "scan-assets",
-                 "-h", "--help"):
+                 "collect", "-h", "--help"):
         return argv
     # If the first arg looks like a path (no leading -) treat as legacy convert.
     if not first.startswith("-"):
@@ -397,6 +420,40 @@ def _render_scan_report(m: AssetManifest) -> str:
         lines.append("")
 
     return "\n".join(lines)
+
+
+def _cmd_collect(args: argparse.Namespace,
+                 parser: argparse.ArgumentParser) -> int:
+    project = Path(args.project)
+    if not project.exists():
+        parser.error(f"path not found: {project}")
+
+    try:
+        result = _collect(
+            project_path=project,
+            out_dir=args.out_dir,
+            search_roots=args.search_root or [],
+            name=args.name,
+        )
+    except ValueError as e:
+        parser.error(str(e))
+
+    s = result.stats
+    print(f"[ok] wrote {result.xml_path}")
+    print(f"[ok] wrote {result.report_path}")
+    print(f"[ok] wrote {result.manifest_path}")
+    if result.offline_report_path:
+        print(f"[ok] wrote {result.offline_report_path}")
+    print()
+    print(f"  project:    {result.project_name}")
+    print(f"  copied:     {s.copied_count} asset(s)")
+    sz_mb = s.total_copied_size_bytes / 1_048_576
+    print(f"  size:       {sz_mb:.1f} MB")
+    print(f"  offline:    {s.offline_count} asset(s) not found")
+    print(f"  report-only:{s.skipped_report_only_count} (effects/transitions/filters)")
+    if result.offline_report_path:
+        print(f"  ⚠ see {result.offline_report_path.name} for unresolved assets")
+    return 0
 
 
 if __name__ == "__main__":

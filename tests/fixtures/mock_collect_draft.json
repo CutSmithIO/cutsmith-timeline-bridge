@@ -1,0 +1,132 @@
+{
+  "version": 360000,
+  "fps": 30.0,
+  "duration": 10000000,
+  "canvas_config": {"width": 1920, "height": 1080},
+  "materials": {
+    "videos": [
+      {
+        "id": "VID-A",
+        "material_name": "clip_a.mp4",
+        "path": "__PLACEHOLDER_VIDEO_A__",
+        "duration": 10000000,
+        "type": "video",
+        "has_audio": true,
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "id": "VID-B",
+        "material_name": "clip_a.mp4",
+        "path": "__PLACEHOLDER_VIDEO_B__",
+        "duration": 5000000,
+        "type": "video",
+        "has_audio": false,
+        "width": 1920,
+        "height": 1080
+      }
+    ],
+    "audios": [
+      {
+        "id": "AUD-MUSIC",
+        "name": "BGM Track",
+        "path": "__PLACEHOLDER_MUSIC__",
+        "duration": 10000000,
+        "type": "music"
+      },
+      {
+        "id": "AUD-SFX",
+        "name": "Swoosh",
+        "path": "__PLACEHOLDER_SFX__",
+        "duration": 1000000,
+        "type": "sound"
+      },
+      {
+        "id": "AUD-USER",
+        "name": "voiceover.mp3",
+        "path": "__PLACEHOLDER_AUDIO__",
+        "duration": 8000000,
+        "type": "video_original_sound"
+      }
+    ],
+    "texts": [],
+    "stickers": [
+      {
+        "id": "STK-OFFLINE",
+        "name": "CapCut Sticker",
+        "type": "sticker",
+        "path": "/nonexistent/capcut/cache/sticker.webp",
+        "source_platform": 1,
+        "resource_id": "stk-123"
+      }
+    ],
+    "effects": [
+      {
+        "id": "EFF-1",
+        "name": "Glitch Effect",
+        "type": "video_effect",
+        "path": "/nonexistent/capcut/cache/effect.bundle",
+        "resource_id": "eff-456"
+      }
+    ],
+    "transitions": [
+      {
+        "id": "TRN-1",
+        "name": "Slide",
+        "type": "transition",
+        "path": "",
+        "resource_id": "trn-001"
+      }
+    ],
+    "filters": [],
+    "video_effects": [],
+    "text_templates": []
+  },
+  "tracks": [
+    {
+      "id": "TRACK-V1",
+      "type": "video",
+      "segments": [
+        {
+          "id": "SEG-V1",
+          "material_id": "VID-A",
+          "source_timerange": {"start": 0, "duration": 10000000},
+          "target_timerange": {"start": 0, "duration": 10000000},
+          "speed": 1.0,
+          "volume": 0.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-V2",
+      "type": "video",
+      "segments": [
+        {
+          "id": "SEG-V2",
+          "material_id": "VID-B",
+          "source_timerange": {"start": 0, "duration": 5000000},
+          "target_timerange": {"start": 2000000, "duration": 5000000},
+          "speed": 1.0,
+          "volume": 0.0,
+          "extra_material_refs": []
+        }
+      ]
+    },
+    {
+      "id": "TRACK-A1",
+      "type": "audio",
+      "segments": [
+        {
+          "id": "SEG-MUSIC",
+          "material_id": "AUD-MUSIC",
+          "source_timerange": {"start": 0, "duration": 10000000},
+          "target_timerange": {"start": 0, "duration": 10000000},
+          "speed": 1.0,
+          "volume": 1.0,
+          "extra_material_refs": []
+        }
+      ]
+    }
+  ]
+}

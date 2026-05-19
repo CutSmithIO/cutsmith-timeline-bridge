@@ -65,13 +65,22 @@ _DOCTYPE = '<!DOCTYPE xmeml>'
 _XMEML_VERSION = "5"
 
 
-def write_fcp7_xml(timeline: Timeline, output_path: str | Path) -> Path:
-    """Render `timeline` to an FCP7 XML file. Returns the path written."""
+def write_fcp7_xml(
+    timeline: Timeline,
+    output_path: str | Path,
+    path_override: dict[str, str] | None = None,
+) -> Path:
+    """Render `timeline` to an FCP7 XML file. Returns the path written.
+
+    `path_override` maps asset_id → absolute path string. When provided,
+    the writer uses this path instead of `asset.resolved_path` for the
+    `<pathurl>` element — used by `collect` to point at copied media.
+    """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     xmeml = ET.Element("xmeml", attrib={"version": _XMEML_VERSION})
-    state = _WriterState(timeline.settings)
+    state = _WriterState(timeline.settings, path_override=path_override)
     _build_sequence(xmeml, timeline, state)
 
     # Pretty-print via minidom; ElementTree's own indent works in 3.9+ but
@@ -97,9 +106,14 @@ def write_fcp7_xml(timeline: Timeline, output_path: str | Path) -> Path:
 class _WriterState:
     """Per-write mutable state: file emission dedup + frame conversion."""
 
-    def __init__(self, settings: SequenceSettings):
+    def __init__(
+        self,
+        settings: SequenceSettings,
+        path_override: dict[str, str] | None = None,
+    ):
         self.settings = settings
         self.emitted_files: set[str] = set()
+        self.path_override: dict[str, str] = path_override or {}
 
     def us_to_frames(self, us: int) -> int:
         """Microseconds → integer frames at sequence rate.
@@ -300,7 +314,9 @@ def _build_file_node(parent: ET.Element, asset: MediaAsset, state: _WriterState)
     state.emitted_files.add(file_id)
     file_el = ET.SubElement(parent, "file", attrib={"id": file_id})
     _append_text(file_el, "name", asset.name)
-    _append_text(file_el, "pathurl", _path_to_url(asset))
+    override = state.path_override.get(asset.asset_id)
+    url = Path(override).resolve().as_uri() if override else _path_to_url(asset)
+    _append_text(file_el, "pathurl", url)
     _append_rate(file_el, state.settings)
     _append_text(file_el, "duration", str(state.us_to_frames(asset.duration_us)))
 
