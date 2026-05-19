@@ -2,22 +2,22 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.2-alpha`
+**Version**: `v0.3-alpha`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
 - modern_plaintext schema (`schema_version = 360000`)
 - Premiere Pro FCP7 XML import
 
-把剪映 / CapCut 专业版的草稿时间线迁移到 **Premiere Pro**（通过 FCP7 XML）。
+把剪映 / CapCut 专业版的草稿时间线迁移到 **Premiere Pro**（通过 FCP7 XML），并将用户素材打包收集到可交付的 Portable Package。
 
-> **定位**：粗剪时间线搬运工，不是 CapCut 全工程转换器。
-> 目标是让你在剪映里"切得差不多"之后，能拿到 PR 里继续精剪。
+> **定位**：粗剪时间线搬运工 + 素材打包工具，不是 CapCut 全工程转换器。
+> 目标是让你在剪映里"切得差不多"之后，能拿到 PR 里继续精剪，或者把整个包交给协作剪辑师继续工作。
 
 ## Tested against real-world CapCut Desktop projects
 
-v0.1.1 alpha 已在 **CapCut Desktop 167.0.0**（`schema_version=360000`,
-modern_plaintext 布局）的三类真实工程上端到端跑通：
+v0.3-alpha 已在 **CapCut Desktop 167.0.0**（`schema_version=360000`,
+modern_plaintext 布局）的多类真实工程上端到端跑通：
 
 | 类型 | 样本 | 形态 |
 |---|---|---|
@@ -26,7 +26,9 @@ modern_plaintext 布局）的三类真实工程上端到端跑通：
 | stress-test | `cutsmith2` | 多刀 + 叠加 + 字幕 + 贴纸 + 转场 + 滤镜 + 特效 + 变速，15 unsupported 分类清楚 |
 | 竖屏全压力 | `0519V` | 1080×1920，7 视频轨，0.5× + 2.0× 变速片段，speed_curve，贴纸，转场，特效，滤镜，8 条字幕（Pattern B），Premiere 实测导入通过 |
 
-三个样本登记在
+collect 已验证：`0509` / `cutsmith` / `0519V`。
+
+样本登记在
 [`tests/fixtures/real_world/sample_manifest.json`](tests/fixtures/real_world/sample_manifest.json)。
 
 进入 Creator Validation 阶段前请阅:
@@ -65,7 +67,7 @@ cd cutsmith
 
 ## 用法
 
-CLI 有三个子命令：`detect`（侦测）、`inspect`（侦察）和 `convert`（转换）。
+CLI 子命令：`detect`（侦测）、`inspect`（侦察）、`convert`（转换）、`scan-assets`（素材扫描）、`export-srt`（字幕导出）、`collect`（打包）。
 
 ### inspect — 真实草稿先来一遍
 
@@ -203,9 +205,36 @@ cutsmith/
 - **Windows 路径在 macOS 打开**：reader 会把 `C:\...` 路径的盘符部分丢掉，只用 basename 在 `--search-root` 里找。这意味着跨平台搬运基本一定要带 `-s`。
 - **变速片段（speed ≠ 1.0）**：时间线 slot 按 CapCut 的 target duration 占位（下游片段不漂移），源素材 in/out 保留。**Premiere 实测确认（2026-05-19）：导入后片段显示 100% 速度，Premiere 不会自动解析 FCP7 XML 的隐式速度编码。** 需手工右键 → Speed/Duration 按报告里的速度值修改。变速曲线（speed_curve）仅报告、不导出，片段按 1.0× 播放。
 
-## v0.2 已完成 / v0.3 路线
+## v0.2 / v0.3 已完成 / 后续路线
 
 - **v0.2 ✅**：素材扫描（`scan-assets`）、字幕提取（`export-srt`）、Pattern A + B 字幕支持、108 单元测试通过
-- **v0.3**：collect / relink（把用户素材收集到 XML 旁边，方便交付）
+- **v0.3 ✅**：`collect` — 把用户素材收集到 `media/` 子目录，XML `<pathurl>` 重写指向收集后的文件，同步产出 manifest + offline.md。已在 `0509` / `cutsmith` / `0519V` 验证通过。
+
+### v0.3 collect CLI
+
+```bash
+python3 -m cutsmith collect "/path/to/CapCut/project" \
+  -o ./collected \
+  [-s "/path/to/extra/footage"]
+```
+
+输出结构：
+
+```
+collected/
+├── my_sequence.xml           ← pathurl 已重写到收集后的素材
+├── my_sequence.report.md     ← 兼容性报告 + 打包摘要
+├── my_sequence.manifest.json
+├── my_sequence.offline.md    ← 仅在有未解析素材时生成
+└── media/
+    ├── video/
+    ├── audio/
+    ├── images/
+    ├── music/                ← 剪映音乐库（注意版权）
+    └── sfx/
+```
+
+**CapCut 专有资产**（特效、转场、滤镜、贴纸）**无法移植**——它们只写入 report 和 offline.md，不可脱离 CapCut 提取。在 Premiere 里用原生等效效果重建。
+
 - **Research track**：Premiere native 变速重建（显式 Time Remap filter 节点）。FCP7 隐式编码已确认不被 Premiere 自动识别。
 - **后续**：FCPXML 输出、DaVinci Resolve XML、关键帧动画、CapCut Mobile 样本覆盖

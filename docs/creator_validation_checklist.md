@@ -1,11 +1,11 @@
-# Creator Validation Checklist — v0.1.1 alpha
+# Creator Validation Checklist — v0.3-alpha
 
 This is the manual-verification protocol for confirming a CutSmith export
-opens correctly in Premiere Pro. CLI tests pin structural correctness
-(frame counts, file references, etc.); only a human can answer "does this
-look like what CapCut showed me?"
+(and collect package) opens correctly in Premiere Pro. CLI tests pin
+structural correctness (frame counts, file references, etc.); only a human
+can answer "does this look like what CapCut showed me?"
 
-Run the three samples in the order below. Each builds on the last —
+Run the samples in the order below. Each builds on the last —
 if step 1 fails, don't bother with the rest until that's understood.
 
 ---
@@ -14,12 +14,11 @@ if step 1 fails, don't bother with the rest until that's understood.
 
 - **Premiere Pro 2024 or 2025** (older builds also work for FCP7 XML; this
   is just what's been used during development).
-- The three `.xml` files from `out_convert/` (produced by `python3 -m cutsmith convert ...`).
-- Each sample's source media accessible at the path baked into the XML
-  (the `.report.md` will tell you if anything is offline).
+- The `.xml` files from `out_convert/` (produced by `python3 -m cutsmith convert ...`),
+  **or** a collected package from `python3 -m cutsmith collect ...`.
 - About 20 minutes per sample, mostly for scrubbing.
 
-**Import procedure (every sample):**
+**Import procedure — convert output:**
 1. New Premiere project, any preset.
 2. `File → Import…`, pick the `.xml`. **Do not** use `Open Project`.
 3. Premiere creates a Sequence and Project items. Open the Sequence.
@@ -29,6 +28,14 @@ if step 1 fails, don't bother with the rest until that's understood.
 If a clip imports as **Offline**, right-click it in the Project panel →
 `Link Media…` → pick any matching file. Premiere will auto-link the rest
 by name from the same folder.
+
+**Import procedure — collect package:**
+1. New Premiere project, any preset.
+2. `File → Import…`, pick the `.xml` from the collected output directory.
+3. All online user assets should link automatically — no `Link Media` step
+   needed for copied files.
+4. If any clips show as Offline, check `<stem>.offline.md` for what couldn't
+   be copied and why.
 
 ---
 
@@ -183,7 +190,62 @@ available.
 
 ---
 
-## After all three samples
+---
+
+## Sample 4 — `collect` package (v0.3 validation)
+
+**Why**: verifies that the collect pipeline copies media, rewrites XML paths
+correctly, and that Premiere opens the package without a manual `Link Media`
+step. Run on any sample that has online user media — `cutsmith` or `0519V`
+are the cleanest targets.
+
+```bash
+python3 -m cutsmith collect "/path/to/CapCut/project" \
+  -o ./collected_test \
+  -s "/path/to/footage"
+```
+
+**Expected output structure:**
+
+```
+collected_test/
+├── <name>.xml
+├── <name>.report.md
+├── <name>.manifest.json
+├── <name>.offline.md   ← only if any assets offline
+└── media/
+    ├── video/
+    ├── audio/
+    ├── images/
+    ├── music/
+    └── sfx/
+```
+
+**Checklist:**
+
+- [ ] `media/video/` contains the expected source video files (check against
+      `<name>.manifest.json`).
+- [ ] `<name>.manifest.json` has `collect_relative_path` populated for each
+      copied asset.
+- [ ] `<name>.offline.md` exists only if there were unresolved assets; its
+      entries match assets that `manifest.json` shows as `is_online: false`.
+- [ ] Import `<name>.xml` into Premiere — no Offline clips for user media
+      that was successfully copied.
+- [ ] CapCut proprietary items (effects, transitions, filters, stickers) do
+      NOT appear in `media/` — they are report-only, confirm they are absent
+      from the collect package directory.
+- [ ] Report's "Collect package" section shows a non-zero **Assets copied**
+      count and a plausible total copied size in MB.
+- [ ] Speed-changed clips: confirm the report's "Collect package" section
+      includes the reminder to apply Speed/Duration manually.
+
+**If any user asset is missing from `media/`:** check that `-s` points to
+the correct search root and that `manifest.json` shows `is_online: true` for
+the expected asset.
+
+---
+
+## After all samples
 
 Save your findings somewhere. Useful info to capture:
 
@@ -200,6 +262,9 @@ Sample 1 cutsmith.xml      : PASS / PASS-with-notes / FAIL — details
 Sample 2 0509.xml          : PASS / PASS-with-notes / FAIL — details
 Sample 3 cutsmith2.xml     : PASS / PASS-with-notes / FAIL — details
    Speed clip V2.1         : interpreted as 64% / 100% / other — details
+Sample 4 collect package   : PASS / PASS-with-notes / FAIL — details
+   Assets copied           : N files, X MB
+   Offline clips in PR     : 0 / N
 Unexpected behaviour       : …
 ```
 

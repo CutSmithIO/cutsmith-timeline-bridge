@@ -2,9 +2,10 @@
 
 CapCut Desktop → Premiere Pro XML bridge.
 
-Convert real-world CapCut timelines into editable Premiere Pro sequences.
+Convert real-world CapCut timelines into editable Premiere Pro sequences,
+and collect all user media into a portable package ready for Premiere delivery.
 
-**Status**: Alpha
+**Status**: v0.3-alpha
 
 **Validated against**:
 - CapCut Desktop 167.0.0
@@ -17,19 +18,24 @@ Convert real-world CapCut timelines into editable Premiere Pro sequences.
 
 ## What this is (and isn't)
 
-CutSmith is a **rough-cut timeline mover**, not a full CapCut → Premiere project
-converter. The goal is to let editors who've already structured a sequence in
-CapCut continue in Premiere Pro without rebuilding cuts and audio from scratch.
+CutSmith is a **rough-cut timeline mover and media packager**, not a full
+CapCut → Premiere project converter. The goal is to let editors who've already
+structured a sequence in CapCut continue in Premiere Pro without rebuilding
+cuts and audio from scratch — and to hand off a self-contained package where
+all user media travels with the XML.
 
 The reader normalises a CapCut `draft_info.json` into a small Timeline IR; the
 writer emits FCP7 XML that Premiere imports as a real sequence. A sidecar
 `*.report.md` lists everything that didn't survive the conversion (transitions,
 filters, captions, speed changes, ...) so the editor knows what to rebuild.
+The v0.3 `collect` command copies all resolved user media alongside the XML and
+rewrites the XML paths so Premiere opens the package directly without a
+`Link Media` step.
 
 ## Tested against real-world projects
 
-v0.1.1-alpha has been end-to-end validated against three real CapCut Desktop
-167.0.0 projects. They live in [`tests/fixtures/real_world/sample_manifest.json`](tests/fixtures/real_world/sample_manifest.json).
+v0.3-alpha has been end-to-end validated against real CapCut Desktop 167.0.0
+projects. They live in [`tests/fixtures/real_world/sample_manifest.json`](tests/fixtures/real_world/sample_manifest.json).
 
 | Type | Sample ID | Shape |
 |---|---|---|
@@ -37,6 +43,8 @@ v0.1.1-alpha has been end-to-end validated against three real CapCut Desktop
 | Multicut | `cutsmith` | V1 with 7 butt-cut clips + V2 overlay + BGM + SFX. 0 unsupported items. |
 | Stress-test | `cutsmith2` | Multi-cut + overlay + captions + stickers + transitions + filters + effects + 0.640× variable speed |
 | Vertical full-stress | `0519V` | 1080×1920, 7 video tracks, 0.5× + 2.0× speed clips, speed_curve, stickers, transitions, effects, filters, 8-cue subtitles (Pattern B) |
+
+`collect` validated on: `0509`, `cutsmith`, `0519V`.
 
 ## Supported features
 
@@ -122,15 +130,45 @@ Outputs `my_sequence.xml` (drop into Premiere via `File → Import`, *not*
 `Open Project`) and `my_sequence.report.md` (read it before opening the
 XML). `-s/--search-root` is repeatable for multi-location media.
 
+### 4. Collect — portable package for Premiere delivery (v0.3)
+
+```bash
+python3 -m cutsmith collect "/path/to/CapCut/project" \
+  -o ./collected \
+  [-s "/path/to/extra/footage"]
+```
+
+Scans all materials, copies every resolved user asset into `media/`, rewrites
+the XML `<pathurl>` entries to point at the collected files, and writes a
+manifest + offline report. Output structure:
+
+```
+collected/
+├── my_sequence.xml          ← paths rewritten to collected media
+├── my_sequence.report.md    ← compat report + collect summary
+├── my_sequence.manifest.json
+├── my_sequence.offline.md   ← only if assets could not be found
+└── media/
+    ├── video/
+    ├── audio/
+    ├── images/
+    ├── music/               ← CapCut licensed music (verify rights before publishing)
+    └── sfx/
+```
+
+CapCut proprietary stickers, effects, transitions, and filters are **not
+portable** — they are reported in the report and offline file but cannot
+be extracted from CapCut. Rebuild them using Premiere's native equivalents.
+
 The full validation workflow — IR diagnostic, Premiere-side checks per
 sample — is in
 [`docs/creator_validation_checklist.md`](docs/creator_validation_checklist.md).
 
 ## Creator validation status
 
-v0.2-alpha is **structurally validated** (108 unit tests pass; four
-real-world samples convert cleanly, including Premiere Pro import of `0519V`
-on 2026-05-19).
+v0.3-alpha is **structurally validated** (108 unit tests pass; real-world
+samples `0509`, `cutsmith`, and `0519V` convert and collect cleanly, including
+Premiere Pro import confirmed 2026-05-19).
 
 **Confirmed Premiere behaviours:**
 - Sequence resolution (including vertical 1080×1920) imports correctly.
@@ -138,6 +176,8 @@ on 2026-05-19).
   clips at 100% speed** — native Premiere speed is not reconstructed from the
   XML. Apply Speed/Duration manually per the report. This is a known
   limitation, not a bug.
+- `collect` package opens in Premiere without a `Link Media` step for all
+  online user assets.
 
 If you import any sample into Premiere and want to report findings, please
 open an issue with the format suggested in
@@ -152,10 +192,13 @@ cutsmith/
 ├── detect/          # triage: app/version/encryption/supported_status
 ├── inspect/         # schema-drift detection (independent of reader)
 ├── resolver/        # asset path resolution + offline placeholders
+├── scanner/         # asset manifest + classification (scan-assets)
+├── subtitle/        # SRT extraction (export-srt)
+├── collector/       # v0.3 collect pipeline: copy + relink
 ├── writer/          # IR → FCP7 XML
 ├── report/          # IR + resolution → compatibility_report.md
 ├── bridge.py        # high-level pipeline
-└── __main__.py      # detect / inspect / convert CLI
+└── __main__.py      # detect / inspect / convert / scan-assets / export-srt / collect CLI
 scripts/
 └── ir_diag.py       # post-reader Timeline IR dump for diagnosis
 docs/                # creator_validation_checklist, known_limitations,
@@ -173,13 +216,10 @@ the reader learns new fields.
 
 ## Roadmap
 
-- **v0.1.2** — Smart Embedded Audio Fallback. Reader-side derivation of
-  an audio track from a video asset when no explicit audio track covers
-  the same source over the same target range. See the limitation note in
-  [`docs/known_limitations.md`](docs/known_limitations.md#embedded-audio-of-video-clips).
 - **v0.2** — Asset manifest (`scan-assets`), subtitle extraction (`export-srt`),
   Pattern A + B subtitle support. ✅ shipped.
-- **v0.3** — collect / relink (gather + copy user media alongside the XML).
+- **v0.3** — `collect`: copy user media alongside the XML, rewrite paths for
+  Premiere delivery. ✅ shipped. Validated on `0509` / `cutsmith` / `0519V`.
 - **Research track** — Premiere native speed reconstruction via explicit
   Time Remap `<filter>` nodes. (FCP7 implicit encoding confirmed not
   auto-interpreted by Premiere.)
@@ -192,14 +232,14 @@ the reader learns new fields.
 python3 -m unittest discover -s tests
 ```
 
-108 tests as of v0.2-alpha — pipeline smoke, inspect schema drift,
+108 tests as of v0.3-alpha — pipeline smoke, inspect schema drift,
 writer audio contract, reader regressions, subtitle extraction (Pattern A + B),
 asset manifest and classification.
 
 ## Repository
 
 - GitHub: <https://github.com/CutSmithIO/cutsmith-timeline-bridge>
-- Latest tag: [`v0.1.1-alpha`](https://github.com/CutSmithIO/cutsmith-timeline-bridge/releases/tag/v0.1.1-alpha)
+- Latest tag: [`v0.3-alpha`](https://github.com/CutSmithIO/cutsmith-timeline-bridge/releases/tag/v0.3-alpha)
 - 中文文档: [`README.zh-CN.md`](README.zh-CN.md)
 
 ## License

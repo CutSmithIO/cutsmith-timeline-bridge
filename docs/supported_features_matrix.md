@@ -1,4 +1,4 @@
-# Supported Features Matrix — v0.2 alpha
+# Supported Features Matrix — v0.3 alpha
 
 ## Validation scope
 
@@ -12,6 +12,10 @@ See `tests/fixtures/real_world/sample_manifest.json`.
 
 Premiere Pro import confirmed on: `0519V` (2026-05-19) — sequence resolution,
 track layout, offline media, and speed clip behaviour verified in-app.
+
+`collect` pipeline validated on: `0509`, `cutsmith`, `0519V` — online user
+assets copied to `media/`, XML paths rewritten, Premiere opens without
+`Link Media` step.
 
 Other apps / versions are best-effort — the reader's structural assumptions
 should generalize, but no other configuration has been confirmed against
@@ -27,6 +31,27 @@ a real draft.
 | ◐ Partially supported | Feature is preserved but with caveats; check the report's `Features not exported` section and `docs/known_limitations.md`. |
 | ⊘ Ignored safely | Feature is recognised, named in the report, and intentionally not exported. Premiere imports the timeline without it; rebuild manually if needed. |
 | ✗ Unsupported | Feature is not handled at all. May be missing from the report (we didn't recognise it) or block the entire conversion. |
+
+---
+
+---
+
+## collect pipeline (v0.3)
+
+| Feature | Status | Notes |
+|---|---|---|
+| User video / audio / image assets | ✅ Copied | Copied to `media/video/`, `media/audio/`, `media/images/` |
+| CapCut music library tracks | ✅ Copied | `media/music/` — verify distribution rights before publishing |
+| CapCut SFX | ✅ Copied | `media/sfx/` |
+| CapCut stickers (if file is accessible) | ✅ Copied | `media/stickers/` — rare; most stickers are in-app only |
+| XML `<pathurl>` rewrite | ✅ | Paths rewritten to collected `media/` files; Premiere opens without `Link Media` |
+| Asset manifest | ✅ | `<stem>.manifest.json` with `collect_relative_path` per entry |
+| Offline report | ✅ | `<stem>.offline.md` written only when assets could not be found |
+| CapCut proprietary effects | ⊘ Report-only | Not portable outside CapCut; listed in report + offline.md |
+| CapCut proprietary transitions | ⊘ Report-only | Not portable outside CapCut |
+| CapCut proprietary filters | ⊘ Report-only | Not portable outside CapCut |
+| CapCut fonts | ⊘ Report-only | Install on destination machine manually |
+| Filename collision | ✅ | Disambiguated with `<stem>_<asset_id[:8]><suffix>` |
 
 ---
 
@@ -139,10 +164,11 @@ classifier table is in `cutsmith/reader/jianying_pro.py` at
 | Feature | Status | Replacement |
 |---|---|---|
 | 现代版剪映 PC ≥ 75.0.0 encrypted drafts | Detected and refused | Use CapCut Desktop / CapCut Mobile / older 剪映 builds whose drafts are plaintext |
-| FCPXML output (Final Cut Pro X / 11) | Planned v0.2 | Use FCP7 XML; FCP imports it (with auto-conversion) |
-| DaVinci Resolve XML | Not planned for v0.1 / v0.2 | Resolve can import FCP7 XML directly but path / rate quirks are untested — proceed with caution |
-| Premiere native speed reconstruction | Research track — not v0.2 | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap `<filter>` nodes require separate research. Manual workaround: right-click clip → Speed/Duration in Premiere. |
-| Speed ramps (variable curves) | Report-only — not v0.2 | Reported as `speed_curve`, clip plays at 1.0× |
+| FCPXML output (Final Cut Pro X / 11) | Not planned for v0.3 | Use FCP7 XML; FCP imports it (with auto-conversion) |
+| DaVinci Resolve XML | Not planned | Resolve can import FCP7 XML directly but path / rate quirks are untested — proceed with caution |
+| Premiere native speed reconstruction | Research track — not v0.3 | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap `<filter>` nodes require separate research. Manual workaround: right-click clip → Speed/Duration in Premiere. |
+| Speed ramps (variable curves) | Report-only | Reported as `speed_curve`, clip plays at 1.0× |
+| CapCut proprietary effects / transitions / filters | Report-only — not collectable | Not portable outside CapCut. Listed in report; rebuild with Premiere native equivalents. |
 | Sub-draft / compound clips (`materials.drafts`) | Not parsed | Flatten in CapCut before exporting the draft |
 | Multi-language captions | Not parsed | Export SRT per language from CapCut |
 | Digital humans / AI-generated content placeholders | Not parsed | Replace with conventional clips before drafting |

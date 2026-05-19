@@ -1,4 +1,4 @@
-# Known Limitations — v0.2 alpha
+# Known Limitations — v0.3 alpha
 
 What CutSmith does NOT do, and the caveats that apply to what it does do.
 Read this before filing a bug or before promising a result to a creator.
@@ -186,17 +186,51 @@ spot-checked against PR 2024 builds; other consumers may differ:
   loaded into modern Final Cut Pro is auto-converted by FCP and may lose
   fidelity in the round-trip.
 
-## v0.1 vs v0.2
+## collect — portability limits
 
-| Feature | v0.1 / v0.2 | Notes |
+### CapCut proprietary assets are not portable
+
+CapCut stickers, effects, transitions, and filters are stored inside the
+CapCut application bundle or downloaded to an app-private cache. They cannot
+be extracted or transferred to Premiere independently.
+
+**What happens in `collect`:**
+- These assets are classified as `capcut_effect`, `capcut_font`, or `UNKNOWN`.
+- They are listed in the `collect` section of the report and, if offline, in
+  `<stem>.offline.md` with a suggested rebuild action.
+- They are **not copied** to `media/`.
+- The XML that Premiere receives has no reference to them (they were already
+  ignored in the convert step as `⊘ Ignored safely`).
+
+**What to do:** rebuild in Premiere using native effects, LUTs, third-party
+plugins, or downloaded font files.
+
+### CapCut music licensing
+
+Tracks from the CapCut/TikTok music library are copied to `media/music/`
+when online. They are subject to CapCut / TikTok licensing terms. Verify
+distribution rights before publishing content that includes them.
+
+### Offline user assets
+
+If a user media file cannot be found (not on disk, wrong path, Windows path on
+macOS), it is listed in `<stem>.offline.md` but not copied. After XML import
+into Premiere, use `Link Media` to relink those clips.
+
+---
+
+## Version table
+
+| Feature | v0.1 / v0.2 / v0.3 | Notes |
 |---|---|---|
 | CapCut Desktop modern_plaintext → PR | ✅ | Validated on CapCut 167.0.0 |
 | Asset manifest (scan-assets) | ✅ v0.2 | |
 | Subtitle extraction (export-srt) | ✅ v0.2 | Pattern A + B |
-| collect / relink (media gather) | planned v0.3 | |
+| collect / relink (media gather) | ✅ v0.3 | Validated on `0509`, `cutsmith`, `0519V` |
+| CapCut proprietary effects / transitions / filters | report-only, not collectable | Not portable outside CapCut |
 | CapCut Mobile / legacy plaintext → PR | best-effort | No fixture confirmed |
-| FCPXML output (Final Cut Pro X / 11) | not planned v0.2 | |
-| Keyframe animations | not planned v0.2 | |
+| FCPXML output (Final Cut Pro X / 11) | not planned | |
+| Keyframe animations | not planned | |
 | Premiere native speed reconstruction | ✗ research track | FCP7 implicit encoding confirmed NOT auto-interpreted by Premiere (tested 2026-05-19). Explicit Time Remap filter nodes require separate research. |
 | Speed ramps (variable curves) | report-only | speed_curve logged, clip plays at 1.0× |
 | DaVinci Resolve XML | not planned | |
