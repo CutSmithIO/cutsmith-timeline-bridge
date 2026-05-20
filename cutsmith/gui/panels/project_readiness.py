@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from cutsmith.gui.models import AnalysisResult
 from cutsmith.gui.style import (
-    ACCENT, ACCENT_DIM, BG_BASE, BG_RAISED, BORDER,
+    ACCENT, BG_BASE, BG_ELEVATED, BORDER_DEFAULT,
     GREEN, ORANGE, TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
 )
 
@@ -35,7 +35,10 @@ class _CoverThumbnail(QLabel):
         super().__init__(parent)
         self.setFixedSize(_COVER_W, _COVER_H)
         self.setScaledContents(False)
-        self.setStyleSheet(f"border-radius: 6px; background: {ACCENT_DIM};")
+        self.setStyleSheet(
+            f"border-radius: 4px; border: 1px solid {BORDER_DEFAULT};"
+            f" background: {BG_ELEVATED};"
+        )
         pix = self._load(cover_path) or self._placeholder(name)
         self.setPixmap(pix)
 
@@ -54,12 +57,20 @@ class _CoverThumbnail(QLabel):
             pix = pix.copy(x, y, _COVER_W, _COVER_H)
         return pix
 
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(QColor(255, 255, 255, 20))
+        painter.drawRoundedRect(self.rect().adjusted(0, 0, -1, -1), 4, 4)
+        painter.end()
+
     def _placeholder(self, name: str) -> QPixmap:
         pix = QPixmap(_COVER_W, _COVER_H)
-        pix.fill(QColor(ACCENT_DIM))
+        pix.fill(QColor(BG_ELEVATED))
         painter = QPainter(pix)
         painter.setRenderHint(QPainter.Antialiasing)
-        font = QFont("Helvetica Neue", 24, QFont.Bold)
+        font = QFont("IBM Plex Sans", 22, QFont.Bold)
         painter.setFont(font)
         painter.setPen(QColor(ACCENT))
         initials = (name[:2] if len(name) >= 2 else name).upper()
@@ -94,8 +105,9 @@ def _wrap(layout) -> QWidget:
 class _StatCell(QWidget):
     def __init__(self, val: str, key: str, parent=None):
         super().__init__(parent)
+        self.setObjectName("statCell")
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(4, 6, 4, 6)
+        lay.setContentsMargins(10, 6, 10, 6)
         lay.setSpacing(2)
         v = QLabel(val)
         v.setObjectName("statVal")
@@ -112,7 +124,7 @@ class _StatSep(QFrame):
         super().__init__(parent)
         self.setFrameShape(QFrame.VLine)
         self.setFixedWidth(1)
-        self.setStyleSheet(f"background: {BORDER}; border: none;")
+        self.setStyleSheet(f"background: {BORDER_DEFAULT}; border: none;")
 
 
 class _ReadinessRow(QWidget):
@@ -127,12 +139,14 @@ class _ReadinessRow(QWidget):
         elif ok is False:
             icon_text, icon_color = "⚠", ORANGE
         else:
-            icon_text, icon_color = "–", TEXT_FAINT
+            icon_text, icon_color = "△", ACCENT
 
         icon = QLabel(icon_text)
         icon.setObjectName("riIcon")
         icon.setFixedWidth(16)
-        icon.setStyleSheet(f"color: {icon_color}; font-size: 12px; background: transparent;")
+        icon.setStyleSheet(
+            f"color: {icon_color}; font-size: 12px; background: transparent;"
+        )
         lay.addWidget(icon, 0, Qt.AlignTop)
 
         text_w = QWidget()
@@ -144,11 +158,15 @@ class _ReadinessRow(QWidget):
         if ok is False:
             lbl.setObjectName("riLabelWarn")
             lbl.setStyleSheet(f"color: {ORANGE}; background: transparent;")
+        elif ok is None:
+            lbl.setObjectName("riLabel")
+            lbl.setStyleSheet(f"color: {TEXT_SECONDARY}; background: transparent;")
         else:
             lbl.setObjectName("riLabel")
 
         dtl = QLabel(detail)
         dtl.setObjectName("riDetail")
+        dtl.setTextFormat(Qt.RichText)
         dtl.setWordWrap(True)
         text_lay.addWidget(lbl)
         text_lay.addWidget(dtl)
@@ -164,7 +182,9 @@ class _AssetRow(QWidget):
         lay.setSpacing(8)
         icon_lbl = QLabel(icon)
         icon_lbl.setFixedWidth(16)
-        icon_lbl.setStyleSheet(f"color: {TEXT_MUTED}; font-size: 11px; background: transparent;")
+        icon_lbl.setStyleSheet(
+            f"color: {TEXT_MUTED}; font-size: 11px; background: transparent;"
+        )
         name_lbl = QLabel(name)
         name_lbl.setObjectName("assetRowMuted" if muted else "assetRow")
         count_lbl = QLabel(count_label)
@@ -190,7 +210,6 @@ class ProjectReadinessPanel(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
-        # Force dark on the scroll frame and its internal viewport widget
         scroll.setStyleSheet(f"background: {BG_BASE}; border: none;")
         scroll.viewport().setStyleSheet(f"background: {BG_BASE};")
 
@@ -227,7 +246,7 @@ class ProjectReadinessPanel(QWidget):
     def show_error(self, msg: str) -> None:
         self._clear()
         lbl = QLabel(f"Analysis failed:\n{msg}")
-        lbl.setStyleSheet(f"color: #ff453a; background: transparent;")
+        lbl.setStyleSheet("color: #ff453a; background: transparent;")
         lbl.setWordWrap(True)
         self._content_layout.addStretch()
         self._content_layout.addWidget(lbl)
@@ -241,18 +260,32 @@ class ProjectReadinessPanel(QWidget):
             w = item.widget()
             if w is not None:
                 w.deleteLater()
-            # Spacer items (QSpacerItem) need no action
 
     def _show_empty(self):
-        lbl = QLabel("Select a project to begin")
-        lbl.setObjectName("cardMeta")
-        lbl.setAlignment(Qt.AlignCenter)
-        self._content_layout.addStretch()
-        self._content_layout.addWidget(lbl)
-        self._content_layout.addStretch()
+        self._content_layout.addStretch(2)
+
+        headline = QLabel("Move your CapCut rough cut\ninto a portable Premiere package")
+        headline.setObjectName("onboardHeadline")
+        headline.setAlignment(Qt.AlignCenter)
+        self._content_layout.addWidget(headline)
+
+        self._content_layout.addSpacing(8)
+
+        subtext = QLabel("Timeline structure · user media · subtitles · speed")
+        subtext.setObjectName("onboardSubtext")
+        subtext.setAlignment(Qt.AlignCenter)
+        self._content_layout.addWidget(subtext)
+
+        self._content_layout.addSpacing(20)
+
+        helper = QLabel("Select a project on the left\nto analyze timeline compatibility.")
+        helper.setObjectName("onboardHelper")
+        helper.setAlignment(Qt.AlignCenter)
+        self._content_layout.addWidget(helper)
+
+        self._content_layout.addStretch(3)
 
     def _build_card(self, r: AnalysisResult):
-        # ── Cover + title in a QWidget container ──────────────────────────────
         card_w = QWidget()
         card_row = QHBoxLayout(card_w)
         card_row.setContentsMargins(0, 0, 0, 0)
@@ -272,7 +305,6 @@ class ProjectReadinessPanel(QWidget):
         name_lbl.setObjectName("cardName")
         title_lay.addWidget(name_lbl)
 
-        # Schema version hidden from label; shown in tooltip only
         sv = r.detect.schema_version or ""
         meta_lbl = QLabel(f"{r.entry.app_label} · {r.readability_label}")
         meta_lbl.setObjectName("cardMeta")
@@ -280,11 +312,23 @@ class ProjectReadinessPanel(QWidget):
             meta_lbl.setToolTip(f"schema {sv}")
         title_lay.addWidget(meta_lbl)
 
-        badge = QLabel(
-            "PORTABLE PACKAGE READY" if r.is_portable
-            else "PARTIAL — SOME ASSETS OFFLINE"
-        )
-        badge.setObjectName("badgeOk" if r.is_portable else "badgeWarn")
+        _badge_text = {
+            "portable":  "PORTABLE · READY",
+            "limited":   "READY WITH NOTES",
+            "partial":   "PARTIAL · ASSETS OFFLINE",
+            "encrypted": "ENCRYPTED",
+            "error":     "ERROR",
+        }
+        _badge_obj = {
+            "portable":  "badgeOk",
+            "limited":   "badgeWarn",
+            "partial":   "badgeWarn",
+            "encrypted": "badgeError",
+            "error":     "badgeError",
+        }
+        state = r.readiness_state
+        badge = QLabel(_badge_text.get(state, state.upper()))
+        badge.setObjectName(_badge_obj.get(state, "badgeDim"))
         badge.setFixedHeight(18)
         badge.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         title_lay.addWidget(badge)
@@ -292,58 +336,64 @@ class ProjectReadinessPanel(QWidget):
         card_row.addWidget(title_w, 1)
         self._content_layout.addWidget(card_w)
 
-        # 10px gap: card → stats strip
         self._content_layout.addSpacing(10)
 
-        # ── Stats strip in a QWidget container ───────────────────────────────
+        # Stats strip — cells separated by spacing, no explicit separator widget
         stats_w = QWidget()
-        stats_w.setFixedHeight(52)
+        stats_w.setFixedHeight(56)
         stats_row = QHBoxLayout(stats_w)
         stats_row.setContentsMargins(0, 0, 0, 0)
-        stats_row.setSpacing(0)
+        stats_row.setSpacing(4)
         cells = [
             (r.duration_label, "Duration"),
             (r.resolution_label, "Canvas"),
             (r.fps_label, "Frame rate"),
             (str(r.clip_count), "Clips"),
         ]
-        for i, (val, key) in enumerate(cells):
+        for val, key in cells:
             stats_row.addWidget(_StatCell(val, key), 1)
-            if i < len(cells) - 1:
-                stats_row.addWidget(_StatSep())
         self._content_layout.addWidget(stats_w)
 
     def _build_readiness(self, r: AnalysisResult):
         self._content_layout.addWidget(_section_header("Project Readiness"))
+
+        offline_detail = f"{r.total_online} online"
+        if r.total_offline:
+            offline_detail += (
+                f" · <span style='color:{ORANGE};font-weight:600;'>"
+                f"{r.total_offline} offline</span>"
+            )
 
         rows = [
             (True, "Timeline structure",
              f"{r.video_track_count} video track{'s' if r.video_track_count != 1 else ''}"
              f" · {r.audio_track_count} audio track{'s' if r.audio_track_count != 1 else ''}"
              f" · {r.clip_count} clip{'s' if r.clip_count != 1 else ''}"),
-            (True, "Asset paths resolved",
-             f"{r.total_online} online"
-             + (f" · {r.total_offline} offline" if r.total_offline else "")),
-            (True, "FCP7 XML export",
-             "Sequence + master clips · constant speed via timeremap"),
+            (True, "Asset paths resolved", offline_detail),
+            (True, "FCP7 XML (timeline structure)",
+             "Sequence + master clips · constant speed via timeremap · Premiere-ready"),
         ]
 
         if r.speed_clip_count:
-            rows.append((False, "Constant speed clips",
-                          f"{r.speed_clip_count} clip{'s' if r.speed_clip_count != 1 else ''} "
-                          "— speed preserved via timeremap filter"))
+            n = r.speed_clip_count
+            rows.append((False, "Speed-adjusted clips",
+                          f"{n} clip{'s' if n != 1 else ''} with constant speed changes "
+                          "— preserved in export via timeremap"))
         if r.speed_curve_count:
-            rows.append((False, "Speed curves",
-                          f"{r.speed_curve_count} clip{'s' if r.speed_curve_count != 1 else ''} "
-                          "— exported as 1.0× · rebuild via Time Remapping in Premiere"))
+            n = r.speed_curve_count
+            rows.append((False, "Speed ramp clips",
+                          f"{n} clip{'s' if n != 1 else ''} with variable speed ramps "
+                          "— exported at 1.0×. Rebuild via Time Remapping in Premiere."))
         if r.subtitle_cue_count:
+            n = r.subtitle_cue_count
             rows.append((False, "Subtitles",
-                          f"{r.subtitle_cue_count} cue{'s' if r.subtitle_cue_count != 1 else ''} "
-                          "— not in XML · export separately via Export SRT"))
+                          f"{n} subtitle cue{'s' if n != 1 else ''} — not included in XML. "
+                          "Use \"Export SRT\" to get a sidecar file."))
         if r.total_report_only:
-            rows.append((False, "Proprietary assets",
-                          f"{r.total_report_only} item{'s' if r.total_report_only != 1 else ''} "
-                          "(effects/filters/transitions) — not portable"))
+            n = r.total_report_only
+            rows.append((False, "CapCut-proprietary features",
+                          f"{n} effect{'s' if n != 1 else ''}, filter{'s' if n != 1 else ''}, "
+                          f"or transition{'s' if n != 1 else ''} — not portable outside CapCut"))
 
         for ok, label, detail in rows:
             self._content_layout.addWidget(_ReadinessRow(ok, label, detail))
@@ -363,40 +413,41 @@ class ProjectReadinessPanel(QWidget):
             migrated.append(("♪", "Audio tracks",
                               f"{len(m.audios)} file{'s' if len(m.audios) != 1 else ''}"))
         if m.images:
-            migrated.append(("□", "Images",
+            migrated.append(("▫", "Images",
                               f"{len(m.images)} file{'s' if len(m.images) != 1 else ''}"))
         if migrated:
-            grp = QLabel("FULLY MIGRATED")
+            grp = QLabel("USER-OWNED MEDIA — INCLUDED")
             grp.setObjectName("assetGroupLabel")
             self._content_layout.addWidget(grp)
             for icon, name, count in migrated:
                 self._content_layout.addWidget(_AssetRow(icon, name, count))
 
-        warned = []
+        detected = []
         if m.music:
-            warned.append(("♫", "CapCut music",
-                            f"{len(m.music)} — verify rights before publishing"))
+            detected.append(("♫", "CapCut library music",
+                              f"{len(m.music)} detected — not copied by default"))
         if m.sfx:
-            warned.append(("~", "SFX",
-                            f"{len(m.sfx)} — verify rights before publishing"))
+            detected.append(("≈", "CapCut SFX",
+                              f"{len(m.sfx)} detected — not copied by default"))
         if m.stickers:
-            warned.append(("◈", "Stickers (cached)", f"{len(m.stickers)}"))
-        if warned:
-            grp = QLabel("INCLUDED WITH WARNING")
+            detected.append(("◆", "CapCut stickers",
+                              f"{len(m.stickers)} detected — not copied by default"))
+        if detected:
+            grp = QLabel("PLATFORM ASSETS — DETECTED, NOT COPIED")
             grp.setObjectName("assetGroupLabel")
             self._content_layout.addWidget(grp)
-            for icon, name, count in warned:
-                self._content_layout.addWidget(_AssetRow(icon, name, count))
+            for icon, name, count in detected:
+                self._content_layout.addWidget(_AssetRow(icon, name, count, muted=True))
 
         report = []
         if m.effects:
-            report.append(("✦", "Effects", f"{len(m.effects)} — CapCut only"))
+            report.append(("⚙", "Effects", f"{len(m.effects)} — CapCut proprietary"))
         if m.filters:
-            report.append(("◫", "Filters/LUTs", f"{len(m.filters)} — CapCut only"))
+            report.append(("◧", "Filters/LUTs", f"{len(m.filters)} — CapCut proprietary"))
         if m.transitions:
-            report.append(("⇌", "Transitions", f"{len(m.transitions)} — CapCut only"))
+            report.append(("⇄", "Transitions", f"{len(m.transitions)} — CapCut proprietary"))
         if report:
-            grp = QLabel("REPORT-ONLY · NOT PORTABLE")
+            grp = QLabel("CAPCUT-PROPRIETARY · NOT PORTABLE")
             grp.setObjectName("assetGroupLabel")
             self._content_layout.addWidget(grp)
             for icon, name, count in report:

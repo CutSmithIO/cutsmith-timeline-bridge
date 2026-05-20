@@ -1,0 +1,49 @@
+CutSmith Timeline Bridge — Portable Package Summary
+===================================================
+
+Project:  0416
+
+Package root:
+  /Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0416
+
+Relink root  (paste into Premiere 'Link Media…'):
+  /Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0416/media
+
+Files copied:
+  1 file(s)
+  1134.7 MB
+
+Collected media:
+  video/      1 file
+  audio/      0 files
+  music/      0 files
+  sfx/        0 files
+  images/     0 files
+  stickers/   0 files
+
+Offline assets (not copied — file not found):
+  0
+  → none — package is fully self-contained
+
+CapCut-proprietary assets (not transferable outside CapCut):
+  1
+  → effects / transitions / filters / fonts
+  → listed in report.md; rebuild in Premiere using native equivalents
+
+Premiere import:
+  1. File → Import…  →  select 0416.xml
+     (do NOT use Open Project)
+  2. Sequence and Project panel source items appear automatically.
+  3. If clips show as Offline:
+     right-click → Link Media… → navigate to the Relink root above.
+
+  XML pathurl: all paths point to collected media/ — absolute.
+  Portability: move this directory to another machine,
+               then relink using the Relink root above.
+
+Known limitations:
+  - Variable speed curves are report-only (clips play at 1.0× in Premiere).
+  - CapCut effects/transitions/filters are not reconstructed.
+  - Speed clips may show blank trim area past source boundary.
+    See 0416.relink_guide.md for the full edge-case note.
+

@@ -146,3 +146,17 @@ class AnalysisResult:
             or self.unsupported_count > 0
             or self.total_offline > 0
         )
+
+    @property
+    def readiness_state(self) -> str:
+        """One of: portable / limited / partial / encrypted / error."""
+        enc = (self.detect.encryption or "").lower()
+        if enc not in ("", "none", "plaintext"):
+            return "encrypted"
+        if self.detect.supported_status in ("error",):
+            return "error"
+        if self.total_offline > 0:
+            return "partial"
+        if self.has_warnings:
+            return "limited"
+        return "portable"

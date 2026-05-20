@@ -88,7 +88,8 @@ class AssetManifest:
     relink_root_hint: str | None = None      # absolute path of media/ subdir
     path_mode: str = "original"             # "original" | "collected_absolute"
     package_portable: str = "unknown"       # "full" | "partial" | "unknown"
-    report_only_count: int = 0
+    report_only_count: int = 0              # CAPCUT_EFFECT / FONT / UNKNOWN (never portable)
+    skipped_platform_asset_count: int = 0   # music/SFX/stickers detected but not copied by default
     normalized_extension_count: int = 0
 
     def all_entries(self) -> list[ManifestEntry]:
@@ -119,6 +120,7 @@ class AssetManifest:
                 "cached_count": self.cached_count,
                 "total_online_size_bytes": self.total_online_size_bytes,
                 "report_only_count": self.report_only_count,
+                "skipped_platform_asset_count": self.skipped_platform_asset_count,
                 "normalized_extension_count": self.normalized_extension_count,
             },
             "videos":      _entries(self.videos),

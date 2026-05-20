@@ -167,14 +167,24 @@ class CopyOnlineAssetsTest(unittest.TestCase):
         _copy_online_assets(m, self.media_dir, self.out_dir)
         self.assertTrue((self.media_dir / "video" / "clip_a.mp4").exists())
 
-    def test_copies_music_to_music_subdir(self):
+    def test_default_does_not_copy_capcut_music(self):
         m = _make_manifest(self.src_dir)
         _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertFalse((self.media_dir / "music").exists())
+
+    def test_default_does_not_copy_capcut_sfx(self):
+        m = _make_manifest(self.src_dir)
+        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self.assertFalse((self.media_dir / "sfx").exists())
+
+    def test_copies_music_when_platform_flag_enabled(self):
+        m = _make_manifest(self.src_dir)
+        _copy_online_assets(m, self.media_dir, self.out_dir, include_platform_assets=True)
         self.assertTrue((self.media_dir / "music" / "bgm.mp3").exists())
 
-    def test_copies_sfx_to_sfx_subdir(self):
+    def test_copies_sfx_when_platform_flag_enabled(self):
         m = _make_manifest(self.src_dir)
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        _copy_online_assets(m, self.media_dir, self.out_dir, include_platform_assets=True)
         self.assertTrue((self.media_dir / "sfx" / "sfx.mp3").exists())
 
     def test_returns_path_override_for_copied_assets(self):
@@ -223,8 +233,27 @@ class CopyOnlineAssetsTest(unittest.TestCase):
     def test_stats_copied_count_matches_files(self):
         m = _make_manifest(self.src_dir)
         _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        # default: only user-owned → video(1)
+        self.assertEqual(stats.copied_count, 1)
+
+    def test_stats_copied_count_includes_platform_when_flag_set(self):
+        m = _make_manifest(self.src_dir)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir,
+                                       include_platform_assets=True)
         # video(1) + music(1) + sfx(1) = 3
         self.assertEqual(stats.copied_count, 3)
+
+    def test_skipped_platform_asset_count_nonzero_by_default(self):
+        m = _make_manifest(self.src_dir)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        # music(1) + sfx(1) = 2 detected online platform assets, skipped
+        self.assertEqual(stats.skipped_platform_asset_count, 2)
+
+    def test_skipped_platform_asset_count_zero_when_flag_set(self):
+        m = _make_manifest(self.src_dir)
+        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir,
+                                       include_platform_assets=True)
+        self.assertEqual(stats.skipped_platform_asset_count, 0)
 
     def test_stats_total_size_nonzero(self):
         m = _make_manifest(self.src_dir)
@@ -343,7 +372,8 @@ class CopyOnlineAssetsTest(unittest.TestCase):
 
     def test_same_file_different_non_audio_subdir_is_not_deduped(self):
         """USER_VIDEO + CAPCUT_MUSIC pointing to same file: copies independently
-        since CAPCUT_MUSIC is not a USER_AUDIO embedded audio reference."""
+        since CAPCUT_MUSIC is not a USER_AUDIO embedded audio reference.
+        Requires include_platform_assets=True to exercise both copy paths."""
         src = self.src_dir / "footage.mp4"
         src.write_bytes(b"data" * 200)
         vid_entry = ManifestEntry(
@@ -359,7 +389,8 @@ class CopyOnlineAssetsTest(unittest.TestCase):
             duration_us=10_000_000, used_in_tracks=["A1"], clip_count=1,
         )
         m = AssetManifest(project_name="p", videos=[vid_entry], music=[mus_entry])
-        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        override, stats = _copy_online_assets(m, self.media_dir, self.out_dir,
+                                              include_platform_assets=True)
         self.assertEqual(stats.copied_count, 2)
         self.assertEqual(stats.embedded_audio_reused_count, 0)
         self.assertNotEqual(override["VID-X"], override["MUS-X"])
@@ -552,17 +583,17 @@ class CollectIntegrationTest(unittest.TestCase):
         self.assertTrue(video_dir.exists())
         self.assertGreater(len(list(video_dir.iterdir())), 0)
 
-    def test_music_copied_to_media_music(self):
+    def test_music_not_copied_by_default(self):
         self._run_collect()
         music_dir = self.out_dir / "media" / "music"
-        self.assertTrue(music_dir.exists())
-        self.assertGreater(len(list(music_dir.iterdir())), 0)
+        self.assertFalse(music_dir.exists(),
+                         "music/ should not exist in default collect mode")
 
-    def test_sfx_copied_to_media_sfx(self):
+    def test_sfx_not_copied_by_default(self):
         self._run_collect()
         sfx_dir = self.out_dir / "media" / "sfx"
-        self.assertTrue(sfx_dir.exists())
-        self.assertGreater(len(list(sfx_dir.iterdir())), 0)
+        self.assertFalse(sfx_dir.exists(),
+                         "sfx/ should not exist in default collect mode")
 
     def test_effect_not_in_media_dir(self):
         self._run_collect()
@@ -665,6 +696,18 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
         )
         return m
 
+    def _copy_platform(self, m):
+        """Helper: run _copy_online_assets with include_platform_assets=True.
+
+        Extension normalization tests exercise CapCut cache music files, which
+        requires the explicit platform-assets flag since they are skipped by
+        default. The flag is what a user would pass with
+        --include-cached-platform-assets; the normalization logic itself is
+        asset-class-agnostic.
+        """
+        return _copy_online_assets(m, self.media_dir, self.out_dir,
+                                   include_platform_assets=True)
+
     # ── extensionless PNG cache file → copied as .png ─────────────────────────
 
     def test_extensionless_png_copied_as_png(self):
@@ -696,7 +739,7 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
         m = self._single_entry_manifest(
             "5a24a7e2eb1672953b926de5b8429eb6.mp3", _M4A_MAGIC,
         )
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self._copy_platform(m)
         music_files = list((self.media_dir / "music").iterdir())
         self.assertEqual(len(music_files), 1)
         self.assertEqual(music_files[0].suffix, ".m4a")
@@ -705,7 +748,7 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
         m = self._single_entry_manifest(
             "5a24a7e2eb1672953b926de5b8429eb6.mp3", _M4A_MAGIC,
         )
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self._copy_platform(m)
         entry = m.music[0]
         self.assertTrue(entry.extension_normalized)
         self.assertEqual(entry.original_extension, ".mp3")
@@ -716,7 +759,7 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
         m = self._single_entry_manifest(
             "cache_track.mp3", _M4A_MAGIC, asset_id="MUSIC-001",
         )
-        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        override, _ = self._copy_platform(m)
         self.assertIn("MUSIC-001", override)
         self.assertTrue(override["MUSIC-001"].endswith(".m4a"),
                         f"Expected .m4a in path_override; got {override['MUSIC-001']}")
@@ -726,14 +769,14 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
     def test_real_mp3_stays_mp3(self):
         """A file with .mp3 extension and genuine ID3 content must not be renamed."""
         m = self._single_entry_manifest("bgm.mp3", _MP3_MAGIC)
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self._copy_platform(m)
         music_files = list((self.media_dir / "music").iterdir())
         self.assertEqual(len(music_files), 1)
         self.assertEqual(music_files[0].name, "bgm.mp3")
 
     def test_real_mp3_manifest_not_normalized(self):
         m = self._single_entry_manifest("bgm.mp3", _MP3_MAGIC)
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self._copy_platform(m)
         entry = m.music[0]
         self.assertFalse(entry.extension_normalized)
 
@@ -743,12 +786,12 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
         """extension_normalized_count increments for each corrected file."""
         # One M4A-as-mp3 → count = 1
         m = self._single_entry_manifest("fake.mp3", _M4A_MAGIC)
-        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        _, stats = self._copy_platform(m)
         self.assertEqual(stats.extension_normalized_count, 1)
 
     def test_stats_normalized_count_zero_for_correct_extension(self):
         m = self._single_entry_manifest("real.mp3", _MP3_MAGIC)
-        _, stats = _copy_online_assets(m, self.media_dir, self.out_dir)
+        _, stats = self._copy_platform(m)
         self.assertEqual(stats.extension_normalized_count, 0)
 
     # ── collision still works after normalization ─────────────────────────────
@@ -775,7 +818,7 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
             duration_us=1_000_000, used_in_tracks=["A2"], clip_count=1,
         )
         m = AssetManifest(project_name="p", music=[entry_a, entry_b])
-        _copy_online_assets(m, self.media_dir, self.out_dir)
+        self._copy_platform(m)
 
         music_files = list((self.media_dir / "music").iterdir())
         self.assertEqual(len(music_files), 2)
@@ -817,7 +860,7 @@ class ExtensionNormalizationCopyTest(unittest.TestCase):
             duration_us=1_000_000, used_in_tracks=["A1"], clip_count=1,
         )
         m = AssetManifest(project_name="p", music=[entry])
-        override, _ = _copy_online_assets(m, self.media_dir, self.out_dir)
+        override, _ = self._copy_platform(m)
 
         xml_path = self.out_dir / "test.xml"
         write_fcp7_xml(timeline, xml_path, path_override=override)
@@ -1053,10 +1096,19 @@ class CollectIntegrationV034Test(unittest.TestCase):
         self.assertIn("report_only_count", data["stats"])
         self.assertGreater(data["stats"]["report_only_count"], 0)
 
+    def _run_collect_with_platform(self):
+        from cutsmith.collector import collect
+        return collect(
+            project_path=self.patched_fixture,
+            out_dir=self.out_dir,
+            search_roots=[str(self.src_dir)],
+            include_platform_assets=True,
+        )
+
     def test_xml_master_clip_pathurls_point_to_media_dir(self):
         """All master clip <pathurl>s must reference the collected media/ directory."""
         import xml.etree.ElementTree as ET
-        r = self._run_collect()
+        r = self._run_collect_with_platform()
         tree = ET.parse(r.xml_path)
         # Pathurls in the master clips (direct <clip> children of <xmeml>)
         xmeml = tree.getroot()
@@ -1211,7 +1263,7 @@ class PackageSummaryTest(unittest.TestCase):
 
     def test_summary_offline_none_message_when_zero(self):
         content = self._run_and_read(offline=False)
-        self.assertIn("none — package is fully self-contained", content)
+        self.assertIn("none — all user media is self-contained", content)
 
     def test_summary_offline_count_when_present(self):
         content = self._run_and_read(offline=True)

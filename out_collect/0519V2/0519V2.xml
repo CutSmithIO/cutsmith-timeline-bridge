@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmeml>
+<xmeml version="5">
+  <clip id="masterclip-36DEF565-2B68-46C0-9610-09A451636BD8">
+    <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+    <duration>598</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-36DEF565-2B68-46C0-9610-09A451636BD8">
+      <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/Clean%20Liquid%20Glass%20Lower%20Thirds%20Pack%20for%20Professional%20Videos.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>598</duration>
+      <media>
+        <video>
+          <duration>598</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-B2E7B2F5-7532-4D9B-A374-518D987508ED">
+    <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+    <duration>598</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-B2E7B2F5-7532-4D9B-A374-518D987508ED">
+      <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/Clean%20Liquid%20Glass%20Lower%20Thirds%20Pack%20for%20Professional%20Videos.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>598</duration>
+      <media>
+        <video>
+          <duration>598</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-89748894-A89F-4B2C-97EF-EA37DF93659E">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-89748894-A89F-4B2C-97EF-EA37DF93659E">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-8C11507A-0F58-43CB-A95F-A05FFB7736E6">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-8C11507A-0F58-43CB-A95F-A05FFB7736E6">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-7BBE086F-E41A-4730-AF33-F3815D93F942">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-7BBE086F-E41A-4730-AF33-F3815D93F942">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-98310232-E1D0-429D-BBC4-7A664B0CC054">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-98310232-E1D0-429D-BBC4-7A664B0CC054">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-776D8A42-A562-41CA-AF98-CD80EA5572DA">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-776D8A42-A562-41CA-AF98-CD80EA5572DA">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-131E4716-71DD-445C-BE47-8183B9BE5CAF">
+    <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos</name>
+    <duration>598</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-131E4716-71DD-445C-BE47-8183B9BE5CAF">
+      <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/Clean%20Liquid%20Glass%20Lower%20Thirds%20Pack%20for%20Professional%20Videos.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>598</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-CFBA6BEB-8304-4A91-89E6-F875843D5440">
+    <name>BalloonPlanet - Voices in the Dust - Creative Cut - Alternative.mp3</name>
+    <duration>2942</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-CFBA6BEB-8304-4A91-89E6-F875843D5440">
+      <name>BalloonPlanet - Voices in the Dust - Creative Cut - Alternative.mp3</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/audio/BalloonPlanet%20-%20Voices%20in%20the%20Dust%20-%20Creative%20Cut%20-%20Alternative.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>2942</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-5ED421FA-7323-4948-BD84-15B9524E42B0">
+    <name>20260514_DCJ8207</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-5ED421FA-7323-4948-BD84-15B9524E42B0">
+      <name>20260514_DCJ8207</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V2/media/video/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <sequence id="sequence-1">
+    <name>0519V2</name>
+    <duration>5453</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <timecode>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <string>00:00:00:00</string>
+      <frame>0</frame>
+      <displayformat>NDF</displayformat>
+    </timecode>
+    <media>
+      <video>
+        <format>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1080</width>
+            <height>1920</height>
+            <pixelaspectratio>square</pixelaspectratio>
+            <fielddominance>none</fielddominance>
+            <colordepth>24</colordepth>
+          </samplecharacteristics>
+        </format>
+        <track>
+          <clipitem id="clipitem-188B5E8B-55F0-48D3-B0A0-C54C2F62E621">
+            <masterclipid>masterclip-36DEF565-2B68-46C0-9610-09A451636BD8</masterclipid>
+            <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>598</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>598</end>
+            <in>0</in>
+            <out>598</out>
+            <file id="file-36DEF565-2B68-46C0-9610-09A451636BD8"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-9A65D589-D656-43DE-936F-8F6DD7A67744">
+            <masterclipid>masterclip-B2E7B2F5-7532-4D9B-A374-518D987508ED</masterclipid>
+            <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>598</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>598</start>
+            <end>1196</end>
+            <in>0</in>
+            <out>598</out>
+            <file id="file-B2E7B2F5-7532-4D9B-A374-518D987508ED"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-C494D12A-7C06-4AE7-B7EC-FC94C269C462">
+            <masterclipid>masterclip-89748894-A89F-4B2C-97EF-EA37DF93659E</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1196</start>
+            <end>2142</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-89748894-A89F-4B2C-97EF-EA37DF93659E"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-45DC4782-1FFB-465E-82F4-D9F92F6F7B3F">
+            <masterclipid>masterclip-8C11507A-0F58-43CB-A95F-A05FFB7736E6</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>2142</start>
+            <end>3088</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-8C11507A-0F58-43CB-A95F-A05FFB7736E6"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-5C1E33C4-09B8-40F8-BF28-BBC135F91161">
+            <masterclipid>masterclip-7BBE086F-E41A-4730-AF33-F3815D93F942</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>3088</start>
+            <end>3561</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-7BBE086F-E41A-4730-AF33-F3815D93F942"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>200.0000</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-21E4066D-3C89-4540-8ED7-616B2BE9EC7E">
+            <masterclipid>masterclip-98310232-E1D0-429D-BBC4-7A664B0CC054</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>281</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>3561</start>
+            <end>4124</end>
+            <in>0</in>
+            <out>281</out>
+            <file id="file-98310232-E1D0-429D-BBC4-7A664B0CC054"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>49.9112</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-482466ED-8E30-4180-98D9-28E8DD1CB55F">
+            <masterclipid>masterclip-776D8A42-A562-41CA-AF98-CD80EA5572DA</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>664</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>4124</start>
+            <end>5453</end>
+            <in>281</in>
+            <out>945</out>
+            <file id="file-776D8A42-A562-41CA-AF98-CD80EA5572DA"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>49.9624</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+        </track>
+      </video>
+      <audio>
+        <format>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+        </format>
+        <numOutputChannels>2</numOutputChannels>
+        <track>
+          <clipitem id="clipitem-169D65E6-C7C3-449C-95F4-CDAF8CAE8820">
+            <masterclipid>masterclip-131E4716-71DD-445C-BE47-8183B9BE5CAF</masterclipid>
+            <name>Clean Liquid Glass Lower Thirds Pack for Professional Videos</name>
+            <enabled>TRUE</enabled>
+            <duration>598</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>598</end>
+            <in>0</in>
+            <out>598</out>
+            <file id="file-131E4716-71DD-445C-BE47-8183B9BE5CAF"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Audio Levels</name>
+                <effectid>audiolevels</effectid>
+                <effectcategory>audiolevels</effectcategory>
+                <effecttype>audiolevels</effecttype>
+                <mediatype>audio</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>level</parameterid>
+                  <name>Level</name>
+                  <valuemin>0</valuemin>
+                  <valuemax>3.98109</valuemax>
+                  <value>0.146723</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-CE2ADC61-14B2-4655-9FEC-43A29C984036">
+            <masterclipid>masterclip-CFBA6BEB-8304-4A91-89E6-F875843D5440</masterclipid>
+            <name>BalloonPlanet - Voices in the Dust - Creative Cut - Alternative.mp3</name>
+            <enabled>TRUE</enabled>
+            <duration>1544</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>598</start>
+            <end>2142</end>
+            <in>598</in>
+            <out>2142</out>
+            <file id="file-CFBA6BEB-8304-4A91-89E6-F875843D5440"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Audio Levels</name>
+                <effectid>audiolevels</effectid>
+                <effectcategory>audiolevels</effectcategory>
+                <effecttype>audiolevels</effecttype>
+                <mediatype>audio</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>level</parameterid>
+                  <name>Level</name>
+                  <valuemin>0</valuemin>
+                  <valuemax>3.98109</valuemax>
+                  <value>0.057125</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-8BE202A7-78D6-44B4-A728-2D4AAB1BC5B7">
+            <masterclipid>masterclip-5ED421FA-7323-4948-BD84-15B9524E42B0</masterclipid>
+            <name>20260514_DCJ8207</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>2142</start>
+            <end>3088</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-5ED421FA-7323-4948-BD84-15B9524E42B0"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Audio Levels</name>
+                <effectid>audiolevels</effectid>
+                <effectcategory>audiolevels</effectcategory>
+                <effecttype>audiolevels</effecttype>
+                <mediatype>audio</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>level</parameterid>
+                  <name>Level</name>
+                  <valuemin>0</valuemin>
+                  <valuemax>3.98109</valuemax>
+                  <value>1.869530</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+        </track>
+      </audio>
+    </media>
+  </sequence>
+</xmeml>

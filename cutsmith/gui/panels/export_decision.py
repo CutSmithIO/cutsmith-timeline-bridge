@@ -8,6 +8,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QCheckBox,
     QFileDialog,
     QHBoxLayout,
     QLabel,
@@ -20,8 +21,9 @@ from PySide6.QtWidgets import (
 
 from cutsmith.gui.models import AnalysisResult
 from cutsmith.gui.style import (
-    ACCENT, BG_BASE, BG_DEEP, BG_RAISED, GREEN, ORANGE, RED,
+    ACCENT, BG_ELEVATED, BG_DEEP, GREEN, ORANGE,
     TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
+    FONT_MONO_STACK,
 )
 
 
@@ -57,15 +59,15 @@ def _make_tree_html(out_dir: Path, stem: str) -> str:
 
 
 class ExportDecisionPanel(QWidget):
-    collect_requested = Signal(Path)    # out_dir
-    srt_requested = Signal(Path)        # out_dir
+    collect_requested = Signal(Path, bool)  # out_dir, include_platform_assets
+    srt_requested = Signal(Path)            # out_dir
     open_folder_requested = Signal(Path)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("rightPanel")
         self.setFixedWidth(280)
-        self.setStyleSheet(f"background: {BG_RAISED};")
+        self.setStyleSheet(f"background: {BG_ELEVATED};")
 
         self._result: AnalysisResult | None = None
         self._out_dir: Path | None = None
@@ -96,7 +98,7 @@ class ExportDecisionPanel(QWidget):
         root.addLayout(path_row)
 
         # Collect button
-        self._collect_btn = QPushButton("Collect & Package")
+        self._collect_btn = QPushButton("Collect Premiere Package")
         self._collect_btn.setObjectName("collectBtn")
         self._collect_btn.setEnabled(False)
         self._collect_btn.clicked.connect(self._on_collect)
@@ -104,7 +106,8 @@ class ExportDecisionPanel(QWidget):
 
         self._collect_reason = QLabel("")
         self._collect_reason.setStyleSheet(
-            f"color: {TEXT_FAINT}; font-size: 10px; background: transparent;"
+            f"color: {TEXT_FAINT}; font-family: {FONT_MONO_STACK};"
+            f" font-size: 10px; background: transparent;"
         )
         self._collect_reason.setWordWrap(True)
         self._collect_reason.setAlignment(Qt.AlignCenter)
@@ -131,28 +134,86 @@ class ExportDecisionPanel(QWidget):
         self._tree_label.setTextFormat(Qt.RichText)
         self._tree_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self._tree_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self._tree_label.setMaximumWidth(246)  # cap at content area; clips long paths at panel edge
         root.addWidget(self._tree_label)
 
-        # Secondary buttons
-        sec_row = QHBoxLayout()
-        sec_row.setSpacing(6)
+        # Post-collect action buttons — hidden until collect completes
+        self._post_collect_widget = QWidget()
+        self._post_collect_widget.setStyleSheet("background: transparent;")
+        post_collect_lay = QVBoxLayout(self._post_collect_widget)
+        post_collect_lay.setContentsMargins(0, 0, 0, 0)
+        post_collect_lay.setSpacing(6)
+
+        action_row = QHBoxLayout()
+        action_row.setSpacing(6)
+        self._open_btn = QPushButton("Open Package")
+        self._open_btn.setObjectName("secondaryBtn")
+        self._open_btn.clicked.connect(self._on_open_folder)
+        self._xml_btn = QPushButton("Reveal XML")
+        self._xml_btn.setObjectName("secondaryBtn")
+        self._xml_btn.clicked.connect(self._on_reveal_xml)
+        action_row.addWidget(self._open_btn)
+        action_row.addWidget(self._xml_btn)
+        post_collect_lay.addLayout(action_row)
+        self._post_collect_widget.hide()
+        root.addWidget(self._post_collect_widget)
+
+        # SRT export button
+        srt_row = QHBoxLayout()
+        srt_row.setSpacing(6)
         self._srt_btn = QPushButton("Export SRT")
         self._srt_btn.setObjectName("secondaryBtn")
         self._srt_btn.setEnabled(False)
         self._srt_btn.clicked.connect(self._on_export_srt)
-        self._open_btn = QPushButton("Open in Finder")
-        self._open_btn.setObjectName("secondaryBtn")
-        self._open_btn.setEnabled(False)
-        self._open_btn.clicked.connect(self._on_open_folder)
-        sec_row.addWidget(self._srt_btn)
-        sec_row.addWidget(self._open_btn)
-        root.addLayout(sec_row)
+        srt_row.addWidget(self._srt_btn)
+        srt_row.addStretch()
+        root.addLayout(srt_row)
+
+        # Advanced options (legal-sensitive, default OFF)
+        adv_label = QLabel("ADVANCED")
+        adv_label.setObjectName("rpLabel")
+        root.addWidget(adv_label)
+
+        self._include_platform_cb = QCheckBox(
+            "Include cached CapCut library audio"
+        )
+        self._include_platform_cb.setChecked(False)
+        self._include_platform_cb.setStyleSheet(
+            f"color: {TEXT_SECONDARY}; font-family: {FONT_MONO_STACK};"
+            f" font-size: 10px; background: transparent;"
+        )
+        root.addWidget(self._include_platform_cb)
+
+        warn_box = QWidget()
+        warn_box.setStyleSheet(
+            f"background: rgba(255,159,10,0.10); "
+            f"border-left: 3px solid {ORANGE}; "
+            f"border-radius: 2px;"
+        )
+        warn_box_lay = QVBoxLayout(warn_box)
+        warn_box_lay.setContentsMargins(8, 6, 8, 6)
+        warn_box_lay.setSpacing(0)
+        self._platform_warn = QLabel(
+            "CapCut library music/SFX may be licensed for use "
+            "within CapCut/TikTok only. Copying does not transfer "
+            "usage rights. Verify before publishing."
+        )
+        self._platform_warn.setStyleSheet(
+            f"color: {ORANGE}; font-family: {FONT_MONO_STACK};"
+            f" font-size: 10px; line-height: 1.6;"
+            f" background: transparent; border: none;"
+        )
+        self._platform_warn.setWordWrap(True)
+        warn_box_lay.addWidget(self._platform_warn)
+        root.addWidget(warn_box)
 
         # Notes / licensing footer
         self._notes_label = QLabel("")
         self._notes_label.setObjectName("riDetail")
         self._notes_label.setWordWrap(True)
-        self._notes_label.setStyleSheet(f"color: {TEXT_FAINT}; font-size: 10px;")
+        self._notes_label.setStyleSheet(
+            f"color: {TEXT_FAINT}; font-family: {FONT_MONO_STACK}; font-size: 10px;"
+        )
         root.addWidget(self._notes_label)
 
         root.addStretch()
@@ -164,27 +225,31 @@ class ExportDecisionPanel(QWidget):
         self._out_dir = result.default_out_dir()
         self._refresh()
 
+    def set_stage(self, msg: str) -> None:
+        self._collect_reason.setText(msg)
+
     def set_collecting(self, active: bool) -> None:
         self._collecting = active
         self._collect_btn.setEnabled(not active and self._result is not None)
-        self._collect_btn.setText("Collecting…" if active else "Collect & Package")
+        self._collect_btn.setText("Collecting…" if active else "Collect Premiere Package")
 
     def set_collect_done(self, out_dir: Path) -> None:
         self._collecting = False
         self._out_dir = out_dir
-        self._collect_btn.setText("Collect & Package")
+        self._collect_btn.setText("Collect Premiere Package")
         self._collect_btn.setEnabled(True)
-        self._open_btn.setEnabled(True)
+        self._collect_reason.setText("")
+        self._post_collect_widget.show()
         self._refresh_path_label()
 
     def clear(self) -> None:
         self._result = None
         self._out_dir = None
         self._collect_btn.setEnabled(False)
-        self._collect_btn.setText("Collect & Package")
-        self._collect_reason.setText("Select a project first")
+        self._collect_btn.setText("Collect Premiere Package")
+        self._collect_reason.setText("Select a project on the left to begin")
         self._srt_btn.setEnabled(False)
-        self._open_btn.setEnabled(False)
+        self._post_collect_widget.hide()
         self._path_label.setText("—")
         self._tree_label.setText("—")
         self._notes_label.setText("")
@@ -199,7 +264,6 @@ class ExportDecisionPanel(QWidget):
         self._refresh_path_label()
         self._refresh_include(r)
         self._refresh_tree(r)
-        # Collect button: enabled unless encrypted or error
         enc = (r.detect.encryption or "").lower()
         is_enc = enc not in ("", "none", "plaintext")
         is_err = r.detect.supported_status in ("error",)
@@ -214,16 +278,11 @@ class ExportDecisionPanel(QWidget):
             self._collect_reason.setText("")
         self._srt_btn.setEnabled(r.subtitle_cue_count > 0)
         notes = []
-        if r.manifest and (r.manifest.music or r.manifest.sfx or r.manifest.stickers):
-            notes.append(
-                "CapCut library assets (music, SFX, stickers) are copied for "
-                "convenience. Copying does not transfer usage rights — verify "
-                "distribution rights before publishing."
-            )
         if r.speed_curve_count:
             notes.append(
-                f"{r.speed_curve_count} speed-curve clip(s) exported at 1.0×. "
-                "Rebuild via Time Remapping in Premiere."
+                f"{r.speed_curve_count} variable speed ramp clip(s) — "
+                "exported at 1.0× (not reconstructed). "
+                "Rebuild via Effect Controls → Time Remapping in Premiere."
             )
         self._notes_label.setText("\n\n".join(notes))
 
@@ -244,25 +303,59 @@ class ExportDecisionPanel(QWidget):
         m = r.manifest
         if m is None:
             return
-        items = []
+
+        # User-owned media (always included) — green ✓ rows
+        included = []
         if m.videos:
-            items.append(f"▶  {len(m.videos)} video file{'s' if len(m.videos) != 1 else ''}")
+            included.append(f"✓  {len(m.videos)} video file{'s' if len(m.videos) != 1 else ''}")
         if m.audios:
-            items.append(f"♪  {len(m.audios)} audio file{'s' if len(m.audios) != 1 else ''}")
+            included.append(f"✓  {len(m.audios)} audio file{'s' if len(m.audios) != 1 else ''}")
         if m.images:
-            items.append(f"□  {len(m.images)} image{'s' if len(m.images) != 1 else ''}")
-        if m.music:
-            items.append(f"♫  {len(m.music)} music track{'s' if len(m.music) != 1 else ''} ⚠")
-        if m.sfx:
-            items.append(f"~  {len(m.sfx)} SFX file{'s' if len(m.sfx) != 1 else ''} ⚠")
-        items.append("   FCP7 XML (Premiere-ready)")
-        items.append("   Relink guide + package summary")
-        if r.total_offline:
-            items.append(f"⚠  {r.total_offline} asset{'s' if r.total_offline != 1 else ''} offline → offline.md")
-        for text in items:
+            included.append(f"✓  {len(m.images)} image{'s' if len(m.images) != 1 else ''}")
+        included.append("✓  FCP7 XML · relink guide · reports")
+
+        for text in included:
             lbl = QLabel(text)
-            lbl.setObjectName("riDetail")
+            lbl.setObjectName("includeOk")
+            lbl.setWordWrap(True)
             self._include_layout.addWidget(lbl)
+
+        # Platform assets — detected but not copied — orange ⚠ rows
+        platform = []
+        if m.music:
+            platform.append(
+                f"⚠  {len(m.music)} CapCut library music track{'s' if len(m.music) != 1 else ''} "
+                "— detected, not copied"
+            )
+        if m.sfx:
+            platform.append(
+                f"⚠  {len(m.sfx)} CapCut library SFX file{'s' if len(m.sfx) != 1 else ''} "
+                "— detected, not copied"
+            )
+        if m.stickers:
+            platform.append(
+                f"⚠  {len(m.stickers)} CapCut sticker{'s' if len(m.stickers) != 1 else ''} "
+                "— detected, not copied"
+            )
+
+        for text in platform:
+            lbl = QLabel(text)
+            lbl.setObjectName("includeWarn")
+            lbl.setWordWrap(True)
+            self._include_layout.addWidget(lbl)
+
+        if r.total_offline:
+            warn = QLabel(
+                f"⚠  {r.total_offline} asset{'s' if r.total_offline != 1 else ''} offline → offline.md"
+            )
+            warn.setObjectName("includeWarn")
+            warn.setWordWrap(True)
+            self._include_layout.addWidget(warn)
+
+        if platform:
+            legend = QLabel("✓ included   ⚠ detected, not copied")
+            legend.setObjectName("includeMuted")
+            self._include_layout.addWidget(legend)
 
     def _refresh_tree(self, r: AnalysisResult) -> None:
         if self._out_dir is None:
@@ -282,11 +375,23 @@ class ExportDecisionPanel(QWidget):
 
     def _on_collect(self) -> None:
         if self._out_dir and self._result:
-            self.collect_requested.emit(self._out_dir)
+            self.collect_requested.emit(
+                self._out_dir,
+                self._include_platform_cb.isChecked(),
+            )
 
     def _on_export_srt(self) -> None:
         if self._out_dir and self._result:
             self.srt_requested.emit(self._out_dir)
+
+    def _on_reveal_xml(self) -> None:
+        if self._out_dir and self._result:
+            stem = self._result.entry.display_name
+            xml_path = self._out_dir / f"{stem}.xml"
+            if xml_path.exists():
+                subprocess.run(["open", "-R", str(xml_path)], check=False)
+            elif self._out_dir.exists():
+                subprocess.run(["open", str(self._out_dir)], check=False)
 
     def _on_open_folder(self) -> None:
         target = self._out_dir

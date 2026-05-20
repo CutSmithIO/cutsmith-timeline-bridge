@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "project_name": "0416",
+  "source_draft": "/Users/mac/Movies/CapCut/User Data/Projects/com.lveditor.draft/0416/draft_info.json",
+  "app_version": 360000,
+  "duration_us": 58066666,
+  "collected_root": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0416",
+  "relink_root_hint": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0416/media",
+  "path_mode": "collected_absolute",
+  "package_portable": "full",
+  "stats": {
+    "total_assets": 2,
+    "online_count": 1,
+    "offline_count": 1,
+    "cached_count": 1,
+    "total_online_size_bytes": 1189845335,
+    "report_only_count": 1,
+    "normalized_extension_count": 0
+  },
+  "videos": [
+    {
+      "asset_id": "08225C9B-0CAE-4237-85EA-BABCAA844097",
+      "name": "第一集_二审.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/workspace/production/ongoing/2026_005_CT_0327_岚峰_课件/王老师/第一集_二审.mp4",
+      "resolved_path": "/Users/mac/workspace/production/ongoing/2026_005_CT_0327_岚峰_课件/王老师/第一集_二审.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 1189845335,
+      "duration_us": 2975366666,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/第一集_二审.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    }
+  ],
+  "audios": [],
+  "music": [],
+  "sfx": [],
+  "images": [],
+  "stickers": [],
+  "effects": [],
+  "filters": [
+    {
+      "asset_id": "736D7381-F246-4C0B-8034-95280A066E6E",
+      "name": "Flash CCD",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7434502159204356609/107711a55b5260cbe491cad54c8d1d12",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    }
+  ],
+  "transitions": [],
+  "fonts": [],
+  "offline": [
+    {
+      "asset_id": "736D7381-F246-4C0B-8034-95280A066E6E",
+      "name": "Flash CCD",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7434502159204356609/107711a55b5260cbe491cad54c8d1d12",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    }
+  ]
+}

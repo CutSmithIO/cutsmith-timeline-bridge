@@ -2,7 +2,7 @@
 
 # CutSmith Timeline Bridge
 
-**Version**: `v0.3.6-alpha`
+**Version**: `v0.4.1`
 
 **Tested against**:
 - CapCut Desktop 167.0.0
@@ -14,7 +14,9 @@
 > **定位**：粗剪时间线搬运工 + 素材打包工具，不是 CapCut 全工程转换器。
 > 目标是让你在剪映里"切得差不多"之后，能拿到 PR 里继续精剪，或者把整个包交给协作剪辑师继续工作。
 
-**互操作性声明**：CutSmith 读取 CapCut 写入用户本地文件系统的明文 `draft_info.json`，不修改 CapCut 程序本体，不绕过、不尝试解密任何加密格式。加密草稿（剪映 PC ≥ 75.0.0）会被直接拒绝并报错，不做任何解密操作。CapCut 音乐库、音效等第三方授权素材复制到便携包后，使用权利不随之转让；发布前请自行确认版权。
+**互操作性声明**：CutSmith 读取 CapCut 写入用户本地文件系统的明文 `draft_info.json`，不修改 CapCut 程序本体，不绕过、不尝试解密任何加密格式。加密草稿（剪映 PC ≥ 75.0.0）会被直接拒绝并报错，不做任何解密操作。
+
+**平台素材（音乐库、音效、贴纸）默认不复制**：CutSmith 会检测并在报告中列出这些素材，但不会将它们复制到便携包中。如需复制，请使用 `--include-cached-platform-assets` 标志（CLI）或 GUI 高级设置中的复选框，并确保你对这些素材在 CapCut 生态之外的使用具有合法权利。版权归属不随文件复制而转让；发布前请自行确认版权。
 
 ## Tested against real-world CapCut Desktop projects
 
@@ -244,15 +246,14 @@ out_collect/<project_name>/
 ├── <name>.relink_guide.md     ← Premiere 导入 + relink 指引
 ├── <name>.offline.md          ← 仅在有未解析素材时生成
 └── media/
-    ├── video/
-    ├── audio/
-    ├── images/
-    ├── music/                ← 剪映音乐库（见版权说明）
-    ├── sfx/
-    └── stickers/
+    ├── video/                 ← 用户视频素材（物理复制）
+    ├── audio/                 ← 用户音频素材
+    └── images/               ← 用户图片素材
 ```
 
-**CapCut 专有资产**（特效、转场、滤镜、贴纸）**无法移植**——它们只写入 report 和 offline.md，不可脱离 CapCut 提取。在 Premiere 里用原生等效效果重建。
+> **剪映音乐库、音效、贴纸默认不复制**。它们会被检测并列在报告中，但不出现在 `media/` 里。如需包含，使用 `--include-cached-platform-assets`（CLI）或 GUI 高级复选框，并确保相关版权。
+
+**CapCut 专有资产**（特效、转场、滤镜、贴纸）**无法移植**——它们只写入 report，不可脱离 CapCut 提取。在 Premiere 里用原生等效效果重建。
 
 - **Research track**：Premiere native 变速重建（显式 Time Remap filter 节点）。FCP7 隐式编码已确认不被 Premiere 自动识别。
 - **后续**：FCPXML 输出、DaVinci Resolve XML、关键帧动画、CapCut Mobile 样本覆盖

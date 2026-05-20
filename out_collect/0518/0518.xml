@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmeml>
+<xmeml version="5">
+  <clip id="masterclip-AF6A36D4-681E-4D5B-82DB-DFC6BF1D801B">
+    <name>Self Aware</name>
+    <duration>885</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-AF6A36D4-681E-4D5B-82DB-DFC6BF1D801B">
+      <name>Self Aware</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0518/media/music/5a24a7e2eb1672953b926de5b8429eb6.m4a</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>885</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-65541F52-EC31-4036-9DF9-96C7F59F275F">
+    <name>Happy Fun</name>
+    <duration>3960</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-65541F52-EC31-4036-9DF9-96C7F59F275F">
+      <name>Happy Fun</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0518/media/music/029efff600c1b889f37a71ea59b6a7cc.m4a</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>3960</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <sequence id="sequence-1">
+    <name>0518</name>
+    <duration>3960</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <timecode>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <string>00:00:00:00</string>
+      <frame>0</frame>
+      <displayformat>NDF</displayformat>
+    </timecode>
+    <media>
+      <video>
+        <format>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+            <pixelaspectratio>square</pixelaspectratio>
+            <fielddominance>none</fielddominance>
+            <colordepth>24</colordepth>
+          </samplecharacteristics>
+        </format>
+        <track/>
+      </video>
+      <audio>
+        <format>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+        </format>
+        <numOutputChannels>2</numOutputChannels>
+        <track>
+          <clipitem id="clipitem-186B49AE-1C03-4605-B58D-2E069E986D77">
+            <masterclipid>masterclip-AF6A36D4-681E-4D5B-82DB-DFC6BF1D801B</masterclipid>
+            <name>Self Aware</name>
+            <enabled>TRUE</enabled>
+            <duration>885</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>885</end>
+            <in>0</in>
+            <out>885</out>
+            <file id="file-AF6A36D4-681E-4D5B-82DB-DFC6BF1D801B"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-1092061C-5806-4909-A99C-36A48756FCAA">
+            <masterclipid>masterclip-65541F52-EC31-4036-9DF9-96C7F59F275F</masterclipid>
+            <name>Happy Fun</name>
+            <enabled>TRUE</enabled>
+            <duration>3960</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>3960</end>
+            <in>0</in>
+            <out>3960</out>
+            <file id="file-65541F52-EC31-4036-9DF9-96C7F59F275F"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+      </audio>
+    </media>
+  </sequence>
+</xmeml>

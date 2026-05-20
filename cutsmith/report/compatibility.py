@@ -1,4 +1,4 @@
-"""compatibility_report.md generator.
+"""Compatibility and migration report generator for CutSmith Timeline Bridge.
 
 The report has one job: tell the user, in plain language, what made it to
 Premiere and what didn't. Two audiences:
@@ -44,9 +44,13 @@ def write_report(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines: list[str] = []
-    lines.append(f"# CutSmith Compatibility Report — {timeline.name}\n")
-    lines.append("Source: CapCut/JianyingPro draft\n")
-    lines.append("Target: Premiere Pro (via FCP7 XML)\n")
+    lines.append(f"# CutSmith Migration Report — {timeline.name}\n")
+    lines.append("Source: CapCut Desktop / Jianying project (plaintext draft)\n")
+    lines.append("Target: Premiere Pro (FCP7 XML + portable media package)\n")
+    lines.append(
+        "_CutSmith is an independent interoperability tool. "
+        "Not affiliated with ByteDance, CapCut, or Jianying._\n"
+    )
     if xml_output_path:
         lines.append(f"Output: `{Path(xml_output_path).name}`\n")
     lines.append("")
@@ -151,7 +155,7 @@ def _section_media(
 
 
 def _section_unsupported(lines: list[str], timeline: Timeline) -> None:
-    lines.append("## Features not exported")
+    lines.append("## CapCut-proprietary features — not portable")
     if not timeline.unsupported:
         lines.append("_Nothing flagged. Draft used only v0.1-supported features._\n")
         return
@@ -207,13 +211,18 @@ def _section_next_steps(
         steps.append("Keyframed motion/opacity was flattened to static; "
                      "rebuild keyframes on the listed clips.")
     if any(u.category in _EFFECT_LIKE_CATEGORIES for u in timeline.unsupported):
-        steps.append("Transitions, filters, and effects from CapCut don't "
-                     "round-trip — they were dropped. Reapply Premiere's "
-                     "native equivalents.")
+        steps.append(
+            "CapCut effects, transitions, and filters are proprietary rendering "
+            "features and are not portable outside CapCut. They are listed in the "
+            "report above with their timecodes. Rebuild them in Premiere using "
+            "native effects or third-party plugins."
+        )
     if any(u.category == "text" for u in timeline.unsupported):
-        steps.append("Text/captions weren't exported. If you need them, "
-                     "export an SRT from CapCut (File → Export → Subtitle) "
-                     "and import it into Premiere on a Captions track.")
+        steps.append(
+            "Subtitle and caption tracks are not included in the XML. "
+            "Run `cutsmith export-srt` to generate a sidecar SRT file, "
+            "then import it into Premiere via File → Import → Captions."
+        )
 
     for i, step in enumerate(steps, 1):
         lines.append(f"{i}. {step}")

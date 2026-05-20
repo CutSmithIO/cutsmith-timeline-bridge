@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "project_name": "cutsmith2",
+  "source_draft": "/Users/mac/Movies/CapCut/User Data/Projects/com.lveditor.draft/cutsmith2/Timelines/A90A6676-4E3C-4828-9687-301F08635DB5/draft_info.json",
+  "app_version": 360000,
+  "duration_us": 60000000,
+  "collected_root": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2",
+  "relink_root_hint": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media",
+  "path_mode": "collected_absolute",
+  "package_portable": "full",
+  "stats": {
+    "total_assets": 14,
+    "online_count": 12,
+    "offline_count": 2,
+    "cached_count": 3,
+    "total_online_size_bytes": 254800951,
+    "report_only_count": 2,
+    "normalized_extension_count": 1
+  },
+  "videos": [
+    {
+      "asset_id": "CD7A548A-4DF8-402E-8DE5-D8C28B2E6344",
+      "name": "  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 43415047,
+      "duration_us": 41900000,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "9A3A2117-5CC6-43EC-B932-40DC6EDA1511",
+      "name": "  After Effects  Premiere Pro Stylish Posters.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 18809733,
+      "duration_us": 27033333,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "7CECEB7B-EF73-40AE-8B47-5A9ABA558166",
+      "name": "  After Effects Glass UI Gadgets.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/  After Effects Glass UI Gadgets.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/  After Effects Glass UI Gadgets.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 14665000,
+      "duration_us": 22800000,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/  After Effects Glass UI Gadgets.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "D1FA123E-59D6-4AE0-B472-2CDF9F927CD8",
+      "name": "  Looping Titles  US3R     .mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/  Looping Titles  US3R     .mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/  Looping Titles  US3R     .mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 9723547,
+      "duration_us": 68333333,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/  Looping Titles  US3R     .mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "D63AD8B1-55CE-4B39-8E02-9C575F644851",
+      "name": "0_2d_Logo_Reveal_1920x1080.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/0_2d_Logo_Reveal_1920x1080.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/0_2d_Logo_Reveal_1920x1080.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 14242893,
+      "duration_us": 25000000,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/0_2d_Logo_Reveal_1920x1080.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "0BC270DA-5552-4D3A-A1DD-21DDF210DC08",
+      "name": "0_Animation_Cinematic_3840x2160.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/0_Animation_Cinematic_3840x2160.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/0_Animation_Cinematic_3840x2160.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 86575715,
+      "duration_us": 29833333,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/0_Animation_Cinematic_3840x2160.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "5AA7E4FC-5619-43F2-BB73-792848381AEF",
+      "name": "0_Logo_Thunder_Motion_1920x1080.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/0_Logo_Thunder_Motion_1920x1080.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/0_Logo_Thunder_Motion_1920x1080.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 28105877,
+      "duration_us": 20000000,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/0_Logo_Thunder_Motion_1920x1080.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "0E00BBB1-7212-488D-9DDF-CFEDF64DDC36",
+      "name": "  After Effects  Premiere Pro Stylish Posters.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/cutsmith/edit/demo/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "resolved_path": "/Users/mac/cutsmith/edit/demo/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 18809733,
+      "duration_us": 27033333,
+      "used_in_tracks": [
+        "VIDEO2"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/  After Effects  Premiere Pro Stylish Posters.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    }
+  ],
+  "audios": [
+    {
+      "asset_id": "4687A9AA-494A-40D3-8327-F18725524A10",
+      "name": "2050 - The Last Dance.mp3",
+      "asset_class": "user_audio",
+      "original_path": "/Users/mac/workspace/assets/audio/bgm/ArtlistMusic/2050 - The Last Dance.mp3",
+      "resolved_path": "/Users/mac/workspace/assets/audio/bgm/ArtlistMusic/2050 - The Last Dance.mp3",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 8857018,
+      "duration_us": 221300000,
+      "used_in_tracks": [
+        "AUDIO4"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/audio/2050 - The Last Dance.mp3",
+      "original_extension": ".mp3",
+      "detected_extension": ".mp3",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "1FB25E0E-4CBB-4B9A-A7F0-95B4428BA20C",
+      "name": "2050 - The Last Dance.mp3",
+      "asset_class": "user_audio",
+      "original_path": "/Users/mac/workspace/assets/audio/bgm/ArtlistMusic/2050 - The Last Dance.mp3",
+      "resolved_path": "/Users/mac/workspace/assets/audio/bgm/ArtlistMusic/2050 - The Last Dance.mp3",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 8857018,
+      "duration_us": 221300000,
+      "used_in_tracks": [
+        "AUDIO4"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/audio/2050 - The Last Dance.mp3",
+      "original_extension": ".mp3",
+      "detected_extension": ".mp3",
+      "extension_normalized": false
+    }
+  ],
+  "music": [],
+  "sfx": [
+    {
+      "asset_id": "046DA6D3-89C2-45A6-AECC-DCC42D8FD481",
+      "name": "Cinematic Whoosh Hit Low 2",
+      "asset_class": "capcut_sfx",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/music/ec26041d833dd78bc1a88eb9eca84b71.mp3",
+      "resolved_path": "/Users/mac/Movies/CapCut/User Data/Cache/music/ec26041d833dd78bc1a88eb9eca84b71.mp3",
+      "is_cached": true,
+      "is_online": true,
+      "file_size_bytes": 130305,
+      "duration_us": 7966666,
+      "used_in_tracks": [
+        "AUDIO5"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/sfx/ec26041d833dd78bc1a88eb9eca84b71.m4a",
+      "original_extension": ".mp3",
+      "detected_extension": ".m4a",
+      "extension_normalized": true
+    }
+  ],
+  "images": [
+    {
+      "asset_id": "31134CA4-5057-4759-837F-A84AD7E18E5E",
+      "name": "image.png",
+      "asset_class": "user_image",
+      "original_path": "/Users/mac/Downloads/image.png",
+      "resolved_path": "/Users/mac/Downloads/image.png",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 2609065,
+      "duration_us": 10800000000,
+      "used_in_tracks": [
+        "VIDEO2"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/images/image.png",
+      "original_extension": ".png",
+      "detected_extension": ".png",
+      "extension_normalized": false
+    }
+  ],
+  "stickers": [],
+  "effects": [
+    {
+      "asset_id": "220D9CD5-2163-49E1-A6B4-B7540A8077FE",
+      "name": "220D9CD5-2163-49E1-A6B4-B7540A8077FE",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7501974767453474064/26e574bcfa176c3c1a1f7fd5df0a4996",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "FDC95CC7-0EAD-4B12-95EA-58D73B22A65F",
+      "name": "Card Aura",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7517835491857681665/924da2e794bafd13f465807ff3adc46b",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    }
+  ],
+  "filters": [],
+  "transitions": [],
+  "fonts": [],
+  "offline": [
+    {
+      "asset_id": "220D9CD5-2163-49E1-A6B4-B7540A8077FE",
+      "name": "220D9CD5-2163-49E1-A6B4-B7540A8077FE",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7501974767453474064/26e574bcfa176c3c1a1f7fd5df0a4996",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "FDC95CC7-0EAD-4B12-95EA-58D73B22A65F",
+      "name": "Card Aura",
+      "asset_class": "capcut_effect",
+      "original_path": "/Users/mac/Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Cache/effect/7517835491857681665/924da2e794bafd13f465807ff3adc46b",
+      "resolved_path": null,
+      "is_cached": true,
+      "is_online": false,
+      "file_size_bytes": null,
+      "duration_us": null,
+      "used_in_tracks": [],
+      "clip_count": 0,
+      "collect_relative_path": null,
+      "original_extension": null,
+      "detected_extension": null,
+      "extension_normalized": false
+    }
+  ]
+}

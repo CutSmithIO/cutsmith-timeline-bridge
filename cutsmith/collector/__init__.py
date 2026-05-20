@@ -10,14 +10,20 @@
   7. _write_offline_report() → <stem>.offline.md if any assets are offline
   8. write manifest JSON     → with collect_relative_path populated per entry
 
-What gets copied
-----------------
+What gets copied by default
+----------------------------
   user_video   → media/video/
   user_audio   → media/audio/  (but see embedded audio rule below)
-  capcut_music → media/music/    (licensing note written in report)
-  capcut_sfx   → media/sfx/
   user_image   → media/images/
-  capcut_sticker (online only, rare) → media/stickers/
+
+What is NOT copied by default (platform assets)
+-------------------------------------------------
+  capcut_music, capcut_sfx, capcut_sticker — detected and reported, but not
+  physically copied. These assets may be licensed for use only within the
+  CapCut/TikTok platform. Copying them does not transfer any usage rights.
+  Pass include_platform_assets=True (CLI: --include-cached-platform-assets)
+  to include them. Users are responsible for verifying rights before using
+  platform assets outside CapCut, particularly in published content.
 
 Embedded audio dedup rule (v0.3.6)
 -----------------------------------
@@ -63,17 +69,25 @@ from cutsmith.writer import write_fcp7_xml
 _COPY_CLASS_TO_SUBDIR: dict[AssetClass, str] = {
     AssetClass.USER_VIDEO:      "video",
     AssetClass.USER_AUDIO:      "audio",
+    AssetClass.USER_IMAGE:      "images",
+    # platform asset subdirs — only used when include_platform_assets=True
     AssetClass.CAPCUT_MUSIC:    "music",
     AssetClass.CAPCUT_SFX:      "sfx",
-    AssetClass.USER_IMAGE:      "images",
     AssetClass.CAPCUT_STICKER:  "stickers",
 }
 
-# These classes are never copied regardless of online status.
+# These classes are never copied regardless of online status or flags.
 _REPORT_ONLY_CLASSES: frozenset[AssetClass] = frozenset({
     AssetClass.CAPCUT_EFFECT,
     AssetClass.CAPCUT_FONT,
     AssetClass.UNKNOWN,
+})
+
+# These classes are skipped by default but copyable when include_platform_assets=True.
+_PLATFORM_CLASSES: frozenset[AssetClass] = frozenset({
+    AssetClass.CAPCUT_MUSIC,
+    AssetClass.CAPCUT_SFX,
+    AssetClass.CAPCUT_STICKER,
 })
 
 # A USER_AUDIO entry whose source has one of these extensions and resolves to
@@ -109,7 +123,8 @@ class CollectStats:
     deduped_count: int = 0                # same physical file, same subdir
     embedded_audio_reused_count: int = 0  # USER_AUDIO reusing existing video copy
     offline_count: int = 0               # online=False AND copyable class
-    skipped_report_only_count: int = 0   # CAPCUT_EFFECT / FONT / UNKNOWN
+    skipped_report_only_count: int = 0   # CAPCUT_EFFECT / FONT / UNKNOWN (never portable)
+    skipped_platform_asset_count: int = 0 # CAPCUT_MUSIC/SFX/STICKER skipped by default policy
     total_copied_size_bytes: int = 0
     extension_normalized_count: int = 0  # files whose extension was corrected
 
@@ -136,8 +151,18 @@ def collect(
     out_dir: str | Path,
     search_roots: list[str | Path] | None = None,
     name: str | None = None,
+    include_platform_assets: bool = False,
 ) -> CollectResult:
-    """Run the full collect pipeline. Returns a CollectResult."""
+    """Run the full collect pipeline for project portability. Returns a CollectResult.
+
+    Copies user-owned media (video, audio, image) to a portable package directory,
+    rewrites XML path references, and generates relink guide, manifest, and reports.
+
+    By default, only user-owned media is copied. CapCut library music, SFX, and
+    stickers are detected and logged but not physically copied — they may be
+    licensed for use only within the CapCut/TikTok platform. Set
+    include_platform_assets=True to include them; this does not transfer usage rights.
+    """
     project_path = Path(project_path)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -155,7 +180,10 @@ def collect(
     resolution = resolve_media_paths(timeline, search_roots or [])
 
     media_dir = out_dir / "media"
-    path_override, stats = _copy_online_assets(manifest, media_dir, out_dir)
+    path_override, stats = _copy_online_assets(
+        manifest, media_dir, out_dir,
+        include_platform_assets=include_platform_assets,
+    )
 
     # Populate collect-specific manifest fields now that stats are known.
     manifest.collected_root = str(out_dir.resolve())
@@ -163,6 +191,7 @@ def collect(
     manifest.path_mode = "collected_absolute"
     manifest.package_portable = "full" if stats.offline_count == 0 else "partial"
     manifest.report_only_count = stats.skipped_report_only_count
+    manifest.skipped_platform_asset_count = stats.skipped_platform_asset_count
     manifest.normalized_extension_count = stats.extension_normalized_count
 
     xml_path = out_dir / f"{stem}.xml"
@@ -224,6 +253,7 @@ def _copy_online_assets(
     manifest: AssetManifest,
     media_dir: Path,
     out_dir: Path,
+    include_platform_assets: bool = False,
 ) -> tuple[dict[str, str], CollectStats]:
     """Copy every online copyable asset to media/<subdir>/.
 
@@ -231,6 +261,9 @@ def _copy_online_assets(
     path_override maps asset_id → absolute destination path string.
     Mutates manifest entries: sets collect_relative_path, original_extension,
     detected_extension, and extension_normalized on copied entries.
+
+    By default, only user-owned media is copied. Platform assets (CapCut music,
+    SFX, stickers) are skipped unless include_platform_assets=True.
 
     Embedded audio dedup: USER_AUDIO entries whose source is a video-format
     file already copied as USER_VIDEO reuse the video copy instead of being
@@ -250,6 +283,12 @@ def _copy_online_assets(
 
         if entry.asset_class in _REPORT_ONLY_CLASSES:
             stats.skipped_report_only_count += 1
+            continue
+
+        # Platform assets: skip by default; copy only when explicitly requested.
+        if entry.asset_class in _PLATFORM_CLASSES and not include_platform_assets:
+            if entry.is_online and entry.resolved_path:
+                stats.skipped_platform_asset_count += 1
             continue
 
         if not entry.is_online or not entry.resolved_path:
@@ -380,7 +419,9 @@ def _write_collect_report(
         if stats.extension_normalized_count:
             f.write(f"| Extension normalized | {stats.extension_normalized_count} |\n")
         f.write(f"| Offline (not copied) | {stats.offline_count} |\n")
-        f.write(f"| Report-only (proprietary) | {stats.skipped_report_only_count} |\n")
+        if stats.skipped_platform_asset_count:
+            f.write(f"| CapCut library assets (not copied — user-owned only by default) | {stats.skipped_platform_asset_count} |\n")
+        f.write(f"| CapCut-proprietary (effects/transitions/filters — not portable) | {stats.skipped_report_only_count} |\n")
         f.write(f"| Total copied size | {sz_mb:.1f} MB |\n")
         f.write("\n")
 
@@ -403,16 +444,21 @@ def _write_collect_report(
             f.write("\n")
 
         f.write(
-            "**CapCut proprietary assets** (effects, transitions, filters, stickers) "
-            "are **not portable** — they cannot be transferred outside CapCut. "
-            "Rebuild them using Premiere's native equivalents.\n\n"
+            "**Interoperability scope**: CutSmith is a workflow portability tool that "
+            "migrates your own rough-cut timeline structure and user-owned media into a "
+            "portable Premiere package. By default, only user-owned video, audio, and "
+            "image files are included. CapCut library music, SFX, and stickers are "
+            "detected and listed in this report but **not copied by default** — these "
+            "assets may be licensed for use only within the CapCut/TikTok platform. "
+            "Replace them with licensed audio in Premiere, or re-source from a licensed "
+            "library. Copying platform assets does not transfer any usage rights; users "
+            "are responsible for licensing compliance before publishing.\n\n"
+            "CutSmith is not affiliated with ByteDance, CapCut, or Jianying.\n\n"
         )
         f.write(
-            "**Third-party asset licensing**: music tracks, SFX, and sticker assets "
-            "copied from the CapCut cache may be subject to CapCut's or third-party "
-            "licensors' terms. Copying them into a portable package does not transfer "
-            "usage rights. Verify distribution rights before publishing content that "
-            "includes CapCut library assets, particularly for commercial use.\n\n"
+            "**CapCut-proprietary assets** (effects, transitions, filters) "
+            "are not portable outside CapCut and are absent from `media/`. "
+            "Rebuild them using Premiere's native equivalents.\n\n"
         )
         f.write(
             "**Speed-changed clips**: CutSmith emits an explicit FCP7 `timeremap` filter "
@@ -470,8 +516,11 @@ def _write_package_summary(
     relink_hint = manifest.relink_root_hint or str((output_path.parent / "media").resolve())
 
     lines: list[str] = []
-    lines.append("CutSmith Timeline Bridge — Portable Package Summary")
+    lines.append("CutSmith Timeline Bridge — Portable Handoff Package")
     lines.append("=" * 51)
+    lines.append("")
+    lines.append("CutSmith is an independent interoperability tool. Not affiliated")
+    lines.append("with ByteDance, CapCut, or Jianying.")
     lines.append("")
     lines.append(f"Project:  {manifest.project_name}")
     lines.append("")
@@ -509,8 +558,19 @@ def _write_package_summary(
     if stats.offline_count:
         lines.append(f"  → see {stem}.offline.md for details and suggested actions")
     else:
-        lines.append("  → none — package is fully self-contained")
+        lines.append("  → none — all user media is self-contained")
     lines.append("")
+
+    if stats.skipped_platform_asset_count:
+        lines.append("CapCut library assets detected (not copied by default):")
+        lines.append(f"  {stats.skipped_platform_asset_count}")
+        lines.append("  → CapCut library music, SFX, and stickers")
+        lines.append("  → these assets may be licensed for CapCut/TikTok platform use only")
+        lines.append("  → copying does not transfer usage rights")
+        lines.append("  → replace with licensed audio in Premiere before publishing")
+        lines.append("  → use --include-cached-platform-assets (CLI) or Advanced option in GUI")
+        lines.append("    only if you have verified rights to use these assets outside CapCut")
+        lines.append("")
 
     lines.append("CapCut-proprietary assets (not transferable outside CapCut):")
     lines.append(f"  {stats.skipped_report_only_count}")
@@ -556,6 +616,14 @@ def _write_relink_guide(
         "Generated by `cutsmith collect`. Keep this file with the package "
         "so any editor who opens it knows where to find the media.\n"
     )
+    lines.append(
+        "**Scope**: this package contains your user-owned media (video, audio, images) "
+        "and the FCP7 XML timeline structure. CapCut library music, SFX, and stickers "
+        "are detected and listed in `report.md` but are **not included by default** — "
+        "these assets may be licensed for use only within the CapCut/TikTok platform. "
+        "Replace them with licensed audio in Premiere, or re-source from a licensed "
+        "library before publishing.\n"
+    )
 
     lines.append("\n## Importing into Premiere\n")
     lines.append(f"1. `File → Import…`, select `{stem}.xml`.")
@@ -585,17 +653,12 @@ def _write_relink_guide(
     lines.append("media/")
     lines.append("├── video/      ← user video clips")
     lines.append("├── audio/      ← user audio / voiceover")
-    lines.append("├── images/     ← image overlays and thumbnails")
-    lines.append("├── music/      ← CapCut music library tracks *")
-    lines.append("├── sfx/        ← CapCut SFX *")
-    lines.append("└── stickers/   ← sticker assets (rare)")
+    lines.append("└── images/     ← image overlays and thumbnails")
     lines.append("```\n")
     lines.append(
-        "\\* **Third-party asset licensing**: music, SFX, and sticker files "
-        "copied from the CapCut cache may carry licensing terms from CapCut or "
-        "third-party rights holders. Copying them into a portable package does "
-        "not transfer usage rights. Verify distribution rights before publishing "
-        "content that includes CapCut library assets.\n"
+        "Only user-owned media is included by default. CapCut library music, SFX, and "
+        "stickers are detected and reported but not physically copied into `media/`. "
+        "Replace them with licensed audio in Premiere, or re-source from your licensed library.\n"
     )
 
     lines.append("\n## Assets NOT included\n")
@@ -696,9 +759,10 @@ def _write_offline_report(
     if capcut_offline:
         lines.append("\n## CapCut assets — not portable\n")
         lines.append(
-            "These assets live inside the CapCut application cache or bundle "
-            "and cannot be transferred to other systems. Rebuild them using "
-            "Premiere's native equivalents or third-party resources.\n"
+            "These assets are part of the CapCut platform and are not portable "
+            "to other editing environments. Rebuild them using Premiere's native "
+            "effects, transitions, and filters, or source replacements from a "
+            "licensed third-party library.\n"
         )
         for e in capcut_offline:
             tracks = ", ".join(e.used_in_tracks) or "unreferenced"

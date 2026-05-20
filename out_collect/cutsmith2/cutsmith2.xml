@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmeml>
+<xmeml version="5">
+  <clip id="masterclip-CD7A548A-4DF8-402E-8DE5-D8C28B2E6344">
+    <name>  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4</name>
+    <duration>1257</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-CD7A548A-4DF8-402E-8DE5-D8C28B2E6344">
+      <name>  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/%20%200-29%20%3A%200-41%20%20%20Minimalist%20Social%20Media%20Subscribe%20Button%20Animation.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>1257</duration>
+      <media>
+        <video>
+          <duration>1257</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-9A3A2117-5CC6-43EC-B932-40DC6EDA1511">
+    <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+    <duration>811</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-9A3A2117-5CC6-43EC-B932-40DC6EDA1511">
+      <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/%20%20After%20Effects%20%20Premiere%20Pro%20Stylish%20Posters.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>811</duration>
+      <media>
+        <video>
+          <duration>811</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-7CECEB7B-EF73-40AE-8B47-5A9ABA558166">
+    <name>  After Effects Glass UI Gadgets.mp4</name>
+    <duration>684</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-7CECEB7B-EF73-40AE-8B47-5A9ABA558166">
+      <name>  After Effects Glass UI Gadgets.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/%20%20After%20Effects%20Glass%20UI%20Gadgets.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>684</duration>
+      <media>
+        <video>
+          <duration>684</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-D1FA123E-59D6-4AE0-B472-2CDF9F927CD8">
+    <name>  Looping Titles  US3R     .mp4</name>
+    <duration>2050</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-D1FA123E-59D6-4AE0-B472-2CDF9F927CD8">
+      <name>  Looping Titles  US3R     .mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/%20%20Looping%20Titles%20%20US3R%20%20%20%20%20.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>2050</duration>
+      <media>
+        <video>
+          <duration>2050</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-D63AD8B1-55CE-4B39-8E02-9C575F644851">
+    <name>0_2d_Logo_Reveal_1920x1080.mp4</name>
+    <duration>750</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-D63AD8B1-55CE-4B39-8E02-9C575F644851">
+      <name>0_2d_Logo_Reveal_1920x1080.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/0_2d_Logo_Reveal_1920x1080.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>750</duration>
+      <media>
+        <video>
+          <duration>750</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-0BC270DA-5552-4D3A-A1DD-21DDF210DC08">
+    <name>0_Animation_Cinematic_3840x2160.mp4</name>
+    <duration>895</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-0BC270DA-5552-4D3A-A1DD-21DDF210DC08">
+      <name>0_Animation_Cinematic_3840x2160.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/0_Animation_Cinematic_3840x2160.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>895</duration>
+      <media>
+        <video>
+          <duration>895</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-5AA7E4FC-5619-43F2-BB73-792848381AEF">
+    <name>0_Logo_Thunder_Motion_1920x1080.mp4</name>
+    <duration>600</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-5AA7E4FC-5619-43F2-BB73-792848381AEF">
+      <name>0_Logo_Thunder_Motion_1920x1080.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/0_Logo_Thunder_Motion_1920x1080.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>600</duration>
+      <media>
+        <video>
+          <duration>600</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-0E00BBB1-7212-488D-9DDF-CFEDF64DDC36">
+    <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+    <duration>811</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-0E00BBB1-7212-488D-9DDF-CFEDF64DDC36">
+      <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/video/%20%20After%20Effects%20%20Premiere%20Pro%20Stylish%20Posters.mp4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>811</duration>
+      <media>
+        <video>
+          <duration>811</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-31134CA4-5057-4759-837F-A84AD7E18E5E">
+    <name>image.png</name>
+    <duration>324000</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-31134CA4-5057-4759-837F-A84AD7E18E5E">
+      <name>image.png</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/images/image.png</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>324000</duration>
+      <media>
+        <video>
+          <duration>324000</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1536</width>
+            <height>1024</height>
+          </samplecharacteristics>
+        </video>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-4687A9AA-494A-40D3-8327-F18725524A10">
+    <name>2050 - The Last Dance.mp3</name>
+    <duration>6639</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-4687A9AA-494A-40D3-8327-F18725524A10">
+      <name>2050 - The Last Dance.mp3</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/audio/2050%20-%20The%20Last%20Dance.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>6639</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-1FB25E0E-4CBB-4B9A-A7F0-95B4428BA20C">
+    <name>2050 - The Last Dance.mp3</name>
+    <duration>6639</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-1FB25E0E-4CBB-4B9A-A7F0-95B4428BA20C">
+      <name>2050 - The Last Dance.mp3</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/audio/2050%20-%20The%20Last%20Dance.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>6639</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-046DA6D3-89C2-45A6-AECC-DCC42D8FD481">
+    <name>Cinematic Whoosh Hit Low 2</name>
+    <duration>239</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-046DA6D3-89C2-45A6-AECC-DCC42D8FD481">
+      <name>Cinematic Whoosh Hit Low 2</name>
+      <pathurl>file:///Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/cutsmith2/media/sfx/ec26041d833dd78bc1a88eb9eca84b71.m4a</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>239</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <sequence id="sequence-1">
+    <name>cutsmith2</name>
+    <duration>1800</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <timecode>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <string>00:00:00:00</string>
+      <frame>0</frame>
+      <displayformat>NDF</displayformat>
+    </timecode>
+    <media>
+      <video>
+        <format>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1080</height>
+            <pixelaspectratio>square</pixelaspectratio>
+            <fielddominance>none</fielddominance>
+            <colordepth>24</colordepth>
+          </samplecharacteristics>
+        </format>
+        <track>
+          <clipitem id="clipitem-4CD8C853-CC2C-4380-B64B-3B220E775041">
+            <masterclipid>masterclip-CD7A548A-4DF8-402E-8DE5-D8C28B2E6344</masterclipid>
+            <name>  0-29 : 0-41   Minimalist Social Media Subscribe Button Animation.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>317</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>317</end>
+            <in>0</in>
+            <out>317</out>
+            <file id="file-CD7A548A-4DF8-402E-8DE5-D8C28B2E6344"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-13256D2C-AC8C-4385-9F9F-4BB9070F9C15">
+            <masterclipid>masterclip-9A3A2117-5CC6-43EC-B932-40DC6EDA1511</masterclipid>
+            <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>265</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>317</start>
+            <end>582</end>
+            <in>0</in>
+            <out>265</out>
+            <file id="file-9A3A2117-5CC6-43EC-B932-40DC6EDA1511"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-6A5691D6-A22A-4507-8F80-145A94BA59DA">
+            <masterclipid>masterclip-7CECEB7B-EF73-40AE-8B47-5A9ABA558166</masterclipid>
+            <name>  After Effects Glass UI Gadgets.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>220</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>582</start>
+            <end>802</end>
+            <in>0</in>
+            <out>220</out>
+            <file id="file-7CECEB7B-EF73-40AE-8B47-5A9ABA558166"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-DA4B3099-B2D3-4542-AAAB-BA383D33982F">
+            <masterclipid>masterclip-D1FA123E-59D6-4AE0-B472-2CDF9F927CD8</masterclipid>
+            <name>  Looping Titles  US3R     .mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>414</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>802</start>
+            <end>1216</end>
+            <in>0</in>
+            <out>414</out>
+            <file id="file-D1FA123E-59D6-4AE0-B472-2CDF9F927CD8"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-773F3807-3DC9-418C-A782-8C4E82A8E536">
+            <masterclipid>masterclip-D63AD8B1-55CE-4B39-8E02-9C575F644851</masterclipid>
+            <name>0_2d_Logo_Reveal_1920x1080.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>196</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1216</start>
+            <end>1412</end>
+            <in>0</in>
+            <out>196</out>
+            <file id="file-D63AD8B1-55CE-4B39-8E02-9C575F644851"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-5A999214-F37F-4855-BC5C-B7508A212ADD">
+            <masterclipid>masterclip-0BC270DA-5552-4D3A-A1DD-21DDF210DC08</masterclipid>
+            <name>0_Animation_Cinematic_3840x2160.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>293</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1412</start>
+            <end>1705</end>
+            <in>0</in>
+            <out>293</out>
+            <file id="file-0BC270DA-5552-4D3A-A1DD-21DDF210DC08"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-7D814AFF-BC93-4B68-BB2E-054A1BA5C7E7">
+            <masterclipid>masterclip-5AA7E4FC-5619-43F2-BB73-792848381AEF</masterclipid>
+            <name>0_Logo_Thunder_Motion_1920x1080.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>95</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1705</start>
+            <end>1800</end>
+            <in>0</in>
+            <out>95</out>
+            <file id="file-5AA7E4FC-5619-43F2-BB73-792848381AEF"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-AF3A0ECC-0AAF-441E-ADE0-58E2CEA55428">
+            <masterclipid>masterclip-0E00BBB1-7212-488D-9DDF-CFEDF64DDC36</masterclipid>
+            <name>  After Effects  Premiere Pro Stylish Posters.mp4</name>
+            <enabled>TRUE</enabled>
+            <duration>265</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>70</start>
+            <end>484</end>
+            <in>0</in>
+            <out>265</out>
+            <file id="file-0E00BBB1-7212-488D-9DDF-CFEDF64DDC36"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>64.0097</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-B243624B-6F48-4FD8-8FBC-24DC202BCAF3">
+            <masterclipid>masterclip-31134CA4-5057-4759-837F-A84AD7E18E5E</masterclipid>
+            <name>image.png</name>
+            <enabled>TRUE</enabled>
+            <duration>293</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1412</start>
+            <end>1705</end>
+            <in>0</in>
+            <out>293</out>
+            <file id="file-31134CA4-5057-4759-837F-A84AD7E18E5E"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+      </video>
+      <audio>
+        <format>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+        </format>
+        <numOutputChannels>2</numOutputChannels>
+        <track>
+          <clipitem id="clipitem-1E59240B-3DB8-4F7D-B2FC-4616027F2B9A">
+            <masterclipid>masterclip-4687A9AA-494A-40D3-8327-F18725524A10</masterclipid>
+            <name>2050 - The Last Dance.mp3</name>
+            <enabled>TRUE</enabled>
+            <duration>802</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>802</end>
+            <in>0</in>
+            <out>802</out>
+            <file id="file-4687A9AA-494A-40D3-8327-F18725524A10"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-0A0D70AC-69B7-42B4-BEDD-4FC47E46EEE0">
+            <masterclipid>masterclip-1FB25E0E-4CBB-4B9A-A7F0-95B4428BA20C</masterclipid>
+            <name>2050 - The Last Dance.mp3</name>
+            <enabled>TRUE</enabled>
+            <duration>584</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1216</start>
+            <end>1800</end>
+            <in>1216</in>
+            <out>1800</out>
+            <file id="file-1FB25E0E-4CBB-4B9A-A7F0-95B4428BA20C"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-CF98FA81-1D78-4EDE-A6D5-39504C913D7E">
+            <masterclipid>masterclip-046DA6D3-89C2-45A6-AECC-DCC42D8FD481</masterclipid>
+            <name>Cinematic Whoosh Hit Low 2</name>
+            <enabled>TRUE</enabled>
+            <duration>239</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>679</start>
+            <end>918</end>
+            <in>0</in>
+            <out>239</out>
+            <file id="file-046DA6D3-89C2-45A6-AECC-DCC42D8FD481"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+      </audio>
+    </media>
+  </sequence>
+</xmeml>

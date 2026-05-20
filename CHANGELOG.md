@@ -5,6 +5,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v0.4.1] — 2026-05-20
+
+### Changed (breaking — collector default behaviour)
+- **Platform asset policy**: CapCut music library tracks, SFX, and stickers are
+  now **detected but NOT copied** by default. Only user-owned media
+  (`USER_VIDEO`, `USER_AUDIO`, `USER_IMAGE`) is copied into the package.
+  - CLI flag `--include-cached-platform-assets` (default: `false`) opts in with
+    a mandatory licensing warning printed to stdout.
+  - GUI: "Include cached CapCut music / SFX assets" checkbox in the Advanced
+    section, unchecked by default.
+  - `CollectStats.skipped_platform_asset_count` tracks detected-but-skipped
+    platform assets per run.
+  - `AssetManifest.skipped_platform_asset_count` field exposed in
+    `manifest.json` under `stats`.
+  - `_PLATFORM_CLASSES` frozenset (`CAPCUT_MUSIC`, `CAPCUT_SFX`,
+    `CAPCUT_STICKER`) controls the boundary; `_REPORT_ONLY_CLASSES`
+    (`CAPCUT_EFFECT`, `CAPCUT_FONT`, `UNKNOWN`) unchanged.
+  - Package summary: "CapCut library assets detected (not copied by default): N"
+    section added when non-zero.
+  - Collect report: new "Interoperability scope" paragraph documenting the
+    boundary and licensing note.
+  - Relink guide: scope note added; `media/music/` and `media/sfx/` subdirs
+    removed from layout diagram (not produced by default).
+
+### Added
+- GUI: "PLATFORM ASSETS — DETECTED, NOT COPIED" section in project readiness
+  center panel; platform rows rendered as muted `_AssetRow` entries.
+- GUI: `ExportDecisionPanel._refresh_include()` shows "⚠ N CapCut music tracks
+  — not copied by default" for detected platform assets.
+- GUI: `CollectWorker.stage = Signal(str)` — emits "Scanning assets…" before
+  `collect()` starts; wired to `ExportDecisionPanel.set_stage()`.
+- GUI: `_CollectSummaryDialog` shown after every successful collect: copied,
+  deduped, extension-normalised, offline, and non-portable counts; [Open
+  Package] [Reveal XML] [Dismiss] buttons.
+- GUI: `AnalysisResult.readiness_state` property
+  (`portable/limited/partial/encrypted/error`) drives badge colour.
+- GUI: app-level QSS via `app.setStyleSheet(APP_QSS)` so `QDialog` and all
+  top-level windows inherit the dark theme.
+- 5 new tests for platform asset policy (default skip + flag opt-in).
+
+### Tests
+- 299 tests total (up from 294).
+
+---
+
 ## [v0.4.0] — 2026-05-20
 
 ### Added

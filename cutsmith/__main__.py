@@ -5,7 +5,7 @@ Subcommands:
   detect       — classify a draft (project dir or single file).
   inspect      — analyze a draft's schema; write summary JSONs.
   convert      — full pipeline: draft → FCP7 XML + compatibility report.
-  export-srt   — extract subtitles/captions to SRT / TXT / JSON.
+  export-srt   — export subtitles/captions to SRT / TXT / JSON.
   scan-assets  — enumerate and classify all referenced materials.
   collect      — copy + relink: scan → copy media → rewrite XML paths.
 
@@ -62,7 +62,12 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(
         prog="cutsmith",
-        description="CapCut/JianyingPro draft → Premiere Pro FCP7 XML.",
+        description=(
+            "CutSmith Timeline Bridge — CapCut Desktop project interoperability tool.\n"
+            "Migrates your own rough-cut timeline structure and user-owned media into\n"
+            "a portable Premiere Pro package (FCP7 XML + media + relink guide).\n"
+            "Not affiliated with ByteDance, CapCut, or Jianying."
+        ),
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -123,9 +128,9 @@ def main(argv: list[str] | None = None) -> int:
     # ── export-srt ──────────────────────────────────────────────────────────── #
     p_srt = sub.add_parser(
         "export-srt",
-        help="Extract subtitles/captions to SRT, TXT, or JSON.",
+        help="Export subtitles/captions to SRT, TXT, or JSON.",
         description=(
-            "Extract all text/caption tracks from a draft and write them as "
+            "Export all text/caption tracks from a draft and write them as "
             "SRT (default), plain TXT, or structured JSON. Handles both "
             "plain-text segments (Pattern A) and animated subtitle templates "
             "(Pattern B / CapCut AI Captions)."
@@ -168,10 +173,12 @@ def main(argv: list[str] | None = None) -> int:
         "collect",
         help="Copy + relink: scan → copy media → rewrite XML paths.",
         description=(
-            "Full v0.3 collect pipeline: scan all materials, copy online user "
-            "assets to media/<class>/, rewrite XML <pathurl> to point at the "
-            "copied files, and write a manifest + offline report. The output "
-            "directory is a self-contained package ready to open in Premiere."
+            "Full collect pipeline: scan all materials, copy user-owned media "
+            "(video, audio, images) to media/<class>/, rewrite XML <pathurl> to "
+            "point at the copies, and write a manifest, compatibility report, and "
+            "relink guide. Output is a self-contained portable package ready to "
+            "import into Premiere. CapCut library music and SFX are detected and "
+            "reported but not copied by default — see --include-cached-platform-assets."
         ),
     )
     p_collect.add_argument("project",
@@ -188,6 +195,18 @@ def main(argv: list[str] | None = None) -> int:
                            help="Override sequence / project name")
     p_collect.add_argument("--open", action="store_true", dest="open_finder",
                            help="Open the output directory in Finder (macOS) after collect")
+    p_collect.add_argument(
+        "--include-cached-platform-assets",
+        action="store_true", dest="include_platform_assets", default=False,
+        help=(
+            "Include cached CapCut library music, SFX, and stickers in the package. "
+            "DEFAULT: OFF. CapCut/TikTok library assets may be licensed for use only "
+            "within the CapCut/TikTok platform. Copying these files does not transfer "
+            "any usage rights. Only enable if you have verified rights to use these "
+            "assets outside CapCut. CutSmith copies them as-is without modification, "
+            "transcoding, or decryption."
+        ),
+    )
     p_collect.set_defaults(func=_cmd_collect)
 
     args = parser.parse_args(argv)
@@ -397,13 +416,13 @@ def _print_scan_summary(m: AssetManifest) -> None:
     if m.images:
         print(f"  images:     {len(m.images)}")
     if m.stickers:
-        print(f"  stickers:   {len(m.stickers)} (not exported — CapCut proprietary)")
+        print(f"  stickers:   {len(m.stickers)} (CapCut proprietary — not portable)")
     if m.effects:
-        print(f"  effects:    {len(m.effects)} (not exported)")
+        print(f"  effects:    {len(m.effects)} (CapCut proprietary — not portable)")
     if m.filters:
-        print(f"  filters:    {len(m.filters)} (not exported)")
+        print(f"  filters:    {len(m.filters)} (CapCut proprietary — not portable)")
     if m.transitions:
-        print(f"  transitions:{len(m.transitions)} (not exported)")
+        print(f"  transitions:{len(m.transitions)} (CapCut proprietary — not portable)")
     if m.offline:
         print(f"  ⚠ offline:  {len(m.offline)} asset(s) unresolved")
         for e in m.offline[:5]:
@@ -447,7 +466,8 @@ def _render_scan_report(m: AssetManifest) -> str:
     _table("User Audio", m.audios)
     _table("CapCut Music", m.music,
            "Cached music library tracks. Licensing may be restricted to CapCut/TikTok platforms.")
-    _table("CapCut SFX", m.sfx)
+    _table("CapCut SFX", m.sfx,
+           "Cached SFX library assets. Licensing may be restricted to CapCut/TikTok platforms.")
     _table("Images", m.images)
     _table("Stickers", m.stickers, "Not exported — CapCut proprietary format.")
     _table("Effects", m.effects, "Not exported.")
@@ -463,7 +483,8 @@ def _render_scan_report(m: AssetManifest) -> str:
         lines.append("")
         lines.append("**Suggested actions**:\n")
         lines.append("- User media: use Premiere's \"Link Media\" after XML import.")
-        lines.append("- CapCut cache: re-download the asset in CapCut, then re-run scan.")
+        lines.append("- CapCut library asset: re-open the project in CapCut to restore the "
+                     "cache, then re-run scan. Verify licensing before using outside CapCut.")
         lines.append("")
 
     return "\n".join(lines)
@@ -483,12 +504,23 @@ def _cmd_collect(args: argparse.Namespace,
         project_name = args.name or _guess_project_name(draft_path)
         out_dir = Path("out_collect") / project_name
 
+    if getattr(args, "include_platform_assets", False):
+        print(
+            "⚠  WARNING: --include-cached-platform-assets is enabled.\n"
+            "   CapCut library music, SFX, and stickers may be licensed for use\n"
+            "   only within the CapCut/TikTok platform.\n"
+            "   Copying these files does not transfer any usage rights.\n"
+            "   Verify licensing before using these assets in published content.\n"
+            "   Assets are copied as-is — no modification, transcoding, or decryption.\n"
+        )
+
     try:
         result = _collect(
             project_path=project,
             out_dir=out_dir,
             search_roots=args.search_root or [],
             name=args.name,
+            include_platform_assets=getattr(args, "include_platform_assets", False),
         )
     except ValueError as e:
         parser.error(str(e))
@@ -520,7 +552,12 @@ def _cmd_collect(args: argparse.Namespace,
     if s.extension_normalized_count:
         _p("Ext normalized:", f"{s.extension_normalized_count} files")
     print()
-    _p("Report-only:", f"{s.skipped_report_only_count} assets (effects/transitions/filters)")
+    if s.skipped_platform_asset_count:
+        _p("Platform assets:", f"{s.skipped_platform_asset_count} detected — not copied (default)")
+        print("  → CapCut library music, SFX, and stickers (platform-licensed assets)")
+        print("  → not copied by default; verify licensing rights before use outside CapCut")
+        print("  → use --include-cached-platform-assets to include (verify rights first)")
+    _p("Not portable:", f"{s.skipped_report_only_count} assets (effects/transitions/filters)")
     _p("Offline:", f"{s.offline_count} assets not found")
     if result.offline_report_path:
         print(f"  ⚠  see {result.offline_report_path.name} for details")

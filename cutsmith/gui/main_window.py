@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QDialog,
     QHBoxLayout,
+    QLabel,
     QMainWindow,
     QProgressBar,
+    QPushButton,
     QStatusBar,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -100,8 +105,8 @@ class MainWindow(QMainWindow):
         self._set_status(f"Found {count} project(s)", busy=False)
         if count == 0:
             self._center.show_error(
-                "No CapCut projects found in default locations.\n"
-                "Use '+ Add Folder…' to locate your projects."
+                "No CapCut Desktop projects found in default locations.\n"
+                "Use '+ Add Folder…' to locate your projects manually."
             )
         else:
             from cutsmith.gui.panels.project_readiness import ProjectReadinessPanel
@@ -144,7 +149,7 @@ class MainWindow(QMainWindow):
 
     # ── collect ────────────────────────────────────────────────────────────────
 
-    def _on_collect_requested(self, out_dir: Path) -> None:
+    def _on_collect_requested(self, out_dir: Path, include_platform_assets: bool = False) -> None:
         if self._current_entry is None:
             return
         self._right.set_collecting(True)
@@ -152,7 +157,9 @@ class MainWindow(QMainWindow):
         w = CollectWorker(
             project_path=self._current_entry.path,
             out_dir=out_dir,
+            include_platform_assets=include_platform_assets,
         )
+        w.stage.connect(self._right.set_stage)
         w.finished.connect(lambda r: self._on_collect_done(r, out_dir))
         w.error.connect(self._on_collect_error)
         self._workers.append(w)
@@ -161,6 +168,7 @@ class MainWindow(QMainWindow):
     def _on_collect_done(self, result, out_dir: Path) -> None:
         self._right.set_collect_done(out_dir)
         self._set_status(f"Package ready → {out_dir.name}/", busy=False)
+        _CollectSummaryDialog(result, out_dir, self).exec()
 
     def _on_collect_error(self, msg: str) -> None:
         self._right.set_collecting(False)
@@ -192,3 +200,68 @@ class MainWindow(QMainWindow):
             self._progress.show()
         else:
             self._progress.hide()
+
+
+class _CollectSummaryDialog(QDialog):
+    """Compact success dialog shown after a collect completes."""
+
+    def __init__(self, result, out_dir: Path, parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Handoff Package Ready")
+        self.setFixedWidth(360)
+        self.setModal(True)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(20, 20, 20, 16)
+        lay.setSpacing(10)
+
+        head = QLabel("Portable handoff package created.")
+        head.setObjectName("cardName")
+        lay.addWidget(head)
+
+        s = result.stats
+        lines: list[str] = []
+        lines.append(f"{s.copied_count} media file{'s' if s.copied_count != 1 else ''} copied")
+        if s.deduped_count:
+            lines.append(f"{s.deduped_count} duplicate{'s' if s.deduped_count != 1 else ''} deduplicated")
+        if s.extension_normalized_count:
+            n = s.extension_normalized_count
+            lines.append(f"{n} file extension{'s' if n != 1 else ''} corrected")
+        if s.offline_count:
+            n = s.offline_count
+            lines.append(f"{n} asset{'s' if n != 1 else ''} offline — see offline.md")
+        if s.skipped_report_only_count:
+            n = s.skipped_report_only_count
+            lines.append(f"{n} CapCut-proprietary effect{'s' if n != 1 else ''} — not portable to Premiere")
+
+        detail = QLabel("\n".join(lines))
+        detail.setObjectName("riDetail")
+        detail.setWordWrap(True)
+        lay.addWidget(detail)
+
+        lay.addSpacing(4)
+
+        btn_row = QHBoxLayout()
+        btn_row.setSpacing(8)
+
+        btn_open = QPushButton("Open Package")
+        btn_open.setObjectName("collectBtn")
+        btn_open.clicked.connect(
+            lambda: (subprocess.run(["open", str(out_dir)], check=False), self.accept())
+        )
+
+        btn_xml = QPushButton("Reveal XML")
+        btn_xml.setObjectName("secondaryBtn")
+        xml_path = result.xml_path
+        btn_xml.clicked.connect(
+            lambda: (subprocess.run(["open", "-R", str(xml_path)], check=False), self.accept())
+        )
+
+        btn_close = QPushButton("Dismiss")
+        btn_close.setObjectName("lfBtn")
+        btn_close.clicked.connect(self.accept)
+
+        btn_row.addWidget(btn_open, 2)
+        btn_row.addWidget(btn_xml, 1)
+        btn_row.addWidget(btn_close, 1)
+        lay.addLayout(btn_row)

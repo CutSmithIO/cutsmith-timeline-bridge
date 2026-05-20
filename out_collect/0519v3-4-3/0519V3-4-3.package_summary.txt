@@ -1,0 +1,64 @@
+CutSmith Timeline Bridge — Portable Handoff Package
+===================================================
+
+CutSmith is an independent interoperability tool. Not affiliated
+with ByteDance, CapCut, or Jianying.
+
+Project:  0519V3-4-3
+
+Package root:
+  /Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V3-4-3
+
+Relink root  (paste into Premiere 'Link Media…'):
+  /Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519V3-4-3/media
+
+Files copied:
+  3 file(s)
+  393.7 MB
+
+Collected media:
+  video/      1 file
+  audio/      1 file
+  music/      3 files
+  sfx/        3 files
+  images/     1 file
+  stickers/   0 files
+
+Embedded audio reused from video assets:
+  1 (same physical file — no extra copy in media/audio/)
+
+Offline assets (not copied — file not found):
+  0
+  → none — all user media is self-contained
+
+CapCut library assets detected (not copied by default):
+  6
+  → CapCut library music, SFX, and stickers
+  → these assets may be licensed for CapCut/TikTok platform use only
+  → copying does not transfer usage rights
+  → replace with licensed audio in Premiere before publishing
+  → use --include-cached-platform-assets (CLI) or Advanced option in GUI
+    only if you have verified rights to use these assets outside CapCut
+
+CapCut-proprietary assets (not transferable outside CapCut):
+  0
+  → effects / transitions / filters / fonts
+  → listed in report.md; rebuild in Premiere using native equivalents
+
+Premiere import:
+  1. File → Import…  →  select 0519V3-4-3.xml
+     (do NOT use Open Project)
+  2. Sequence and Project panel source items appear automatically.
+  3. If clips show as Offline:
+     right-click → Link Media… → navigate to the Relink root above.
+
+  XML pathurl: all paths point to collected media/ — absolute.
+  Portability: move this directory to another machine,
+               then relink using the Relink root above.
+
+Known limitations:
+  - Variable speed curves are report-only (clips play at 1.0× in Premiere).
+  - CapCut effects/transitions/filters are not reconstructed.
+  - Speed clips may show blank trim area past source boundary.
+    See 0519V3-4-3.relink_guide.md for the full edge-case note.
+

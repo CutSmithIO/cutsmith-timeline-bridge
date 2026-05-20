@@ -18,21 +18,30 @@ from PySide6.QtWidgets import (
 
 from cutsmith.gui.models import ProjectEntry
 from cutsmith.gui.style import (
-    ACCENT, ACCENT_DIM, ACCENT_SEL, BG_HOVER, BG_RAISED,
-    TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
+    ACCENT, ACCENT_SEL, BG_CONTROL, BG_ELEVATED,
+    GREEN, RED, TEXT_FAINT, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
 )
 
 _GROUP_ORDER  = ["capcut", "jianying", "encrypted", "unknown"]
 _GROUP_LABELS = {
     "capcut":    "CAPCUT PROJECTS",
     "jianying":  "JIANYING PROJECTS",
-    "encrypted": "ENCRYPTED / UNSUPPORTED",
+    "encrypted": "ENCRYPTED — NOT SUPPORTED",
     "unknown":   "OTHER",
 }
 
 
+def _dot_color(entry: ProjectEntry) -> str:
+    enc = (entry.detect.encryption or "").lower()
+    if enc not in ("", "none", "plaintext"):
+        return TEXT_FAINT
+    if entry.group == "unknown":
+        return RED
+    return GREEN
+
+
 class _ProjectItem(QWidget):
-    """Single project row — QWidget with two QLabels for full color control."""
+    """Single project row — status dot + name + meta subtitle."""
 
     clicked = Signal()
 
@@ -45,12 +54,34 @@ class _ProjectItem(QWidget):
         self.setCursor(Qt.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(14, 6, 12, 6)
-        lay.setSpacing(1)
+        enc = (entry.detect.encryption or "").lower()
+        self._is_enc = enc not in ("", "none", "plaintext")
 
-        self._name_lbl = QLabel(entry.display_name)
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(10, 9, 12, 9)
+        outer.setSpacing(8)
+
+        # Status dot
+        color = _dot_color(entry)
+        self._dot = QLabel()
+        self._dot.setFixedSize(8, 8)
+        self._dot.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self._dot.setStyleSheet(
+            f"background: {color}; border-radius: 4px; min-width: 8px; min-height: 8px;"
+        )
+        outer.addWidget(self._dot, 0, Qt.AlignVCenter)
+
+        # Name + meta
+        text_w = QWidget()
+        text_w.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        text_lay = QVBoxLayout(text_w)
+        text_lay.setContentsMargins(0, 0, 0, 0)
+        text_lay.setSpacing(1)
+
+        name_text = f"🔒  {entry.display_name}" if self._is_enc else entry.display_name
+        self._name_lbl = QLabel(name_text)
         self._name_lbl.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+
         sub = (
             f"{entry.app_label} · {entry.date_label}"
             if entry.date_label
@@ -58,9 +89,6 @@ class _ProjectItem(QWidget):
         )
         self._meta_lbl = QLabel(sub)
         self._meta_lbl.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-
-        enc = (entry.detect.encryption or "").lower()
-        self._is_enc = enc not in ("", "none", "plaintext")
 
         if self._is_enc:
             self._name_lbl.setObjectName("projNameDim")
@@ -70,8 +98,9 @@ class _ProjectItem(QWidget):
             self._name_lbl.setObjectName("projName")
             self._meta_lbl.setObjectName("projMeta")
 
-        lay.addWidget(self._name_lbl)
-        lay.addWidget(self._meta_lbl)
+        text_lay.addWidget(self._name_lbl)
+        text_lay.addWidget(self._meta_lbl)
+        outer.addWidget(text_w, 1)
 
         self._apply_state()
 
@@ -84,7 +113,9 @@ class _ProjectItem(QWidget):
 
     def enterEvent(self, event):
         if not self._selected and not self._is_enc:
-            self.setStyleSheet(f"background: {BG_HOVER}; border-left: 2px solid transparent;")
+            self.setStyleSheet(
+                f"background: {BG_CONTROL}; border-left: 2px solid transparent;"
+            )
         super().enterEvent(event)
 
     def leaveEvent(self, event):
@@ -103,21 +134,28 @@ class _ProjectItem(QWidget):
     def _apply_state(self):
         if self._is_enc:
             self.setStyleSheet(
-                f"background: transparent; border-left: 2px solid transparent;"
-                f" opacity: 0.45;"
+                "background: transparent; border-left: 2px solid transparent;"
             )
         elif self._selected:
             self.setStyleSheet(
                 f"background: {ACCENT_SEL}; border-left: 2px solid {ACCENT};"
             )
-            self._name_lbl.setStyleSheet(f"color: #ffffff; font-weight: 600; background: transparent;")
-            self._meta_lbl.setStyleSheet(f"color: {TEXT_SECONDARY}; background: transparent;")
+            self._name_lbl.setStyleSheet(
+                "color: #ffffff; font-weight: 600; background: transparent;"
+            )
+            self._meta_lbl.setStyleSheet(
+                f"color: {TEXT_SECONDARY}; background: transparent;"
+            )
         else:
             self.setStyleSheet(
-                f"background: transparent; border-left: 2px solid transparent;"
+                "background: transparent; border-left: 2px solid transparent;"
             )
-            self._name_lbl.setStyleSheet(f"color: {TEXT_PRIMARY}; font-weight: normal; background: transparent;")
-            self._meta_lbl.setStyleSheet(f"color: {TEXT_MUTED}; background: transparent;")
+            self._name_lbl.setStyleSheet(
+                f"color: {TEXT_PRIMARY}; font-weight: normal; background: transparent;"
+            )
+            self._meta_lbl.setStyleSheet(
+                f"color: {TEXT_MUTED}; background: transparent;"
+            )
 
 
 class ProjectDiscoveryPanel(QWidget):
@@ -138,10 +176,10 @@ class ProjectDiscoveryPanel(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # Header
+        # Header — setContentsMargins ensures proper height regardless of QSS padding support
         header = QLabel("PROJECTS")
         header.setObjectName("groupLabel")
-        header.setContentsMargins(14, 10, 12, 6)
+        header.setContentsMargins(14, 10, 14, 6)
         root.addWidget(header)
 
         # Scrollable list
@@ -149,11 +187,11 @@ class ProjectDiscoveryPanel(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setStyleSheet(f"background: {BG_RAISED}; border: none;")
-        scroll.viewport().setStyleSheet(f"background: {BG_RAISED};")
+        scroll.setStyleSheet(f"background: {BG_ELEVATED}; border: none;")
+        scroll.viewport().setStyleSheet(f"background: {BG_ELEVATED};")
 
         self._list_widget = QWidget()
-        self._list_widget.setStyleSheet(f"background: {BG_RAISED};")
+        self._list_widget.setStyleSheet(f"background: {BG_ELEVATED};")
         self._list_layout = QVBoxLayout(self._list_widget)
         self._list_layout.setContentsMargins(0, 4, 0, 4)
         self._list_layout.setSpacing(0)
@@ -163,10 +201,12 @@ class ProjectDiscoveryPanel(QWidget):
 
         # Footer
         footer = QWidget()
-        footer.setFixedHeight(44)
-        footer.setStyleSheet(f"background: {BG_RAISED}; border-top: 1px solid #3a3a3c;")
+        footer.setFixedHeight(48)
+        footer.setStyleSheet(
+            f"background: {BG_ELEVATED}; border-top: 1px solid {BG_CONTROL};"
+        )
         fl = QHBoxLayout(footer)
-        fl.setContentsMargins(8, 6, 8, 6)
+        fl.setContentsMargins(8, 7, 8, 7)
         fl.setSpacing(6)
         btn_add = QPushButton("+ Add Folder…")
         btn_add.setObjectName("lfBtn")
@@ -211,7 +251,7 @@ class ProjectDiscoveryPanel(QWidget):
                 continue
             lbl = QLabel(_GROUP_LABELS[g])
             lbl.setObjectName("groupLabel")
-            lbl.setContentsMargins(14, 8, 12, 3)
+            lbl.setContentsMargins(14, 8, 14, 3)
             self._list_layout.insertWidget(pos, lbl)
             pos += 1
             for e in entries:

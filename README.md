@@ -5,7 +5,7 @@
 Convert a CapCut Desktop timeline into a self-contained Premiere package:
 XML + physically-copied media + relink guide, ready to open on any machine.
 
-**Status**: v0.3.6-alpha  
+**Status**: v0.4.1  
 **Validated**: CapCut Desktop 167.0.0 · Premiere Pro 2024/2025 · Python ≥ 3.10
 
 [中文文档 →](README.zh-CN.md) · [Changelog →](CHANGELOG.md) · [Creator Beta →](docs/creator_beta.md)
@@ -29,16 +29,16 @@ CapCut Desktop draft_info.json
           │    └─ media/
           │         ├─ video/              ← user video clips (physically copied)
           │         ├─ audio/              ← standalone audio (not video-split dups)
-          │         ├─ music/              ← CapCut music library *
-          │         ├─ sfx/               ← CapCut SFX *
           │         └─ images/            ← image overlays
           │
           └─ Premiere opens the XML, sees all paths as local absolute paths.
              Project panel shows one source clip per unique asset.
              No "Link Media" step needed for collected assets.
-
-* verify licensing before publishing
 ```
+
+> **CapCut music, SFX, and stickers are detected and reported but NOT copied
+> by default.** Use `--include-cached-platform-assets` (CLI) or the Advanced
+> checkbox (GUI) only if you hold the rights to use those assets outside CapCut.
 
 CutSmith does three things:
 
@@ -125,9 +125,14 @@ update.
 ```bash
 # -o is optional; default: out_collect/<project_name>/
 python3 -m cutsmith collect "/path/to/CapCut/project" \
-  [-s "/path/to/footage"]   \   # repeat for multiple search roots
-  [--open]                        # open output folder in Finder (macOS)
+  [-s "/path/to/footage"]                   # repeat for multiple search roots
+  [--open]                                  # open output folder in Finder (macOS)
+  [--include-cached-platform-assets]        # also copy CapCut music/SFX — see legal notice
 ```
+
+By default only user-owned media is copied (video, audio, images). CapCut music
+library tracks, SFX, and stickers are detected and listed in the report but not
+included in the package.
 
 Then open the package:
 
@@ -159,18 +164,14 @@ out_collect/0519V/
 ├── 0519V.manifest.json
 ├── 0519V.offline.md              ← (when assets couldn't be found)
 └── media/
-    ├── video/
-    │   ├── 1034:5282281359605774.MP4
-    │   └── 1034:5287675846918209.MP4
-    ├── music/
-    │   └── 5a24a7e2eb1672953b926de5b8429eb6.m4a   ← extension normalized
-    └── sfx/
-        ├── 229f88e6452098f686f43df9309b1acc.m4a
-        └── 7280126e481ab565481e5ef464d85365.m4a
+    └── video/
+        ├── 1034:5282281359605774.MP4
+        └── 1034:5287675846918209.MP4
 ```
 
 *Note: `media/audio/` is absent because the only audio reference was a video-file
-split (embedded audio reuse) — the MP4 in `media/video/` serves both tracks.*
+split (embedded audio reuse). `media/music/` and `media/sfx/` are absent because
+CapCut library assets are not copied by default — they are listed in the report.*
 
 > **Screenshot placeholder** — Premiere Project panel showing reconstructed
 > source clips (one per unique asset), Sequence on timeline. *(To be added after
@@ -295,7 +296,7 @@ independently so schema bugs in the reader don't block triage.
 python3 -m unittest discover -s tests
 ```
 
-**276 tests** as of v0.3.6-alpha:
+**299 tests** as of v0.4.1:
 
 - Pipeline smoke (convert + collect integration)
 - Writer: audio contract, speed filter (timeremap), master clip structure
@@ -316,6 +317,9 @@ python3 -m unittest discover -s tests
 - **v0.3.3 ✅** — Premiere master clip reconstruction + constant speed (timeremap).
 - **v0.3.5 ✅** — package_summary.txt · rich CLI · default `-o` · `--open`.
 - **v0.3.6 ✅** — embedded audio dedup (video-split shares one file).
+- **v0.4.0 ✅** — GUI: Project Handoff Assistant (PySide6 three-panel desktop app).
+- **v0.4.1 ✅** — platform asset policy: CapCut music/SFX/stickers detected but not
+  copied by default; `--include-cached-platform-assets` flag + GUI Advanced checkbox.
 - **Research** — FCPXML output, DaVinci Resolve XML, keyframe animations,
   CapCut Mobile fixture coverage, variable speed curve reconstruction.
 
@@ -323,8 +327,8 @@ python3 -m unittest discover -s tests
 
 ## Legal / interoperability notice
 
-CutSmith is an **interoperability and workflow portability tool** intended for
-creators working with their own projects and media.
+CutSmith is an **interoperability and workflow portability tool** that moves
+your rough-cut structure and user-owned media into Premiere. You bring the grade.
 
 - CutSmith reads `draft_info.json`, a plaintext file CapCut writes into the
   user's own filesystem. It does not modify CapCut binaries or hook into the
@@ -334,12 +338,17 @@ creators working with their own projects and media.
   decryption is attempted.
 - CutSmith copies files the user already has access to on their own machine,
   into a portable package they control.
-- **Third-party asset licensing**: some assets bundled or cached by CapCut —
-  including music library tracks, SFX, and sticker packs — may be subject to
-  CapCut's or third-party licensors' terms. Copying these files into a
-  portable package does not transfer any usage rights. Users are responsible
-  for ensuring they have the rights to use exported assets outside the CapCut
-  ecosystem, particularly for published or commercially distributed content.
+- **CapCut library assets (music, SFX, stickers) are NOT copied by default.**
+  They are detected and listed in the report so you know what was on the
+  timeline, but they remain in the CapCut cache. The optional
+  `--include-cached-platform-assets` flag (CLI) or the Advanced checkbox (GUI)
+  copies them — use only if you hold the rights to distribute those assets
+  outside the CapCut ecosystem.
+- **Third-party asset licensing**: CapCut music tracks, SFX, and sticker packs
+  may be subject to CapCut's or third-party licensors' terms. Copying these
+  files into a portable package does not transfer any usage rights. Users are
+  responsible for ensuring they have the rights to use those assets outside
+  CapCut, particularly for published or commercially distributed content.
 - CutSmith has no affiliation with ByteDance, CapCut, or TikTok.
 
 ---

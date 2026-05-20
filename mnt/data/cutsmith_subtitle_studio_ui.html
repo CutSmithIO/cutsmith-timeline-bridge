@@ -1,0 +1,516 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{background:#1c1c1e;border-radius:10px;border:1px solid #3a3a3c;overflow:hidden;font-family:'IBM Plex Mono','SF Mono',monospace;font-size:12px;color:#e5e5ea;display:grid;grid-template-rows:auto 1fr;min-height:640px;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
+.titlebar{background:#2c2c2e;border-bottom:1px solid #3a3a3c;height:36px;display:flex;align-items:center;padding:0 14px;gap:8px;position:relative;justify-content:center}
+.wc{width:12px;height:12px;border-radius:50%;position:absolute;left:14px;top:50%;transform:translateY(-50%)}
+.wc-r{background:#ff5f57;left:14px}
+.wc-y{background:#febc2e;left:32px}
+.wc-g{background:#28c840;left:50px}
+.app-title{font-size:12px;color:#98989f;letter-spacing:0.02em}
+.body{display:grid;grid-template-columns:220px 1fr 280px;height:100%;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+.left{background:#1c1c1e;border-right:1px solid #3a3a3c;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.left-brand{padding:14px 16px 10px;border-bottom:1px solid #3a3a3c}
+.brand-name{font-size:14px;font-weight:600;color:#e5e5ea;margin-bottom:3px;font-family:'IBM Plex Sans',sans-serif}
+.brand-sub{font-size:9px;color:#636366;letter-spacing:0.04em;line-height:1.6}
+.section-label{font-size:9px;color:#636366;letter-spacing:0.1em;padding:10px 16px 6px;border-bottom:1px solid #2c2c2e}
+.source-block{padding:12px 16px;border-bottom:1px solid #3a3a3c}
+.source-thumb{width:100%;height:52px;background:linear-gradient(135deg,#2a3a4a 0%,#1a2535 50%,#3a4a5a 100%);border-radius:4px;margin-bottom:8px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.source-thumb-img{font-size:20px}
+.source-filename{font-size:11px;color:#e5e5ea;margin-bottom:2px;font-weight:500}
+.source-path{font-size:9px;color:#636366;margin-bottom:5px;line-height:1.4}
+.source-meta-row{font-size:9px;color:#98989f;line-height:1.6}
+.waveform-mini{width:100%;height:28px;background:#0a0a0a;border-radius:3px;margin-top:8px;overflow:hidden;display:flex;align-items:center;padding:0 4px;gap:1px}
+.wm-bar{background:#4a4a6a;border-radius:1px;flex-shrink:0;width:2px}
+.wm-bar.a{background:#7b6cdf;opacity:0.8}
+.add-btn{margin:8px 16px;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:4px;padding:7px;text-align:center;font-size:10px;color:#98989f;cursor:pointer}
+.add-btn:hover{background:#3a3a3c;color:#e5e5ea}
+.model-block{padding:12px 16px;border-bottom:1px solid #3a3a3c}
+.field-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.field-label{font-size:10px;color:#636366}
+.field-select{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:3px 7px;font-size:10px;color:#e5e5ea;font-family:inherit}
+.checkbox-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.cb{width:13px;height:13px;background:#7b6cdf;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb-check{color:white;font-size:9px}
+.cb-label{font-size:10px;color:#e5e5ea}
+.cb-sub{font-size:9px;color:#636366;margin-left:auto}
+.queue-block{padding:12px 16px;flex:1}
+.queue-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.queue-title{font-size:9px;letter-spacing:0.1em;color:#636366}
+.queue-count{font-size:9px;color:#9b8cff}
+.q-btns{display:flex;gap:6px;margin-bottom:10px}
+.q-btn{flex:1;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:5px;font-size:9px;color:#98989f;cursor:pointer;text-align:center;font-family:inherit}
+.q-btn:hover{background:#3a3a3c;color:#e5e5ea}
+.queue-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #2c2c2e}
+.qi-icon{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.qi-done{background:#30d158}
+.qi-active{background:#9b8cff;animation:qpulse 1.4s ease-in-out infinite}
+.qi-wait{background:#3a3a3c}
+@keyframes qpulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.qi-info{flex:1;min-width:0}
+.qi-name{font-size:10px;color:#e5e5ea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qi-meta{font-size:9px;color:#636366;margin-top:1px}
+.qi-meta span{color:#30d158}
+.qi-meta span.warn{color:#ff9f0a}
+.qi-action{flex-shrink:0}
+.qi-check{color:#30d158;font-size:11px}
+.qi-pause{background:#3a3a3c;border:none;border-radius:3px;width:20px;height:16px;font-size:9px;color:#98989f;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.log-bar{padding:7px 16px;border-top:1px solid #3a3a3c;font-size:9px;color:#636366}
+.log-bar span{color:#98989f}
+
+/* ── CENTER PANEL ── */
+.center{display:grid;grid-template-rows:auto auto auto 1fr auto;overflow:hidden;border-right:1px solid #3a3a3c}
+.sub-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #3a3a3c;background:#242426}
+.sub-title{font-size:9px;letter-spacing:0.1em;color:#636366}
+.sub-count{font-size:9px;color:#98989f}
+.search-bar{padding:8px 12px;border-bottom:1px solid #3a3a3c;background:#1c1c1e}
+.search-input{width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:5px 10px;font-size:11px;color:#636366;font-family:inherit}
+.import-btn{width:calc(100% - 24px);margin:0 12px 8px;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:7px;font-size:11px;color:#98989f;cursor:pointer;font-family:inherit}
+.import-btn:hover{background:#3a3a3c}
+.waveform-full{height:52px;background:#0d0d0d;border-bottom:1px solid #3a3a3c;padding:0 12px;display:flex;align-items:center;gap:1px;position:relative;overflow:hidden}
+.wf-time{position:absolute;bottom:4px;font-size:8px;color:#48484a}
+.wf-t1{left:12px}.wf-t2{left:22%}.wf-t3{left:44%}.wf-t4{left:66%}.wf-t5{right:12px}
+.wf-cursor{position:absolute;top:0;bottom:0;width:1px;background:#9b8cff;opacity:0.9;left:62%}
+.wf-cursor::before{content:'';position:absolute;top:-1px;left:-3px;width:7px;height:7px;border-radius:50%;background:#9b8cff}
+.wf-bar{flex-shrink:0;width:2px;border-radius:1px}
+.wf-lo{background:#2a2a3a}
+.wf-mid{background:#4a4a6a}
+.wf-hi{background:#9b8cff;opacity:0.7}
+.sub-list{overflow-y:auto;flex:1}
+.sub-row{display:grid;grid-template-columns:36px 120px 1fr 44px;align-items:start;border-bottom:1px solid #2c2c2e;min-height:54px;cursor:pointer;transition:background 0.12s}
+.sub-row:hover{background:#242426}
+.sub-row.selected{background:rgba(155,140,255,0.08);border-left:2px solid #9b8cff}
+.sub-row.repaired{border-left:2px solid rgba(255,159,10,0.5)}
+.sub-row.lowconf{border-left:2px solid rgba(255,69,58,0.4)}
+.sub-num{padding:10px 0 0 10px;font-size:11px;color:#48484a;text-align:center}
+.sub-times{padding:8px 8px 0;display:flex;flex-direction:column;gap:2px}
+.tc-in{font-size:10px;color:#98989f}
+.tc-out{font-size:10px;color:#48484a}
+.sub-text{padding:8px 8px 0;display:flex;flex-direction:column;gap:3px}
+.sub-en{font-size:11px;color:#e5e5ea;line-height:1.4;font-family:'IBM Plex Sans',sans-serif}
+.sub-zh{font-size:11px;color:#98989f;line-height:1.4;font-family:'IBM Plex Sans',sans-serif}
+.repair-tag{display:inline-block;font-size:8px;background:rgba(255,159,10,0.15);color:#ff9f0a;border:1px solid rgba(255,159,10,0.3);padding:1px 5px;border-radius:2px;margin-left:5px;vertical-align:middle;letter-spacing:0.04em}
+.repaired-tag{background:rgba(155,140,255,0.12);color:#9b8cff;border-color:rgba(155,140,255,0.3)}
+.sub-conf{padding:10px 8px 0;text-align:right}
+.conf{font-size:11px;font-weight:500}
+.conf-hi{color:#30d158}.conf-md{color:#ff9f0a}.conf-lo{color:#ff453a}
+.batch-bar{padding:7px 12px;background:#1a1a1c;border-top:1px solid #3a3a3c;font-size:9px;color:#636366}
+.export-section{background:#1c1c1e;border-top:1px solid #3a3a3c}
+.export-primary{width:100%;background:#5a4fcf;border:none;border-radius:0;padding:11px;font-size:13px;font-weight:500;color:white;cursor:pointer;font-family:inherit;letter-spacing:0.02em}
+.export-primary:hover{background:#6b60e0}
+.export-row{display:flex;gap:0;border-top:1px solid #3a3a3c}
+.export-sec{flex:1;background:#1c1c1e;border:none;border-right:1px solid #3a3a3c;padding:7px;font-size:10px;color:#98989f;cursor:pointer;font-family:inherit}
+.export-sec:last-child{border-right:none}
+.export-sec:hover{background:#2c2c2e;color:#e5e5ea}
+.export-row2{display:flex;border-top:1px solid #2c2c2e}
+.export-row3{display:flex;border-top:1px solid #2c2c2e}
+.statusbar{display:flex;align-items:center;gap:16px;padding:5px 12px;background:#2c2c2e;border-top:1px solid #3a3a3c;font-size:9px;color:#636366;white-space:nowrap;overflow:hidden}
+.sb-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
+.sb-green{background:#30d158;animation:pulse2 2s ease-in-out infinite}
+.sb-orange{background:#ff9f0a;animation:pulse2 2s ease-in-out infinite 0.7s}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ── RIGHT PANEL ── */
+.right{background:#1c1c1e;overflow-y:auto;display:flex;flex-direction:column}
+.r-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #3a3a3c}
+.r-title{font-size:13px;color:#e5e5ea;font-family:'IBM Plex Sans',sans-serif}
+.r-multisel{display:flex;align-items:center;gap:6px;font-size:10px;color:#636366}
+.r-cb{width:13px;height:13px;border:1px solid #3a3a3c;border-radius:2px}
+.r-section{padding:12px 14px;border-bottom:1px solid #2c2c2e}
+.r-sec-label{font-size:9px;letter-spacing:0.1em;color:#636366;margin-bottom:8px}
+.text-field{background:#242426;border:1px solid #3a3a3c;border-radius:3px;padding:8px 10px;font-size:12px;color:#e5e5ea;line-height:1.55;min-height:52px;font-family:'IBM Plex Sans',sans-serif;word-break:break-word}
+.text-field-counter{text-align:right;font-size:9px;color:#48484a;margin-top:3px}
+.text-field-label{font-size:9px;color:#636366;letter-spacing:0.06em;margin-bottom:4px}
+.translation-field{background:#242426;border:1px solid #3a3a3c;border-radius:3px;padding:8px 10px;font-size:12px;color:#e5e5ea;line-height:1.55;min-height:48px;font-family:'IBM Plex Sans',sans-serif;word-break:break-word}
+.timing-row{display:flex;align-items:center;gap:8px}
+.timing-val{font-size:12px;color:#e5e5ea}
+.timing-arr{font-size:10px;color:#48484a}
+.timing-dur{margin-left:auto;font-size:12px;color:#9b8cff}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.meta-cell{background:#242426;border:1px solid #2c2c2e;border-radius:3px;padding:6px 8px}
+.meta-key{font-size:8px;color:#48484a;letter-spacing:0.06em;margin-bottom:3px}
+.meta-val{font-size:11px;font-weight:500}
+.mv-green{color:#30d158}.mv-accent{color:#9b8cff}.mv-orange{color:#ff9f0a}
+.notes-field{background:#242426;border:1px solid #3a3a3c;border-radius:3px;padding:7px 9px;font-size:11px;color:#48484a;min-height:36px;font-family:inherit}
+.actions-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.act-btn{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:5px 10px;font-size:10px;color:#98989f;cursor:pointer;font-family:inherit}
+.act-btn:hover{background:#3a3a3c;color:#e5e5ea}
+.act-more{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;width:24px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#636366}
+.act-check{background:#2c2c2e;border:1px solid #3a3a3c;border-radius:3px;padding:5px 8px;font-size:10px;color:#30d158;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
+.trans-placeholder{font-size:10px;color:#3a3a3c;font-style:italic}
+.save-row{display:flex;gap:6px;padding:10px 14px;border-top:1px solid #3a3a3c;background:#1c1c1e;margin-top:auto}
+.save-btn{flex:1;background:#5a4fcf;border:none;border-radius:4px;padding:9px;font-size:12px;color:white;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;justify-content:center}
+.save-btn:hover{background:#6b60e0}
+.save-kbd{font-size:9px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);padding:2px 5px;border-radius:2px}
+.save-dropdown{background:#5a4fcf;border:none;border-radius:4px;width:30px;cursor:pointer;color:white;font-size:12px}
+.save-dropdown:hover{background:#6b60e0}
+.clear-btn{padding:6px;text-align:center;font-size:10px;color:#ff453a;cursor:pointer;background:none;border:none;font-family:inherit;width:100%}
+.clear-btn:hover{color:#ff6b6b}
+</style>
+
+<div class="app" role="img" aria-label="CutSmith Subtitle Studio — bilingual subtitle workflow application mockup">
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">CutSmith Subtitle Studio UI mockup showing subtitle list, inspector panel, and batch queue</h2>
+
+<!-- TITLEBAR -->
+<div class="titlebar">
+  <div class="wc wc-r"></div>
+  <div class="wc wc-y" style="left:32px"></div>
+  <div class="wc wc-g" style="left:50px"></div>
+  <span class="app-title">CutSmith Subtitle Studio</span>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+<!-- ── LEFT ── -->
+<div class="left">
+  <div class="left-brand">
+    <div class="brand-name">CutSmith Subtitle Studio</div>
+    <div class="brand-sub">Community Edition · Local AI subtitles · offline · no subscription</div>
+  </div>
+
+  <div class="section-label">SOURCE</div>
+  <div class="source-block">
+    <div class="source-thumb">
+      <span class="source-thumb-img">🏔</span>
+    </div>
+    <div class="source-filename">founder_interview_v2.mov</div>
+    <div class="source-path">/Volumes/Projects/Interviews/</div>
+    <div class="source-meta-row">02:41:22 · 4K · 23.976fps · H.264</div>
+    <div class="source-meta-row">Stereo · 48kHz</div>
+    <div class="waveform-mini" id="wmini"></div>
+    <div class="add-btn">+ Add Files...</div>
+  </div>
+
+  <div class="section-label">MODEL</div>
+  <div class="model-block">
+    <div class="field-row">
+      <span class="field-label">Model</span>
+      <select class="field-select"><option>base</option></select>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Language</span>
+      <select class="field-select"><option>Auto-detect</option></select>
+    </div>
+    <div class="checkbox-row">
+      <div class="cb"><span class="cb-check">✓</span></div>
+      <span class="cb-label">Smart Repair</span>
+      <span class="cb-sub">base → small fallback</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Chinese Output</span>
+      <select class="field-select"><option>Simplified</option></select>
+    </div>
+  </div>
+
+  <div class="section-label">QUEUE 2 / 5</div>
+  <div class="queue-block">
+    <div class="q-btns">
+      <div class="q-btn">⏸ Pause Queue</div>
+      <div class="q-btn">Clear Queue</div>
+    </div>
+
+    <div class="queue-item">
+      <div class="qi-icon qi-done"></div>
+      <div class="qi-info">
+        <div class="qi-name">interview_ep01.mov</div>
+        <div class="qi-meta">Completed · <span>02:18</span> · 487 segments</div>
+      </div>
+      <span class="qi-check">✓</span>
+    </div>
+    <div class="queue-item">
+      <div class="qi-icon qi-active"></div>
+      <div class="qi-info">
+        <div class="qi-name">podcast_ep04.mov</div>
+        <div class="qi-meta">Processing... · <span class="warn">74%</span> · ETA 01:12</div>
+      </div>
+      <button class="qi-pause">⏸</button>
+    </div>
+    <div class="queue-item">
+      <div class="qi-icon qi-done"></div>
+      <div class="qi-info">
+        <div class="qi-name">doc_scene_12A.mov</div>
+        <div class="qi-meta">Completed · <span>01:02</span> · 196 segments</div>
+      </div>
+      <span class="qi-check">✓</span>
+    </div>
+    <div class="queue-item">
+      <div class="qi-icon qi-done"></div>
+      <div class="qi-info">
+        <div class="qi-name">client_review_cut_v5.mp4</div>
+        <div class="qi-meta">Completed · <span>00:56</span> · 134 segments</div>
+      </div>
+      <span class="qi-check">✓</span>
+    </div>
+    <div class="queue-item">
+      <div class="qi-icon qi-done"></div>
+      <div class="qi-info">
+        <div class="qi-name">broll_sequence_03.mov</div>
+        <div class="qi-meta">Completed · <span>00:42</span> · 98 segments</div>
+      </div>
+      <span class="qi-check">✓</span>
+    </div>
+  </div>
+
+  <div class="log-bar">LOG 10:42:11 <span>[INFO] Smart Repair applied to 11 segments</span></div>
+</div>
+
+<!-- ── CENTER ── -->
+<div class="center">
+  <div class="sub-header">
+    <span class="sub-title">SUBTITLES</span>
+    <span class="sub-count">136 segments</span>
+  </div>
+  <div class="search-bar">
+    <div class="search-input">Search subtitles...</div>
+  </div>
+  <button class="import-btn">Import SRT...</button>
+
+  <!-- WAVEFORM -->
+  <div class="waveform-full" id="wfull">
+    <span class="wf-time wf-t1">0:00:00</span>
+    <span class="wf-time wf-t2">0:30:00</span>
+    <span class="wf-time wf-t3">1:00:00</span>
+    <span class="wf-time wf-t4">1:30:00</span>
+    <span class="wf-time wf-t5">2:30:a</span>
+    <div class="wf-cursor"></div>
+  </div>
+
+  <!-- SUBTITLE ROWS -->
+  <div class="sub-list">
+
+    <div class="sub-row">
+      <div class="sub-num">162</div>
+      <div class="sub-times">
+        <div class="tc-in">08:12:45.12</div>
+        <div class="tc-out">08:12:49.15</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">When we started this project, subtitles were an afterthought.</div>
+        <div class="sub-zh">一开始做这个项目时，字幕根本没在优先级里。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-hi">96%</span></div>
+    </div>
+
+    <div class="sub-row repaired">
+      <div class="sub-num">163</div>
+      <div class="sub-times">
+        <div class="tc-in">08:12:49.15</div>
+        <div class="tc-out">08:12:53.22</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">At some point, the subtitles became harder than the edit itself. <span class="repair-tag">REPAIR</span></div>
+        <div class="sub-zh">后来有个阶段，字幕反而比剪辑本身还难处理。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-md">78%</span></div>
+    </div>
+
+    <div class="sub-row selected repaired">
+      <div class="sub-num">164</div>
+      <div class="sub-times">
+        <div class="tc-in">08:12:53.22</div>
+        <div class="tc-out">08:12:57.66</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">We ended up rebuilding the subtitle workflow entirely. <span class="repair-tag repaired-tag">REPAIRED</span></div>
+        <div class="sub-zh">最后我们把整个字幕流程重新做了一遍。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-hi">94%</span></div>
+    </div>
+
+    <div class="sub-row">
+      <div class="sub-num">165</div>
+      <div class="sub-times">
+        <div class="tc-in">08:12:57.66</div>
+        <div class="tc-out">08:13:02.33</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">Not because we wanted to — it was blocking everything.</div>
+        <div class="sub-zh">不是因为我们想折腾，而是它已经拖慢了所有工作。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-hi">92%</span></div>
+    </div>
+
+    <div class="sub-row">
+      <div class="sub-num">166</div>
+      <div class="sub-times">
+        <div class="tc-in">08:13:02.33</div>
+        <div class="tc-out">08:13:07.18</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">Once we fixed the pipeline, everything just moved faster.</div>
+        <div class="sub-zh">流程理顺之后，整个团队的效率立刻提升了。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-hi">97%</span></div>
+    </div>
+
+    <div class="sub-row repaired">
+      <div class="sub-num">167</div>
+      <div class="sub-times">
+        <div class="tc-in">08:13:07.18</div>
+        <div class="tc-out">08:13:11.42</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">It's crazy how much time we were wasting on the old way. <span class="repair-tag">REPAIR</span></div>
+        <div class="sub-zh">回头看，之前浪费的时间真的太多了。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-lo">69%</span></div>
+    </div>
+
+    <div class="sub-row">
+      <div class="sub-num">168</div>
+      <div class="sub-times">
+        <div class="tc-in">08:13:11.42</div>
+        <div class="tc-out">08:13:15.88</div>
+      </div>
+      <div class="sub-text">
+        <div class="sub-en">Now it's just one less thing to think about.</div>
+        <div class="sub-zh">现在它就是一个不用再操心的环节。</div>
+      </div>
+      <div class="sub-conf"><span class="conf conf-hi">98%</span></div>
+    </div>
+
+  </div>
+
+  <div class="batch-bar">Batch complete: 1 of 5 (20%)</div>
+
+  <!-- EXPORT -->
+  <div class="export-section">
+    <button class="export-primary">Export SRT</button>
+    <div class="export-row">
+      <button class="export-sec">TXT Plain</button>
+      <button class="export-sec" style="border-left:none;border-right:none;flex:0.4"></button>
+      <button class="export-sec">TXT + Time</button>
+    </div>
+    <div class="export-row2">
+      <button class="export-sec" style="flex:1">TXT One Line</button>
+    </div>
+    <div class="export-row3">
+      <button class="export-sec" style="flex:1;color:#636366">Save Project</button>
+      <button class="export-sec" style="flex:1;border-left:none;color:#636366">Load Project</button>
+    </div>
+    <button class="clear-btn">Clear All Translations</button>
+  </div>
+
+  <div class="statusbar">
+    <span><span class="sb-dot sb-green"></span>Processing locally</span>
+    <span>·</span>
+    <span><span class="sb-dot sb-orange"></span>Smart Repair active</span>
+    <span style="margin-left:auto">whisper-large-v3 · Apple Neural Engine</span>
+  </div>
+</div>
+
+<!-- ── RIGHT ── -->
+<div class="right">
+  <div class="r-header">
+    <span class="r-title">Select a subtitle</span>
+    <div class="r-multisel"><div class="r-cb"></div> Multi-select</div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label">ORIGINAL TEXT</div>
+    <div class="text-field">We ended up rebuilding the subtitle workflow entirely.</div>
+    <div class="text-field-counter">54 / 500</div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label" style="display:flex;justify-content:space-between">
+      <span>TRANSLATION</span>
+      <span style="color:#48484a;font-size:9px;font-weight:400;letter-spacing:0">(Simplified)</span>
+    </div>
+    <div class="translation-field">最后我们把整个字幕流程重新做了一遍。</div>
+    <div class="text-field-counter">16 / 500</div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label">TIMING</div>
+    <div class="timing-row">
+      <span class="timing-val">08:12:53.22</span>
+      <span class="timing-arr">→</span>
+      <span class="timing-val">08:12:57.66</span>
+      <span class="timing-dur">4.44s</span>
+    </div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label">METADATA</div>
+    <div class="meta-grid">
+      <div class="meta-cell">
+        <div class="meta-key">Confidence</div>
+        <div class="meta-val mv-green">94%</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Status</div>
+        <div class="meta-val mv-accent">Repaired</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Language</div>
+        <div class="meta-val" style="color:#e5e5ea;font-size:10px">EN / ZH</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Audio</div>
+        <div class="meta-val" style="color:#e5e5ea;font-size:10px">Stereo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label">NOTES</div>
+    <div class="notes-field">Add a note for this subtitle...</div>
+    <div class="text-field-counter">0 / 1000</div>
+  </div>
+
+  <div class="r-section">
+    <div class="r-sec-label">ACTIONS</div>
+    <div class="actions-row">
+      <div class="act-check">✓ Mark as Reviewed</div>
+      <div class="act-btn">Merge</div>
+      <div class="act-btn">Split</div>
+      <div class="act-more">···</div>
+    </div>
+  </div>
+
+  <div class="r-section" style="flex:1">
+    <div class="r-sec-label" style="display:flex;justify-content:space-between">
+      <span>TRANSLATION</span>
+      <span style="color:#48484a;font-size:9px;font-weight:400;letter-spacing:0">optional · leave blank for monolingual export</span>
+    </div>
+    <div class="notes-field" style="min-height:60px;color:#3a3a3c;font-size:10px">Translation / second language line...</div>
+    <div class="text-field-counter">0 / 500</div>
+  </div>
+
+  <div class="save-row">
+    <button class="save-btn">Save Edit <span class="save-kbd">⌘S</span></button>
+    <button class="save-dropdown">▾</button>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+const wm = document.getElementById('wmini');
+const wf = document.getElementById('wfull');
+const hts = [8,14,20,12,28,18,10,32,22,14,8,24,36,20,12,28,16,10,38,24,16,8,22,30,14,26,18,10,34,20];
+hts.forEach((h,i) => {
+  const b = document.createElement('div');
+  b.className = 'wm-bar' + (i > 10 && i < 20 ? ' a' : '');
+  b.style.height = h + 'px';
+  wm.appendChild(b);
+});
+const wfh = [4,6,8,10,14,18,22,14,8,6,4,10,24,32,28,20,14,8,12,20,28,36,30,22,16,10,6,14,24,32,
+             28,20,12,8,6,10,18,28,36,30,22,16,10,6,8,16,24,32,28,20,14,8,12,20,30,24,16,10,6,8,
+             14,22,30,28,20,14,8,6,10,20,28,34,28,20,14,8,6,10,18,28,36,30,22,16,10,6,8,16,24,30];
+wfh.forEach((h,i) => {
+  const b = document.createElement('div');
+  const cls = h > 25 ? 'wf-hi' : h > 14 ? 'wf-mid' : 'wf-lo';
+  b.className = 'wf-bar ' + cls;
+  b.style.height = h + 'px';
+  b.style.width = '2px';
+  b.style.flexShrink = '0';
+  b.style.borderRadius = '1px';
+  wf.appendChild(b);
+});
+</script>

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "project_name": "0519",
+  "source_draft": "/Users/mac/Movies/CapCut/User Data/Projects/com.lveditor.draft/0519/Timelines/7CDF20CB-063E-4828-B2A0-E30F457F01A3/draft_info.json",
+  "app_version": 360000,
+  "duration_us": 72133333,
+  "collected_root": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519",
+  "relink_root_hint": "/Users/mac/cutsmith/cutsmith-timeline-bridge/out_collect/0519/media",
+  "path_mode": "collected_absolute",
+  "package_portable": "full",
+  "stats": {
+    "total_assets": 3,
+    "online_count": 3,
+    "offline_count": 0,
+    "cached_count": 0,
+    "total_online_size_bytes": 1258567773,
+    "report_only_count": 0,
+    "skipped_platform_asset_count": 0,
+    "normalized_extension_count": 0
+  },
+  "videos": [
+    {
+      "asset_id": "27CF1233-A94A-4CE6-8F6C-967373F7AC80",
+      "name": "Bentley_vlog_version1.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "resolved_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 419522591,
+      "duration_us": 324366666,
+      "used_in_tracks": [
+        "VIDEO1"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/Bentley_vlog_version1.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "0CE4BEAB-15B0-47E6-B2B6-A686CCEAEB88",
+      "name": "Bentley_vlog_version1.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "resolved_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 419522591,
+      "duration_us": 324366666,
+      "used_in_tracks": [
+        "VIDEO2"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/Bentley_vlog_version1.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    },
+    {
+      "asset_id": "8CBCF6D4-1573-48A9-9593-12EE19DF6E92",
+      "name": "Bentley_vlog_version1.mp4",
+      "asset_class": "user_video",
+      "original_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "resolved_path": "/Users/mac/Downloads/Bentley_vlog_version1.mp4",
+      "is_cached": false,
+      "is_online": true,
+      "file_size_bytes": 419522591,
+      "duration_us": 324366666,
+      "used_in_tracks": [
+        "VIDEO3"
+      ],
+      "clip_count": 1,
+      "collect_relative_path": "media/video/Bentley_vlog_version1.mp4",
+      "original_extension": ".mp4",
+      "detected_extension": ".mp4",
+      "extension_normalized": false
+    }
+  ],
+  "audios": [],
+  "music": [],
+  "sfx": [],
+  "images": [],
+  "stickers": [],
+  "effects": [],
+  "filters": [],
+  "transitions": [],
+  "fonts": [],
+  "offline": []
+}

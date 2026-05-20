@@ -1,0 +1,859 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmeml>
+<xmeml version="5">
+  <clip id="masterclip-8C11507A-0F58-43CB-A95F-A05FFB7736E6">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-8C11507A-0F58-43CB-A95F-A05FFB7736E6">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Volumes/SSD/raw/20260514musicradio08/20260514_%E5%B8%B8%E6%99%93%E8%88%AA_%E6%B5%B7%E6%B7%80%E6%96%87%E6%97%85%E7%AC%AC8%E9%9B%86%20/01_%E7%B4%A0%E6%9D%90%E6%96%87%E4%BB%B6/01_%E5%8E%9F%E5%A7%8B%E7%B4%A0%E6%9D%90/A7m5/M4ROOT/CLIP/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-B414A407-11DB-4EAF-9649-738CD85C6EC8">
+    <name>watermark.png</name>
+    <duration>324000</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-B414A407-11DB-4EAF-9649-738CD85C6EC8">
+      <name>watermark.png</name>
+      <pathurl>file:///Users/mac/Movies/watermark.png</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>324000</duration>
+      <media>
+        <video>
+          <duration>324000</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1280</width>
+            <height>720</height>
+          </samplecharacteristics>
+        </video>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-B3BAC46E-E7E4-45C6-9EF9-51857346447B">
+    <name>watermark.png</name>
+    <duration>324000</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-B3BAC46E-E7E4-45C6-9EF9-51857346447B">
+      <name>watermark.png</name>
+      <pathurl>file:///Users/mac/Movies/watermark.png</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>324000</duration>
+      <media>
+        <video>
+          <duration>324000</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1280</width>
+            <height>720</height>
+          </samplecharacteristics>
+        </video>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-7BBE086F-E41A-4730-AF33-F3815D93F942">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-7BBE086F-E41A-4730-AF33-F3815D93F942">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Volumes/SSD/raw/20260514musicradio08/20260514_%E5%B8%B8%E6%99%93%E8%88%AA_%E6%B5%B7%E6%B7%80%E6%96%87%E6%97%85%E7%AC%AC8%E9%9B%86%20/01_%E7%B4%A0%E6%9D%90%E6%96%87%E4%BB%B6/01_%E5%8E%9F%E5%A7%8B%E7%B4%A0%E6%9D%90/A7m5/M4ROOT/CLIP/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-98310232-E1D0-429D-BBC4-7A664B0CC054">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-98310232-E1D0-429D-BBC4-7A664B0CC054">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Volumes/SSD/raw/20260514musicradio08/20260514_%E5%B8%B8%E6%99%93%E8%88%AA_%E6%B5%B7%E6%B7%80%E6%96%87%E6%97%85%E7%AC%AC8%E9%9B%86%20/01_%E7%B4%A0%E6%9D%90%E6%96%87%E4%BB%B6/01_%E5%8E%9F%E5%A7%8B%E7%B4%A0%E6%9D%90/A7m5/M4ROOT/CLIP/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-776D8A42-A562-41CA-AF98-CD80EA5572DA">
+    <name>20260514_DCJ8207.MP4</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-776D8A42-A562-41CA-AF98-CD80EA5572DA">
+      <name>20260514_DCJ8207.MP4</name>
+      <pathurl>file:///Volumes/SSD/raw/20260514musicradio08/20260514_%E5%B8%B8%E6%99%93%E8%88%AA_%E6%B5%B7%E6%B7%80%E6%96%87%E6%97%85%E7%AC%AC8%E9%9B%86%20/01_%E7%B4%A0%E6%9D%90%E6%96%87%E4%BB%B6/01_%E5%8E%9F%E5%A7%8B%E7%B4%A0%E6%9D%90/A7m5/M4ROOT/CLIP/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <video>
+          <duration>946</duration>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>3840</width>
+            <height>2160</height>
+          </samplecharacteristics>
+        </video>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-5ED421FA-7323-4948-BD84-15B9524E42B0">
+    <name>20260514_DCJ8207</name>
+    <duration>946</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-5ED421FA-7323-4948-BD84-15B9524E42B0">
+      <name>20260514_DCJ8207</name>
+      <pathurl>file:///Volumes/SSD/raw/20260514musicradio08/20260514_%E5%B8%B8%E6%99%93%E8%88%AA_%E6%B5%B7%E6%B7%80%E6%96%87%E6%97%85%E7%AC%AC8%E9%9B%86%20/01_%E7%B4%A0%E6%9D%90%E6%96%87%E4%BB%B6/01_%E5%8E%9F%E5%A7%8B%E7%B4%A0%E6%9D%90/A7m5/M4ROOT/CLIP/20260514_DCJ8207.MP4</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>946</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-4717DCA5-E84F-4C7C-ADDE-1704DD2D9C2F">
+    <name>Be Still the Earth - How We Feel.mp3</name>
+    <duration>7021</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-4717DCA5-E84F-4C7C-ADDE-1704DD2D9C2F">
+      <name>Be Still the Earth - How We Feel.mp3</name>
+      <pathurl>file:///Users/mac/workspace/assets/audio/bgm/ArtlistMusic/Be%20Still%20the%20Earth%20-%20How%20We%20Feel.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>7021</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-002188D7-A787-479D-B1BB-42E72CE0ECAB">
+    <name>How Wonderful</name>
+    <duration>1302</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-002188D7-A787-479D-B1BB-42E72CE0ECAB">
+      <name>How Wonderful</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/aa18fac15c8dd4b96d2cd2c9dc3dab7e.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>1302</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-43037861-8566-4331-ACA0-D128E9F6B6B0">
+    <name>Self Aware</name>
+    <duration>885</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-43037861-8566-4331-ACA0-D128E9F6B6B0">
+      <name>Self Aware</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/5a24a7e2eb1672953b926de5b8429eb6.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>885</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-FD06D2F9-C1B3-4502-8CF0-5E3D60549005">
+    <name>Golden Hour</name>
+    <duration>6298</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-FD06D2F9-C1B3-4502-8CF0-5E3D60549005">
+      <name>Golden Hour</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/30bfab10a6c0401210357c81a6af4d64.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>6298</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-907F128B-C08B-482A-9C11-B2F1A40DE527">
+    <name>Keyboard Typing 01</name>
+    <duration>101</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-907F128B-C08B-482A-9C11-B2F1A40DE527">
+      <name>Keyboard Typing 01</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/6d3d8b710bf7def70913df299b447ee1.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>101</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-9DFF4872-1FE8-4D37-821E-4479F3FAA954">
+    <name>快速键盘敲击37</name>
+    <duration>100</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-9DFF4872-1FE8-4D37-821E-4479F3FAA954">
+      <name>快速键盘敲击37</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/498b15fa50423daf6472dda67c2d1dc6.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>100</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <clip id="masterclip-B8D09B6D-B87A-4F01-ACC5-725E833B4491">
+    <name>烟花呼啸爆裂声1</name>
+    <duration>1081</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <in>-1</in>
+    <out>-1</out>
+    <file id="file-B8D09B6D-B87A-4F01-ACC5-725E833B4491">
+      <name>烟花呼啸爆裂声1</name>
+      <pathurl>file:///Users/mac/Movies/CapCut/User%20Data/Cache/music/1072609c033d2b0febd6b63276976b5a.mp3</pathurl>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <duration>1081</duration>
+      <media>
+        <audio>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+          <channelcount>2</channelcount>
+        </audio>
+      </media>
+    </file>
+  </clip>
+  <sequence id="sequence-1">
+    <name>0519V3-4-3</name>
+    <duration>11796</duration>
+    <rate>
+      <timebase>30</timebase>
+      <ntsc>FALSE</ntsc>
+    </rate>
+    <timecode>
+      <rate>
+        <timebase>30</timebase>
+        <ntsc>FALSE</ntsc>
+      </rate>
+      <string>00:00:00:00</string>
+      <frame>0</frame>
+      <displayformat>NDF</displayformat>
+    </timecode>
+    <media>
+      <video>
+        <format>
+          <samplecharacteristics>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <width>1920</width>
+            <height>1440</height>
+            <pixelaspectratio>square</pixelaspectratio>
+            <fielddominance>none</fielddominance>
+            <colordepth>24</colordepth>
+          </samplecharacteristics>
+        </format>
+        <track>
+          <clipitem id="clipitem-45DC4782-1FFB-465E-82F4-D9F92F6F7B3F">
+            <masterclipid>masterclip-8C11507A-0F58-43CB-A95F-A05FFB7736E6</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>946</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-8C11507A-0F58-43CB-A95F-A05FFB7736E6"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-883884D0-3B7B-4E9A-9F1F-2AEFEAEE74B8">
+            <masterclipid>masterclip-B414A407-11DB-4EAF-9649-738CD85C6EC8</masterclipid>
+            <name>watermark.png</name>
+            <enabled>TRUE</enabled>
+            <duration>464</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>464</end>
+            <in>0</in>
+            <out>464</out>
+            <file id="file-B414A407-11DB-4EAF-9649-738CD85C6EC8"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-5CE2F8B3-427E-4C3D-A214-02F44963D447">
+            <masterclipid>masterclip-B3BAC46E-E7E4-45C6-9EF9-51857346447B</masterclipid>
+            <name>watermark.png</name>
+            <enabled>TRUE</enabled>
+            <duration>482</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>464</start>
+            <end>946</end>
+            <in>0</in>
+            <out>482</out>
+            <file id="file-B3BAC46E-E7E4-45C6-9EF9-51857346447B"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-5C1E33C4-09B8-40F8-BF28-BBC135F91161">
+            <masterclipid>masterclip-7BBE086F-E41A-4730-AF33-F3815D93F942</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>946</start>
+            <end>1419</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-7BBE086F-E41A-4730-AF33-F3815D93F942"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>200.0000</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-21E4066D-3C89-4540-8ED7-616B2BE9EC7E">
+            <masterclipid>masterclip-98310232-E1D0-429D-BBC4-7A664B0CC054</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>281</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1419</start>
+            <end>1982</end>
+            <in>0</in>
+            <out>281</out>
+            <file id="file-98310232-E1D0-429D-BBC4-7A664B0CC054"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>49.9112</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-482466ED-8E30-4180-98D9-28E8DD1CB55F">
+            <masterclipid>masterclip-776D8A42-A562-41CA-AF98-CD80EA5572DA</masterclipid>
+            <name>20260514_DCJ8207.MP4</name>
+            <enabled>TRUE</enabled>
+            <duration>664</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>1982</start>
+            <end>3311</end>
+            <in>281</in>
+            <out>945</out>
+            <file id="file-776D8A42-A562-41CA-AF98-CD80EA5572DA"/>
+            <sourcetrack>
+              <mediatype>video</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Time Remap</name>
+                <effectid>timeremap</effectid>
+                <effectcategory>motion</effectcategory>
+                <effecttype>motion</effecttype>
+                <mediatype>video</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>speed</parameterid>
+                  <name>speed</name>
+                  <valuemin>-10000</valuemin>
+                  <valuemax>10000</valuemax>
+                  <value>49.9624</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>reverse</parameterid>
+                  <name>reverse</name>
+                  <value>FALSE</value>
+                </parameter>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>frameblending</parameterid>
+                  <name>frameblending</name>
+                  <value>FALSE</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+        </track>
+      </video>
+      <audio>
+        <format>
+          <samplecharacteristics>
+            <depth>16</depth>
+            <samplerate>48000</samplerate>
+          </samplecharacteristics>
+        </format>
+        <numOutputChannels>2</numOutputChannels>
+        <track>
+          <clipitem id="clipitem-8BE202A7-78D6-44B4-A728-2D4AAB1BC5B7">
+            <masterclipid>masterclip-5ED421FA-7323-4948-BD84-15B9524E42B0</masterclipid>
+            <name>20260514_DCJ8207</name>
+            <enabled>TRUE</enabled>
+            <duration>946</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>0</start>
+            <end>946</end>
+            <in>0</in>
+            <out>946</out>
+            <file id="file-5ED421FA-7323-4948-BD84-15B9524E42B0"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+            <filter>
+              <effect>
+                <name>Audio Levels</name>
+                <effectid>audiolevels</effectid>
+                <effectcategory>audiolevels</effectcategory>
+                <effecttype>audiolevels</effecttype>
+                <mediatype>audio</mediatype>
+                <parameter authoringApp="PremierePro">
+                  <parameterid>level</parameterid>
+                  <name>Level</name>
+                  <valuemin>0</valuemin>
+                  <valuemax>3.98109</valuemax>
+                  <value>1.869530</value>
+                </parameter>
+              </effect>
+            </filter>
+          </clipitem>
+          <clipitem id="clipitem-F1319ED1-5649-4858-91B6-C6F81BF23576">
+            <masterclipid>masterclip-4717DCA5-E84F-4C7C-ADDE-1704DD2D9C2F</masterclipid>
+            <name>Be Still the Earth - How We Feel.mp3</name>
+            <enabled>TRUE</enabled>
+            <duration>2365</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>946</start>
+            <end>3311</end>
+            <in>0</in>
+            <out>2365</out>
+            <file id="file-4717DCA5-E84F-4C7C-ADDE-1704DD2D9C2F"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-8D6A641F-6987-4CAE-8B08-CD4FC388C1F7">
+            <masterclipid>masterclip-002188D7-A787-479D-B1BB-42E72CE0ECAB</masterclipid>
+            <name>How Wonderful</name>
+            <enabled>TRUE</enabled>
+            <duration>1302</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>3311</start>
+            <end>4613</end>
+            <in>0</in>
+            <out>1302</out>
+            <file id="file-002188D7-A787-479D-B1BB-42E72CE0ECAB"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-D9B0793C-CF61-4837-A06B-F0596E34BE7C">
+            <masterclipid>masterclip-43037861-8566-4331-ACA0-D128E9F6B6B0</masterclipid>
+            <name>Self Aware</name>
+            <enabled>TRUE</enabled>
+            <duration>885</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>4613</start>
+            <end>5498</end>
+            <in>0</in>
+            <out>885</out>
+            <file id="file-43037861-8566-4331-ACA0-D128E9F6B6B0"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-07CF6E4B-DF6E-4C10-B12A-FEAC8B9C9C44">
+            <masterclipid>masterclip-FD06D2F9-C1B3-4502-8CF0-5E3D60549005</masterclipid>
+            <name>Golden Hour</name>
+            <enabled>TRUE</enabled>
+            <duration>6298</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>5498</start>
+            <end>11796</end>
+            <in>0</in>
+            <out>6298</out>
+            <file id="file-FD06D2F9-C1B3-4502-8CF0-5E3D60549005"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+        <track>
+          <clipitem id="clipitem-5F24BCE2-33E3-4233-B85D-0ACEA07E1A9B">
+            <masterclipid>masterclip-907F128B-C08B-482A-9C11-B2F1A40DE527</masterclipid>
+            <name>Keyboard Typing 01</name>
+            <enabled>TRUE</enabled>
+            <duration>101</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>5498</start>
+            <end>5599</end>
+            <in>0</in>
+            <out>101</out>
+            <file id="file-907F128B-C08B-482A-9C11-B2F1A40DE527"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-EDB7EBBF-AA1E-47B6-B333-F131FC0AFFEC">
+            <masterclipid>masterclip-9DFF4872-1FE8-4D37-821E-4479F3FAA954</masterclipid>
+            <name>快速键盘敲击37</name>
+            <enabled>TRUE</enabled>
+            <duration>100</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>5599</start>
+            <end>5699</end>
+            <in>0</in>
+            <out>100</out>
+            <file id="file-9DFF4872-1FE8-4D37-821E-4479F3FAA954"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+          <clipitem id="clipitem-2EFB494F-5F1B-4475-BD73-5E499BA27D5E">
+            <masterclipid>masterclip-B8D09B6D-B87A-4F01-ACC5-725E833B4491</masterclipid>
+            <name>烟花呼啸爆裂声1</name>
+            <enabled>TRUE</enabled>
+            <duration>1081</duration>
+            <rate>
+              <timebase>30</timebase>
+              <ntsc>FALSE</ntsc>
+            </rate>
+            <start>5699</start>
+            <end>6780</end>
+            <in>0</in>
+            <out>1081</out>
+            <file id="file-B8D09B6D-B87A-4F01-ACC5-725E833B4491"/>
+            <sourcetrack>
+              <mediatype>audio</mediatype>
+              <trackindex>1</trackindex>
+            </sourcetrack>
+          </clipitem>
+        </track>
+      </audio>
+    </media>
+  </sequence>
+</xmeml>
